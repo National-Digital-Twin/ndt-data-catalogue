@@ -1,3 +1,11 @@
+<!--
+SPDX-License-Identifier: Apache-2.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
 The Oracle source extracts metadata from Oracle databases, including:
 
 - **Tables and Views**: Standard relational tables and views with column information, constraints, and comments
@@ -10,3 +18,10 @@ The Oracle source extracts metadata from Oracle databases, including:
 The connector uses the `python-oracledb` driver and supports both thin mode (default, no Oracle client required) and thick mode (requires Oracle client installation).
 
 As a SQL-based service, the Oracle integration is also supported by our SQL profiler for table and column statistics.
+
+  ~ © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
+  ~
+  ~ Licensed under the Open Government Licence v3.0.
+
+
+As a SQL-based service, the Oracle integration is also supported by our SQL profiler. See here for more details on configuration.
