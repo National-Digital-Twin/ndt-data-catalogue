@@ -54,7 +54,7 @@ const LinkWrapper = styled.span`
 
     &:hover {
         cursor: pointer;
-        background-color: #4b39bc;
+        background-color: #ffffffff;
         box-shadow: 0px 0px 8px 4px rgba(0, 0, 0, 0.15);
     }
 

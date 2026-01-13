@@ -138,4 +138,17 @@ export default {
     pink200: '#F8BBD0',
     pink300: '#EA5791',
     pink400: '#C2185B',
+    // Digital Twin specific colors
+    dtNavy: '#002244',
+    dtDeepNavy: '#0E142B',
+    beisBlue: '#3670B3',
+    dtAccentYellow: '#FFCF06',
+    dtOffWhite: '#F0F2F2',
+    delftBlue: '#2D365A',
+    eerieBlack: '#1B1E22',
+    steelBlue: '#4379BF',
+    utOrange: '#E4751B',
+    ghostWhite: '#F3F5FA',
+    antiFlashWhite: '#E9EAEE',
+    mint: '#48A478'
 };

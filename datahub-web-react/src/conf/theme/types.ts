@@ -40,6 +40,9 @@ export type Theme = {
         'divider-color'?: string;
         'disabled-color'?: string;
         'steps-nav-arrow-color'?: string;
+        'nav-item-text'?: string;
+        'nav-item-hover'?: string;
+        'icon-selected'?: string;
     };
     assets: {
         logoUrl: string;

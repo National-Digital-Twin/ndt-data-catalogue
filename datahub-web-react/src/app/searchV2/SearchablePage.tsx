@@ -23,7 +23,6 @@ import { useAppConfig } from '@app/useAppConfig';
 import { useEntityRegistry } from '@app/useEntityRegistry';
 import { useShowNavBarRedesign } from '@app/useShowNavBarRedesign';
 import { useQuickFiltersContext } from '@providers/QuickFiltersContext';
-import { colors } from '@src/alchemy-components';
 
 import {
     GetAutoCompleteMultipleResultsQuery,
@@ -37,7 +36,7 @@ const Body = styled.div`
 `;
 
 const BodyBackground = styled.div<{ $isShowNavBarRedesign?: boolean }>`
-    background-color: ${(props) => (props.$isShowNavBarRedesign ? colors.gray[1600] : REDESIGN_COLORS.BACKGROUND)};
+    background-image: ${({ theme }) => theme.styles['body-background']};
     position: fixed;
     height: 100%;
     width: 100%;

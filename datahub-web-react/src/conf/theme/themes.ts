@@ -9,8 +9,9 @@
 import themeV1 from '@conf/theme/themeV1';
 import themeV2 from '@conf/theme/themeV2';
 import themeV2Dark from '@conf/theme/themeV2Dark';
+import themeDigitalTwinV1 from './themeDigitalTwinV1';
 
 // Add custom themes here
-const themes = { themeV1, themeV2, themeV2Dark };
+const themes = { themeV1, themeV2, themeV2Dark, themeDigitalTwinV1 };
 
 export default themes;

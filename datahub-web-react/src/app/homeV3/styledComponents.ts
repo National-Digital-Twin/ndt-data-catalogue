@@ -43,7 +43,7 @@ export const StyledVectorBackground = styled(VectorBackground)`
     transform: rotate(0deg);
     pointer-events: none;
     border-radius: 12px;
-    background-color: ${colors.white};
+    background-color: ${colors.red};
 `;
 
 export const contentWidth = (additionalWidth = 0) => `

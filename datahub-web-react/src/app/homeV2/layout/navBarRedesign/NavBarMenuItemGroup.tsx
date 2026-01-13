@@ -20,6 +20,7 @@ const NavBarMenuItemGroup = styled(Menu.ItemGroup)`
         font-weight: 700;
         line-height: normal;
         min-height: 38px;
+        display: none;
 
         @media (max-height: 970px) {
             margin-top: 2px;

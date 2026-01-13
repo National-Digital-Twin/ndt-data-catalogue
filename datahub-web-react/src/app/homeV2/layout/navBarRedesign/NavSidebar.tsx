@@ -57,7 +57,7 @@ import AcrylIcon from '@images/acryl-light-mark.svg?react';
 
 const Container = styled.div`
     height: 100vh;
-    background-color: ${colors.gray[1600]};
+    background-color: transparent;
     display: flex;
     flex: column;
     align-items: center;
