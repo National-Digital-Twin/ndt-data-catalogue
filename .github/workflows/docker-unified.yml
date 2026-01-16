@@ -29,64 +29,35 @@ concurrency:
   # Using `github.run_id` (unique val) instead of `github.ref` here
   # because we don't want to cancel this workflow on master only for PRs
   #   as that makes reproducing issues easier
-  # Adding github.event.action == labeled as a means to differentiate the trigger due to adding a label -- most labels are
-  # no-ops except for `depot`
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}-${{ github.event.action == 'labeled' }}
   cancel-in-progress: true
 
 env:
-  DOCKER_REGISTRY: "acryldata"
+  DOCKER_REGISTRY: ${{ vars.DOCKER_REGISTRY }}
   PROFILE_NAME: "${{ github.event.inputs.profileName || 'quickstart-consumers' }}"
 
-  DOCKER_CACHE: "DEPOT"
-  DEPOT_PROJECT_ID: "s0gr1cr3jd"
-  HAS_DEPOT_LABEL: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'depot') }}
+  DOCKER_CACHE: "GITHUB"
   IS_FORK: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
-  DEPOT_TOKEN: "${{ secrets.DEPOT_TOKEN }}"
 
 permissions:
   contents: read
   id-token: write
+  security-events: write
 
 jobs:
   setup:
-    runs-on: depot-ubuntu-24.04-small
-    if: ${{ github.event_name != 'pull_request' || github.event.action != 'labeled' || github.event.label.name == 'depot' }}
+    runs-on: ubuntu-latest
     outputs:
-      # TODO: Many of the vars below should not be required anymore.
       tag: ${{ steps.tag.outputs.tag }}
-      slim_tag: ${{ steps.tag.outputs.slim_tag }}
-      full_tag: ${{ steps.tag.outputs.full_tag }}
-      short_sha: ${{ steps.tag.outputs.short_sha }} # needed for auto-deploy
-      unique_tag: ${{ steps.tag.outputs.unique_tag }}
-      unique_slim_tag: ${{ steps.tag.outputs.unique_slim_tag }}
-      unique_full_tag: ${{ steps.tag.outputs.unique_full_tag }}
-      docker-login: ${{ steps.docker-login.outputs.docker-login }}
+      short_sha: ${{ steps.tag.outputs.short_sha }}
       publish: ${{ steps.publish.outputs.publish }}
       pr-publish: ${{ steps.pr-publish.outputs.publish }}
       python_release_version: ${{ steps.tag.outputs.python_release_version }}
-      branch_name: ${{ steps.tag.outputs.branch_name }}
-      repository_name: ${{ steps.tag.outputs.repository_name }}
       frontend_change: ${{ steps.ci-optimize.outputs.frontend-change == 'true' || github.event_name != 'pull_request' }}
-      actions_change: ${{ steps.ci-optimize.outputs.actions-change == 'true' || github.event_name != 'pull_request'}}
-      ingestion_change: ${{ steps.ci-optimize.outputs.ingestion-change == 'true' || github.event_name != 'pull_request' }}
-      ingestion_base_change: ${{ steps.ci-optimize.outputs.ingestion-base-change == 'true' }}
       backend_change: ${{ steps.ci-optimize.outputs.backend-change == 'true' || github.event_name != 'pull_request' }}
       frontend_only: ${{ steps.ci-optimize.outputs.frontend-only == 'true' }}
       ingestion_only: ${{ steps.ci-optimize.outputs.ingestion-only == 'true' }}
-      backend_only: ${{ steps.ci-optimize.outputs.backend-only == 'true' }}
-      kafka_setup_change: ${{ steps.ci-optimize.outputs.kafka-setup-change == 'true' }}
-      mysql_setup_change: ${{ steps.ci-optimize.outputs.mysql-setup-change == 'true' }}
-      postgres_setup_change: ${{ steps.ci-optimize.outputs.postgres-setup-change == 'true' }}
-      elasticsearch_setup_change: ${{ steps.ci-optimize.outputs.elasticsearch-setup-change == 'true' }}
       smoke_test_change: ${{ steps.ci-optimize.outputs.smoke-test-change == 'true' }}
-      integrations_service_change: "false"
-      datahub_executor_change: "false"
-
-      build_runner_type: ${{ steps.set-runner.outputs.build_runner_type }}
-      test_runner_type: ${{ steps.set-runner.outputs.test_runner_type }}
-      test_runner_type_small: ${{ steps.set-runner.outputs.test_runner_type_small }}
-      use_depot_cache: ${{ steps.set-runner.outputs.use_depot_cache }}
       uv_cache_key: ${{ steps.uv-cache-key.outputs.uv_cache_key }}
       uv_cache_key_prefix: ${{ steps.uv-cache-key.outputs.uv_cache_key_prefix }}
       yarn_cache_key: ${{ steps.yarn-cache-key.outputs.yarn_cache_key }}
@@ -104,73 +75,24 @@ jobs:
           {
             echo "short_sha=${SHORT_SHA}"
             echo "tag=$(get_tag)"
-            echo "slim_tag=$(get_tag_slim)"
-            echo "full_tag=$(get_tag_full)"
-            echo "unique_tag=$(get_unique_tag)"
-            echo "unique_slim_tag=$(get_unique_tag_slim)"
-            echo "unique_full_tag=$(get_unique_tag_full)"
             echo "python_release_version=$(get_python_docker_release_v)"
-            echo "branch_name=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
-            echo "repository_name=${GITHUB_REPOSITORY#*/}"
           } >> "$GITHUB_OUTPUT"
-      - name: Check whether docker login is possible
-        id: docker-login
-        env:
-          ENABLE_DOCKER_LOGIN: ${{ secrets.ACRYL_DOCKER_PASSWORD != '' }}
-        run: |
-          echo "Enable Docker Login: ${{ env.ENABLE_DOCKER_LOGIN }}"
-          echo "docker-login=${{ env.ENABLE_DOCKER_LOGIN }}" >> "$GITHUB_OUTPUT"
       - name: Check whether publishing enabled
         id: publish
         env:
-          ENABLE_PUBLISH: >-
-            ${{
-               (github.event_name == 'release' || ((github.event_name == 'workflow_dispatch' || github.event_name == 'push')  && github.ref == 'refs/heads/master'))
-               && ( secrets.ACRYL_DOCKER_PASSWORD != '' )
-            }}
+          ENABLE_PUBLISH: ${{ github.event_name == 'release' || ((github.event_name == 'workflow_dispatch' || github.event_name == 'push') && github.ref == 'refs/heads/master') }}
         run: |
           echo "Enable publish: ${{ env.ENABLE_PUBLISH }}"
           echo "publish=${{ env.ENABLE_PUBLISH }}" >> "$GITHUB_OUTPUT"
       - name: Check whether PR publishing enabled
         id: pr-publish
         env:
-          ENABLE_PUBLISH: >-
-            ${{
-               (github.event_name == 'pull_request' && (contains(github.event.pull_request.labels.*.name, 'publish') || contains(github.event.pull_request.labels.*.name, 'publish-docker')))
-               && ( secrets.ACRYL_DOCKER_PASSWORD != '' )
-            }}
+          ENABLE_PUBLISH: ${{ github.event_name == 'pull_request' && (contains(github.event.pull_request.labels.*.name, 'publish') || contains(github.event.pull_request.labels.*.name, 'publish-docker')) }}
         run: |
           echo "Enable PR publish: ${{ env.ENABLE_PUBLISH }}"
           echo "publish=${{ env.ENABLE_PUBLISH }}" >> "$GITHUB_OUTPUT"
       - uses: ./.github/actions/ci-optimization
         id: ci-optimize
-
-      - name: Determine runner type
-        id: set-runner
-        # This needs to handle two scenarios:
-        # 1. Running on a PR from a fork. We use github runners, unless the "depot" label exists -- in which case, we run
-        #    it on depotNote, concurrency is lower when using github runners, queue times can be longer, test time is longer
-        #    due to fewer parallel jobs.
-        # 3. Running on a PR from a branch in the datahub-project org and push/schedule events on master.
-        #    Depot is used here for remote container builds in base_build and also for all runners. Depot runners support unlimited concurrency
-        #    and hence short queue times and higher parallelism of smoke tests
-        run: |
-          if [[ "${{ env.DOCKER_CACHE }}" == "DEPOT" && "${{ env.IS_FORK }}" == "false" ]]; then
-            echo "build_runner_type=depot-ubuntu-24.04-4" >> "$GITHUB_OUTPUT"
-            echo "test_runner_type=depot-ubuntu-24.04-4" >> "$GITHUB_OUTPUT"
-            echo "test_runner_type_small=depot-ubuntu-24.04-small" >> "$GITHUB_OUTPUT"
-            echo "use_depot_cache=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "build_runner_type=ubuntu-latest" >> "$GITHUB_OUTPUT"
-            if [[ "${{ env.HAS_DEPOT_LABEL }}" == "true" ]]; then
-              echo "test_runner_type=depot-ubuntu-24.04-4" >> "$GITHUB_OUTPUT"
-            else
-              echo "test_runner_type=ubuntu-latest" >> "$GITHUB_OUTPUT"
-            fi
-            echo "test_runner_type_small=ubuntu-latest" >> "$GITHUB_OUTPUT"
-            echo "use_depot_cache=false" >> "$GITHUB_OUTPUT"
-            # publishing is currently only supported via depot
-          fi
 
       - name: Compute UV Cache Key
         id: uv-cache-key
@@ -192,7 +114,7 @@ jobs:
 
   smoke_test_lint:
     name: Lint on smoke tests
-    runs-on: ${{ needs.setup.outputs.test_runner_type_small }}
+    runs-on: ubuntu-latest
     needs: setup
     if: ${{ needs.setup.outputs.smoke_test_change == 'true' }}
     steps:
@@ -228,12 +150,8 @@ jobs:
 
   base_build:
     name: Build all images
-    runs-on: ${{ needs.setup.outputs.build_runner_type }}
+    runs-on: ubuntu-latest
     needs: setup
-    if: ${{ needs.setup.outputs.use_depot_cache == 'true' }} # On fork, smoke test job does the build since depot cache is not available
-    outputs:
-      build_id: ${{ steps.capture-build-id.outputs.build_id }}
-      matrix: ${{ steps.capture-build-id.outputs.matrix }}
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v5
@@ -268,10 +186,6 @@ jobs:
           restore-keys: |
             gradle-plugins-cache
 
-      - name: Set up Depot CLI
-        if: ${{ env.DOCKER_CACHE == 'DEPOT' }}
-        uses: depot/setup-action@v1
-
       - name: Check out the repo
         uses: acryldata/sane-checkout-action@v4
         with:
@@ -282,12 +196,15 @@ jobs:
           python-version: "3.11"
           cache: "pip"
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        if: ${{ needs.setup.outputs.docker-login == 'true' }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
         with:
-          username: ${{ secrets.ACRYL_DOCKER_USERNAME }}
-          password: ${{ secrets.ACRYL_DOCKER_PASSWORD }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build all Images (For Smoke tests)
         if: ${{ needs.setup.outputs.publish != 'true' && needs.setup.outputs.pr-publish != 'true' }}
@@ -301,7 +218,7 @@ jobs:
           else
             BUILD_TASK=":docker:buildImagesQuickstart"
           fi
-          ./gradlew $BUILD_TASK -Ptag=${{ needs.setup.outputs.tag }} -PpythonDockerVersion=${{ needs.setup.outputs.python_release_version }} -PdockerRegistry=${{ env.DOCKER_REGISTRY }}
+          ./gradlew "$BUILD_TASK" -Ptag=${{ needs.setup.outputs.tag }} -PpythonDockerVersion=${{ needs.setup.outputs.python_release_version }} -PdockerRegistry=${{ env.DOCKER_REGISTRY }}
 
       - name: Build all Images (Publish)
         if: ${{ needs.setup.outputs.publish == 'true' || needs.setup.outputs.pr-publish == 'true' }}
@@ -310,14 +227,36 @@ jobs:
         run: |
           ./gradlew :docker:buildImagesAll -PmatrixBuild=true  -Ptag=${{ needs.setup.outputs.tag }} -PshaTag=${{ needs.setup.outputs.short_sha }} -PpythonDockerVersion=${{ needs.setup.outputs.python_release_version }} -PdockerRegistry=${{ env.DOCKER_REGISTRY }} -PdockerPush=${{ needs.setup.outputs.pr-publish }}
 
-      - name: Capture build Id
-        id: capture-build-id
+      - name: Scan images with Trivy
+        if: ${{ needs.setup.outputs.publish == 'true' }}
         run: |
-          pip install jq
-          DEPOT_BUILD_ID=$(jq -r '.["depot.build"]?.buildID' ${{ github.workspace }}/build/build-metadata.json)
+          # Install Trivy
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
 
-          echo "build_id=${DEPOT_BUILD_ID}" >> "$GITHUB_OUTPUT"
-          echo "matrix=$(jq -c '{"target":.["depot.build"].targets}' ${{ github.workspace }}/build/build-metadata.json)" >> $GITHUB_OUTPUT
+          # Get list of built images
+          IMAGES=$(docker images --filter "reference=${{ env.DOCKER_REGISTRY }}/*:${{ needs.setup.outputs.tag }}" --format "{{.Repository}}:{{.Tag}}")
+
+          # Scan each image
+          for IMAGE in $IMAGES; do
+            echo "Scanning ${IMAGE}..."
+            trivy image \
+              --severity CRITICAL,HIGH \
+              --ignore-unfixed \
+              --vuln-type os,library \
+              --format sarif \
+              --output "trivy-$(echo "${IMAGE}" | tr '/:' '-').sarif" \
+              "${IMAGE}" || true
+          done
+
+      - name: Upload Trivy results to GitHub Security
+        if: ${{ needs.setup.outputs.publish == 'true' }}
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: "trivy-*.sarif"
+        continue-on-error: true
 
       - name: Save build Metadata
         if: ${{ needs.setup.outputs.publish == 'true' || needs.setup.outputs.pr-publish == 'true' }}
@@ -351,51 +290,8 @@ jobs:
             ~/.gradle/caches/transforms-*
           key: gradle-plugins-cache
 
-  scan_images:
-    permissions:
-      contents: read # for actions/checkout to fetch code
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
-    name: Scan images for vulnerabilities
-    runs-on: depot-ubuntu-24.04
-    needs: [setup, base_build]
-    if: ${{ needs.setup.outputs.publish == 'true' }}
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.base_build.outputs.matrix) }}
-    steps:
-      - name: Checkout # adding checkout step just to make trivy upload happy
-        uses: acryldata/sane-checkout-action@v4
-      - id: download_image
-        name: Download images from depot
-        if: ${{ needs.setup.outputs.use_depot_cache == 'true' }}
-        run: |
-          depot pull --project ${{ env.DEPOT_PROJECT_ID }} ${{ needs.base_build.outputs.build_id }} --target ${{ matrix.target}}
-          docker images
-          echo "docker_image=$(docker images --format '{{.Repository}}:{{.Tag}}'  | grep ${{ needs.setup.outputs.tag }} )" >> $GITHUB_OUTPUT
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.33.1
-        env:
-          TRIVY_OFFLINE_SCAN: true
-          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2,ghcr.io/aquasecurity/trivy-db:2
-          TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-java-db:1,ghcr.io/aquasecurity/trivy-java-db:1
-        with:
-          image-ref: ${{ steps.download_image.outputs.docker_image }}
-          format: "template"
-          template: "@/contrib/sarif.tpl"
-          output: "trivy-results.sarif"
-          severity: "CRITICAL,HIGH"
-          ignore-unfixed: true
-          vuln-type: "os,library"
-          trivy-config: "./trivy.yaml"
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: "trivy-results.sarif"
-
   smoke_test_matrix:
-    runs-on: ${{ needs.setup.outputs.test_runner_type_small }}
+    runs-on: ubuntu-latest
     needs: setup
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -424,13 +320,13 @@ jobs:
         run: |
           python_batch_count=${{ steps.set-batch-count.outputs.python_batch_count }}
           python_matrix='{"test_strategy":"pytests","batch":"0","batch_count":"'"$python_batch_count"'"}'
-          for ((i=1;i<python_batch_count;i++)); do
+          for ((i=1;i<"$python_batch_count";i++)); do
             python_matrix="$python_matrix"',{"test_strategy":"pytests","batch_count":"'"$python_batch_count"'","batch":"'"$i"'"}'
           done
 
           cypress_batch_count=${{ steps.set-batch-count.outputs.cypress_batch_count }}
           cypress_matrix='{"test_strategy":"cypress","batch":"0","batch_count":"'"$cypress_batch_count"'"}'
-          for ((i=1;i<cypress_batch_count;i++)); do
+          for ((i=1;i<"$cypress_batch_count";i++)); do
             cypress_matrix="$cypress_matrix"',{"test_strategy":"cypress","batch_count":"'"$cypress_batch_count"'","batch":"'"$i"'"}'
           done
 
@@ -446,7 +342,7 @@ jobs:
 
   smoke_test:
     name: Run Smoke Tests (${{ matrix.test_strategy }}, Batch ${{ matrix.batch }}/${{ matrix.batch_count }})
-    runs-on: ${{ needs.setup.outputs.test_runner_type }}
+    runs-on: ubuntu-latest
     needs: [setup, smoke_test_matrix, base_build]
     strategy:
       fail-fast: false
@@ -458,7 +354,6 @@ jobs:
       MIXPANEL_PROJECT_ID: ${{ secrets.MIXPANEL_PROJECT_ID }}
     steps:
       - name: Free up disk space
-        if: ${{ needs.setup.outputs.use_depot_cache != 'true' }}
         run: |
           sudo apt-get remove 'dotnet-*' azure-cli || true
           sudo rm -rf /usr/local/.ghcup || true
@@ -492,24 +387,22 @@ jobs:
         with:
           checkout-head-only: false
 
-      - name: Set up Depot CLI
-        if: ${{ needs.setup.outputs.use_depot_cache == 'true' }}
-        uses: depot/setup-action@v1
-
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: "pip"
 
       - uses: gradle/actions/setup-gradle@v4
-        if: ${{ needs.setup.outputs.use_depot_cache != 'true' }}
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        if: ${{ needs.setup.outputs.docker-login == 'true' }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
         with:
-          username: ${{ secrets.ACRYL_DOCKER_USERNAME }}
-          password: ${{ secrets.ACRYL_DOCKER_PASSWORD }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Disk Space Analysis
         run: |
@@ -520,18 +413,11 @@ jobs:
           docker system df -v
 
       - name: build images
-        if: ${{ needs.setup.outputs.use_depot_cache != 'true' }}
         run: |
           ./gradlew :docker:buildImagesQuickstartDebugConsumers -Ptag=${{ needs.setup.outputs.tag }} -PpythonDockerVersion=${{ needs.setup.outputs.python_release_version }} -PdockerRegistry=${{ env.DOCKER_REGISTRY }}
           docker images
         env:
           DOCKER_CACHE: GITHUB
-
-      - name: pull images from depot
-        if: ${{ needs.setup.outputs.use_depot_cache == 'true' }}
-        run: |
-          depot pull --project ${{ env.DEPOT_PROJECT_ID }} ${{ needs.base_build.outputs.build_id }}
-          docker images
 
       - name: Disk Space Analysis
         run: |
@@ -544,7 +430,6 @@ jobs:
         env:
           DATAHUB_TELEMETRY_ENABLED: false
           DATAHUB_VERSION: ${{ needs.setup.outputs.tag }}
-          DATAHUB_ACTIONS_IMAGE: ${{ env.DATAHUB_ACTIONS_IMAGE }}
           ACTIONS_EXTRA_PACKAGES: "acryl-datahub-actions[executor] acryl-datahub-actions"
           ACTIONS_CONFIG: "https://raw.githubusercontent.com/acryldata/datahub-actions/main/docker/config/executor.yaml"
         run: |
@@ -644,7 +529,7 @@ jobs:
 
   publish_images:
     name: Push images after tests pass
-    runs-on: ${{ needs.setup.outputs.test_runner_type_small }}
+    runs-on: ubuntu-latest
     needs: [setup, smoke_test, base_build]
     if: ${{ always() && !failure() && !cancelled() }}
     steps:
@@ -666,16 +551,17 @@ jobs:
             echo "tests_passed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Set up Depot CLI
-        if: ${{ steps.tests_passed.outputs.tests_passed == 'true' && needs.setup.outputs.use_depot_cache == 'true' }}
-        uses: depot/setup-action@v1
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        if: ${{ steps.tests_passed.outputs.tests_passed == 'true' && needs.setup.outputs.docker-login == 'true' }}
+      - name: Configure AWS credentials
+        if: ${{ steps.tests_passed.outputs.tests_passed == 'true' }}
+        uses: aws-actions/configure-aws-credentials@v5
         with:
-          username: ${{ secrets.ACRYL_DOCKER_USERNAME }}
-          password: ${{ secrets.ACRYL_DOCKER_PASSWORD }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+
+      - name: Login to Amazon ECR
+        if: ${{ steps.tests_passed.outputs.tests_passed == 'true' }}
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Download build Metadata
         if: ${{ needs.setup.outputs.publish == 'true' || needs.setup.outputs.pr-publish == 'true' }}
@@ -684,29 +570,35 @@ jobs:
           name: build-metadata-${{ needs.setup.outputs.tag }}
           path: ${{ github.workspace }}/build
 
-      - name: Push images from depot builder
-        if: ${{ steps.tests_passed.outputs.tests_passed == 'true' && needs.setup.outputs.use_depot_cache == 'true' && needs.setup.outputs.publish == 'true' }}
+      - name: Check out the repo
+        if: ${{ needs.setup.outputs.publish == 'true' }}
+        uses: acryldata/sane-checkout-action@v4
+
+      - name: Set up JDK 17
+        if: ${{ needs.setup.outputs.publish == 'true' }}
+        uses: actions/setup-java@v5
+        with:
+          distribution: "zulu"
+          java-version: 17
+
+      - name: Push Docker images
+        if: ${{ needs.setup.outputs.publish == 'true' }}
         run: |
-          depot bake -f ${{ github.workspace }}/build/bake-spec-allImages.json --print | jq -c '.target | to_entries | map({target: .key, tags: .value.tags[]})'| jq -c '.[]' | while IFS= read -r line; do
-            TARGET=$(echo "$line" | jq -r '.target')
-            TAG=$(echo "$line" | jq -r '.tags')
+          ./gradlew :docker:publishImagesAll -Ptag=${{ needs.setup.outputs.tag }} -PshaTag=${{ needs.setup.outputs.short_sha }} -PpythonDockerVersion=${{ needs.setup.outputs.python_release_version }} -PdockerRegistry=${{ env.DOCKER_REGISTRY }}
 
-            depot push --project ${{ env.DEPOT_PROJECT_ID }} ${{ needs.base_build.outputs.build_id }} --target $TARGET --tag $TAG
-          done
-
-  deploy_datahub_head:
-    name: Deploy to Datahub HEAD
-    runs-on: ubuntu-latest
-    needs: [setup, smoke_test_lint, smoke_test, publish_images]
-    steps:
-      - uses: aws-actions/configure-aws-credentials@v5
-        if: ${{ needs.setup.outputs.publish != 'false' && github.repository_owner == 'datahub-project' && needs.setup.outputs.repository_name == 'datahub' }}
-        with:
-          aws-access-key-id: ${{ secrets.AWS_SQS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SQS_ACCESS_KEY }}
-          aws-region: us-west-2
-      - uses: isbang/sqs-action@v0.2.0
-        if: ${{ needs.setup.outputs.publish != 'false' && github.repository_owner == 'datahub-project' && needs.setup.outputs.repository_name == 'datahub' }}
-        with:
-          sqs-url: ${{ secrets.DATAHUB_HEAD_SYNC_QUEUE }}
-          message: '{ "command": "git-sync", "args" : {"repoName": "${{ needs.setup.outputs.repository_name }}", "repoOrg": "${{ github.repository_owner }}", "repoBranch": "${{ needs.setup.outputs.branch_name }}", "repoShaShort": "${{ needs.setup.outputs.short_sha }}" }}'
+  # deploy_datahub_head:
+  #   name: Deploy to Datahub HEAD
+  #   runs-on: ubuntu-latest
+  #   needs: [setup, smoke_test_lint, smoke_test, publish_images]
+  #   steps:
+  #     - uses: aws-actions/configure-aws-credentials@v5
+  #       if: ${{ needs.setup.outputs.publish != 'false' && github.repository_owner == 'datahub-project' && needs.setup.outputs.repository_name == 'datahub' }}
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_SQS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SQS_ACCESS_KEY }}
+  #         aws-region: us-west-2
+  #     - uses: isbang/sqs-action@v0.2.0
+  #       if: ${{ needs.setup.outputs.publish != 'false' && github.repository_owner == 'datahub-project' && needs.setup.outputs.repository_name == 'datahub' }}
+  #       with:
+  #         sqs-url: ${{ secrets.DATAHUB_HEAD_SYNC_QUEUE }}
+  #         message: '{ "command": "git-sync", "args" : {"repoName": "${{ needs.setup.outputs.repository_name }}", "repoOrg": "${{ github.repository_owner }}", "repoBranch": "${{ needs.setup.outputs.branch_name }}", "repoShaShort": "${{ needs.setup.outputs.short_sha }}" }}'
