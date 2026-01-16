@@ -40,6 +40,22 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ---
 
+## [0.90.1] 
+
+### Adding sync workflows
+
+### Added 
+- Added GitHub workflows for helpers in syncing from upstream.
+- Added GitHub workflows for building docker images.
+
+### Fixed 
+- 
+
+### Changed 
+-
+
+---
+
 ## Future Roadmap to `1.0.0` 
 
 The `0.90.x` series is part of NDTP’s **pre-stable development cycle**, meaning: 
