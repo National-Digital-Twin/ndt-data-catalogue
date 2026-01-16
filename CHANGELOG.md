@@ -18,6 +18,17 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ---
 
+## [0.90.1] 
+
+### Adding sync workflows
+
+### Added
+
+- Added GitHub workflows for helpers in syncing from upstream.
+- Added GitHub workflows for building docker images.
+
+---
+
 ## [0.90.0] 
 
 ### Initial Public Release
@@ -39,6 +50,7 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 - Added copyright headers to all required files
 
 ---
+
 
 ## Future Roadmap to `1.0.0` 
 
