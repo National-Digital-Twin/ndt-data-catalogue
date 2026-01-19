@@ -1,0 +1,219 @@
+# SPDX-License-Identifier: Apache-2.0
+# © Crown Copyright 2026. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
+
+
+name: Create Upstream Sync PR
+
+on:
+  schedule:
+    # Create PR weekly on Monday at 12:30 AM UTC
+    - cron: '30 0 * * 1'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  create-pr:
+    name: Create PR from sync branch
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # Fetch full history
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      
+      - name: Fetch datahub-mirror branch
+        run: |
+          git fetch origin datahub-mirror
+          git checkout datahub-mirror
+      
+      - name: Check for existing upstream-sync PR
+        id: check-pr
+        uses: actions/github-script@v8
+        with:
+          script: |
+            try {
+              // Search for open PRs with upstream-sync label
+              const { data } = await github.rest.search.issuesAndPullRequests({
+                q: `repo:${context.repo.owner}/${context.repo.repo} is:pr is:open label:upstream-sync`
+              });
+              
+              if (data.total_count > 0) {
+                const pr = data.items[0];
+                core.notice(`Pull request #${pr.number} with upstream-sync label already exists: ${pr.html_url}`);
+                core.setOutput('pr_exists', 'true');
+                core.setOutput('existing_pr_url', pr.html_url);
+                core.setOutput('existing_pr_number', pr.number);
+              } else {
+                core.setOutput('pr_exists', 'false');
+              }
+            } catch (error) {
+              core.setFailed(`Failed to check for existing PRs: ${error.message}`);
+              core.setOutput('pr_exists', 'error');
+              throw error;
+            }
+      
+      - name: Update existing PR branch
+        if: steps.check-pr.outputs.pr_exists == 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const prNumber = '${{ steps.check-pr.outputs.existing_pr_number }}';
+            
+            try {
+              // Get the PR details to find the branch name
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber
+              });
+              
+              const branchName = pr.head.ref;
+              core.info(`Updating existing PR branch: ${branchName}`);
+              
+              // Checkout and update the PR branch with latest from datahub-mirror
+              await exec.exec('git', ['checkout', branchName]);
+              await exec.exec('git', ['reset', '--hard', 'datahub-mirror']);
+              await exec.exec('git', ['push', 'origin', branchName, '--force']);
+              
+              core.notice(`Updated PR #${prNumber} branch '${branchName}' with latest changes from datahub-mirror`);
+            } catch (error) {
+              core.setFailed(`Failed to update PR branch: ${error.message}`);
+              throw error;
+            }
+      
+      - name: Create new PR branch
+        if: steps.check-pr.outputs.pr_exists == 'false'
+        id: create-branch
+        run: |
+          BRANCH_NAME="sync/datahub-upstream-$(date +%Y-%m-%d)"
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+          
+          # Create new branch from datahub-mirror
+          git checkout -b "$BRANCH_NAME"
+          git push origin "$BRANCH_NAME"
+          
+          echo "Created and pushed branch: ${BRANCH_NAME}"
+      
+      - name: Get commit information
+        id: commit-info
+        run: |
+          git checkout datahub-mirror
+          LATEST_COMMIT=$(git log -1 --oneline)
+          SYNC_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          
+          # Use multiline output syntax for GitHub Actions
+          {
+            echo "latest_commit<<EOF"
+            echo "$LATEST_COMMIT"
+            echo "EOF"
+            echo "sync_date=$SYNC_DATE"
+          } >> "$GITHUB_OUTPUT"
+      
+      - name: Create Pull Request to develop
+        if: steps.check-pr.outputs.pr_exists == 'false'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const branchName = '${{ steps.create-branch.outputs.branch_name }}';
+            const baseBranch = 'develop';
+            const latestCommit = '${{ steps.commit-info.outputs.latest_commit }}';
+            const syncDate = '${{ steps.commit-info.outputs.sync_date }}';
+            
+            try {
+              // Create new PR
+              const prBody = [
+                'This PR syncs the latest changes from the upstream DataHub repository (https://github.com/datahub-project/datahub) master branch.',
+                '',
+                `**Automated sync performed on:** ${syncDate}`,
+                '',
+                '**Latest upstream commit:**',
+                '```',
+                latestCommit,
+                '```',
+                '',
+                'Please review the changes before merging into develop.'
+              ].join('\n');
+
+              const { data: pr } = await github.rest.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `Sync upstream DataHub changes - ${new Date().toISOString().split('T')[0]}`,
+                head: branchName,
+                base: baseBranch,
+                body: prBody
+              });
+              
+              core.notice(`Pull request created successfully: ${pr.html_url}`);
+              
+              // Add upstream-sync label
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: ['upstream-sync']
+              });
+              
+            } catch (error) {
+              core.setFailed(`Failed to create PR: ${error.message}`);
+              core.info('This might be because:');
+              core.info('  - The develop branch does not exist');
+              core.info('  - There are no differences between the branches');
+              core.info('  - The label upstream-sync does not exist');
+              throw error;
+            }
+      
+      - name: Summary
+        if: always()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const prExists = '${{ steps.check-pr.outputs.pr_exists }}';
+            const prNumber = '${{ steps.check-pr.outputs.existing_pr_number }}';
+            const prUrl = '${{ steps.check-pr.outputs.existing_pr_url }}';
+            const branchName = '${{ steps.create-branch.outputs.branch_name }}';
+            const latestCommit = '${{ steps.commit-info.outputs.latest_commit }}';
+            const syncDate = '${{ steps.commit-info.outputs.sync_date }}';
+            
+            if (prExists === 'true') {
+              await core.summary
+                .addRaw('## ℹ️ PR Already Exists - Updated\n\n')
+                .addRaw('An upstream sync PR was already open. The PR branch has been updated with the latest changes from datahub-mirror.\n\n')
+                .addRaw(`**Existing PR:** [#${prNumber}](${prUrl})\n\n`)
+                .addRaw('**Latest Commit:**\n')
+                .addRaw('```\n')
+                .addRaw(`${latestCommit}\n`)
+                .addRaw('```\n\n')
+                .addRaw(`**Sync Date:** ${syncDate}\n`)
+                .addRaw('**Action:** Please review the updated changes.\n')
+                .write();
+              
+              core.info(`Updated existing PR #${prNumber}`);
+              core.info(`URL: ${prUrl}`);
+            } else if (prExists === 'false') {
+              await core.summary
+                .addRaw('## ✅ PR Created Successfully\n\n')
+                .addRaw('A new pull request has been created to sync upstream changes.\n\n')
+                .addRaw(`**Branch:** \`${branchName}\`\n\n`)
+                .addRaw('**Latest Commit:**\n')
+                .addRaw('```\n')
+                .addRaw(`${latestCommit}\n`)
+                .addRaw('```\n\n')
+                .addRaw(`**Sync Date:** ${syncDate}\n`)
+                .write();
+              
+              core.info(`Created PR branch: ${branchName}`);
+              core.info(`Latest commit: ${latestCommit}`);
+            } else {
+              await core.summary
+                .addRaw('## ❌ Workflow Failed\n\n')
+                .addRaw('The workflow encountered an error while checking for existing PRs or creating a new one.\n\n')
+                .addRaw('Please check the workflow logs for details.\n')
+                .write();
+              
+              core.error('Workflow did not complete successfully');
+            }

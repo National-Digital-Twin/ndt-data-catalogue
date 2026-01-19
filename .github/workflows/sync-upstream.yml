@@ -2,19 +2,17 @@
 # © Crown Copyright 2026. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
 
 
-name: Sync Upstream DataHub
+name: Sync Upstream
 
 on:
   schedule:
     # Sync nightly at 12:00 AM (midnight) UTC
     - cron: '0 0 * * *'
-    # Create PR weekly on Monday at 12:00 AM (midnight) UTC
-    - cron: '0 0 * * 1'
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
   sync-upstream:
-    name: Sync to datahub-mirror branch
+    name: Sync to upstream-mirror branch
     runs-on: ubuntu-latest
     
     steps:
@@ -37,189 +35,82 @@ jobs:
         run: |
           git fetch upstream
       
-      - name: Create or update datahub-mirror branch
+      - name: Check upstream-mirror branch exists
         uses: actions/github-script@v8
         with:
           script: |
-            const branchName = 'datahub-mirror';
+            const branchName = 'upstream-mirror';
             
             // Check if branch exists remotely
-            let branchExists = false;
             try {
               await github.rest.repos.getBranch({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 branch: branchName
               });
-              branchExists = true;
-              core.info(`Branch ${branchName} exists remotely`);
+              core.info(`✓ Branch ${branchName} exists remotely`);
             } catch (error) {
               if (error.status === 404) {
-                core.info(`Branch ${branchName} does not exist remotely, will create it`);
+                await core.summary
+                  .addRaw('## ❌ Sync Failed\n\n')
+                  .addRaw(`The \`${branchName}\` branch does not exist in this repository.\n\n`)
+                  .addRaw('Please create it first by running:\n\n')
+                  .addRaw(`\`\`\`bash\n`)
+                  .addRaw(`git checkout -b ${branchName} upstream/master\n`)
+                  .addRaw(`git push origin ${branchName}\n`)
+                  .addRaw(`\`\`\`\n`)
+                  .write();
+                core.setFailed(`Branch ${branchName} does not exist. Please create it first.`);
+                return;
               } else {
-                core.setFailed(`Failed to get branch: ${error.message}`+
-                  `Error: ${error.message}. ` +
-                  `Git stdout: ${gitOutput || '[empty]'}. ` +
-                  `Git stderr: ${gitError || '[empty]'}.);`);
+                await core.summary
+                  .addRaw('## ❌ Sync Failed\n\n')
+                  .addRaw(`Failed to check if branch exists: ${error.message}\n`)
+                  .write();
+                core.setFailed(`Failed to get branch: ${error.message}`);
                 return;
               }
-            }
-            
-            // Get the upstream master SHA and checkout branch
-            let upstreamSha = '';
-            await exec.exec('git', ['rev-parse', 'upstream/master'], {
-              listeners: {
-                stdout: (data) => {
-                  upstreamSha += data.toString();
-                }
-              }
-            });
-            const sha = upstreamSha.trim();
-            core.info(`Upstream master SHA: ${sha}`);
-            
-            if (branchExists) {
-              // Checkout existing branch
-              await exec.exec('git', ['checkout', branchName]);
-              core.info(`Checked out existing branch ${branchName}`);
-            } else {
-              // Create new branch from upstream/master
-              await exec.exec('git', ['checkout', '-b', branchName, 'upstream/master']);
-              core.info(`Created new branch ${branchName} from upstream/master`);
             }
       
       - name: Sync with upstream master
         run: |
+          git checkout upstream-mirror
           # Reset to upstream/master to get exact copy with full history
           git reset --hard upstream/master
       
-      - name: Push to datahub-mirror
+      - name: Push to upstream-mirror
         run: |
-          git push origin datahub-mirror --force
+          git push origin upstream-mirror --force
       
       - name: Summary
-        run: |
-          echo "Successfully synced upstream/master to datahub-mirror branch"
-          echo "Latest commit on datahub-mirror: $(git log -1 --oneline datahub-mirror)"
-
-  create-pr:
-    name: Create PR from sync branch
-    runs-on: ubuntu-latest
-    if: github.event_name == 'schedule' && github.event.schedule == '0 0 * * 1'
-    # Only run on Monday midnight schedule
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0  # Fetch full history
-      
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-      
-      - name: Fetch datahub-mirror branch
-        run: |
-          git fetch origin datahub-mirror
-          git checkout datahub-mirror
-      
-      - name: Create new PR branch
-        id: create-branch
-        run: |
-          BRANCH_NAME="sync/datahub-upstream-$(date +%Y-%m-%d)"
-          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
-          
-          # Create new branch from datahub-mirror
-          git checkout -b "$BRANCH_NAME"
-          git push origin "$BRANCH_NAME"
-          
-          echo "Created and pushed branch: $BRANCH_NAME"
-      
-      - name: Get commit information
-        id: commit-info
-        run: |
-          LATEST_COMMIT=$(git log -1 --oneline)
-          SYNC_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-          
-          # Use multiline output syntax for GitHub Actions
-          {
-            echo "latest_commit<<EOF"
-            echo "$LATEST_COMMIT"
-            echo "EOF"
-            echo "sync_date=$SYNC_DATE"
-          } >> "$GITHUB_OUTPUT"
-      
-      - name: Create Pull Request to develop
+        if: success()
         uses: actions/github-script@v8
         with:
           script: |
-            const branchName = '${{ steps.create-branch.outputs.branch_name }}';
-            const baseBranch = 'develop';
-            const latestCommit = '${{ steps.commit-info.outputs.latest_commit }}';
-            const syncDate = '${{ steps.commit-info.outputs.sync_date }}';
+            const branchName = 'upstream-mirror';
             
-            try {
-              // Check if a PR already exists
-              const { data: existingPRs } = await github.rest.pulls.list({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                head: `${context.repo.owner}:${branchName}`,
-                base: baseBranch,
-                state: 'open'
-              });
-              
-              if (existingPRs.length > 0) {
-                const pr = existingPRs[0];
-                core.notice(`Pull request #${pr.number} already exists: ${pr.html_url}`);
-                return;
+            // Get latest commit info
+            let latestCommit = '';
+            await exec.exec('git', ['log', '-1', '--oneline', branchName], {
+              listeners: {
+                stdout: (data) => {
+                  latestCommit += data.toString();
+                }
               }
-              
-              // Create new PR
-              const prBody = [
-                'This PR syncs the latest changes from the upstream DataHub repository (https://github.com/datahub-project/datahub) master branch.',
-                '',
-                `**Automated sync performed on:** ${syncDate}`,
-                '',
-                '**Latest upstream commit:**',
-                '```',
-                latestCommit,
-                '```',
-                '',
-                'Please review the changes before merging into develop.'
-              ].join('\n');
-
-              const { data: pr } = await github.rest.pulls.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: `Sync upstream DataHub changes - ${new Date().toISOString().split('T')[0]}`,
-                head: branchName,
-                base: baseBranch,
-                body: prBody
-              });
-              
-              core.notice(`Pull request created successfully: ${pr.html_url}`);
-              
-              // Try to add label (non-fatal if label doesn't exist)
-              try {
-                await github.rest.issues.addLabels({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: pr.number,
-                  labels: ['upstream-sync']
-                });
-              } catch (labelError) {
-                core.warning(`Could not add label 'upstream-sync': ${labelError.message}`);
-              }
-              
-            } catch (error) {
-              core.setFailed(`Failed to create PR: ${error.message}`);
-              core.info('This might be because:');
-              core.info('  - The develop branch does not exist');
-              core.info('  - There are no differences between the branches');
-              throw error;
-            }
-      
-      - name: Summary
-        run: |
-          echo "Successfully synced upstream/master to datahub-mirror branch"
-          echo "Latest commit on datahub-mirror: $(git log -1 --oneline datahub-mirror)"
+            });
+            
+            const syncTime = new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+            
+            await core.summary
+              .addRaw('## ✅ Sync Successful\n\n')
+              .addRaw(`Successfully synced upstream DataHub master to \`${branchName}\` branch.\n\n`)
+              .addRaw(`**Sync Time:** ${syncTime}\n\n`)
+              .addRaw('**Latest Commit:**\n')
+              .addRaw('```\n')
+              .addRaw(`${latestCommit.trim()}\n`)
+              .addRaw('```\n\n')
+              .addRaw(`**Branch:** [${branchName}](/${{ github.repository }}/tree/${branchName})\n`)
+              .write();
+            
+            core.info(`Successfully synced upstream/master to ${branchName} branch`);
+            core.info(`Latest commit on ${branchName}: ${latestCommit.trim()}`);
