@@ -11,7 +11,6 @@ import React, { useEffect, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
 import { useUserContext } from '@app/context/useUserContext';
-import { REDESIGN_COLORS } from '@app/entityV2/shared/constants';
 import { NavSidebar } from '@app/homeV2/layout/NavSidebar';
 import { NavSidebar as NavSidebarRedesign } from '@app/homeV2/layout/navBarRedesign/NavSidebar';
 import { SearchHeader } from '@app/searchV2/SearchHeader';
@@ -48,14 +47,14 @@ const Navigation = styled.div<{ $isShowNavBarRedesign?: boolean }>`
 `;
 
 const Content = styled.div<{ $isShowNavBarRedesign?: boolean; $hideSearchBar?: boolean }>`
-    border-radius: ${(props) =>
+    border-top-left-radius: ${(props) =>
         props.$isShowNavBarRedesign ? props.theme.styles['border-radius-navbar-redesign'] : '8px'};
-    margin-top: ${(props) => (props.$isShowNavBarRedesign ? '56px' : '72px')};
+    margin-top: ${(props) => (props.$isShowNavBarRedesign ? '85px' : '72px')};
     ${(props) => props.$hideSearchBar && 'margin-top: 6px;'}
     ${(props) =>
         props.$isShowNavBarRedesign &&
         `
-        padding: 11px 15px 11px 3px;
+        padding: 11px 0 0 3px;
     `}
     flex: 1;
     display: flex;
@@ -130,22 +129,22 @@ export const SearchablePage = ({ children, hideSearchBar }: Props) => {
 
     return (
         <>
-            <SearchHeader
-                initialQuery={currentQuery as string}
-                placeholderText={themeConfig.content.search.searchbarMessage}
-                suggestions={
-                    (newSuggestionData &&
-                        newSuggestionData?.autoCompleteForMultiple &&
-                        newSuggestionData.autoCompleteForMultiple.suggestions) ||
-                    []
-                }
-                onSearch={search}
-                onQueryChange={autoComplete}
-                entityRegistry={entityRegistry}
-                hideSearchBar={hideSearchBar}
-            />
             <BodyBackground $isShowNavBarRedesign={isShowNavBarRedesign} />
             <Body>
+                <SearchHeader
+                    initialQuery={currentQuery as string}
+                    placeholderText={themeConfig.content.search.searchbarMessage}
+                    suggestions={
+                        (newSuggestionData &&
+                            newSuggestionData?.autoCompleteForMultiple &&
+                            newSuggestionData.autoCompleteForMultiple.suggestions) ||
+                        []
+                    }
+                    onSearch={search}
+                    onQueryChange={autoComplete}
+                    entityRegistry={entityRegistry}
+                    hideSearchBar={hideSearchBar}
+                />
                 <Navigation $isShowNavBarRedesign={isShowNavBarRedesign}>
                     <FinalNavBar />
                 </Navigation>

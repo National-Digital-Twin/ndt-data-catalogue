@@ -19,8 +19,6 @@ export const HeaderWrapper = styled.div`
     justify-content: center;
     padding: 27px 0 24px 0;
     width: 100%;
-    background: linear-gradient(180deg, #f8fcff 0%, #fafafb 100%);
-    border-bottom: 1px solid ${colors.gray[100]};
     border-radius: 12px 12px 0 0;
     position: relative;
 `;
@@ -35,7 +33,6 @@ const Header = () => {
         <HeaderWrapper>
             <StyledCenteredContainer>
                 <GreetingText />
-                <SearchBar />
             </StyledCenteredContainer>
         </HeaderWrapper>
     );

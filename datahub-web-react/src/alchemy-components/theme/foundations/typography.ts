@@ -38,19 +38,17 @@ const typography = {
     },
 
     fonts: {
-        heading: `'Mulish', -apple-system, BlinkMacSystemFont,
-		'Segoe UI', Helvetica, Arial, sans-serif`,
-        body: `'Mulish', -apple-system, BlinkMacSystemFont,
-		'Segoe UI', Helvetica, Arial, sans-serif`,
+        heading: `'Inter'`,
+        body: `'Inter'`,
         mono: `SFMono-Regular, Menlo, Monaco, Consolas,
 		'Liberation Mono', 'Courier New', monospace`,
     },
 
     fontSizes: {
-        xs: '10px',
-        sm: '12px',
-        md: '14px', // default body text size
-        lg: '16px',
+        xs: '12.64px',
+        sm: '14.2px',
+        md: '16px', // default body text size
+        lg: '18px',
         xl: '18px',
         '2xl': '20px',
         '3xl': '22px',

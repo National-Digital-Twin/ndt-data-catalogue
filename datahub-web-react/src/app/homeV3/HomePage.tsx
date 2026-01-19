@@ -18,9 +18,8 @@ import { SearchablePage } from '@app/searchV2/SearchablePage';
 export const HomePage = () => {
     return (
         <>
-            <SearchablePage hideSearchBar>
+            <SearchablePage>
                 <HomePageContainer>
-                    <StyledVectorBackground />
                     <PageWrapper>
                         <Header />
                         <HomePageContent />

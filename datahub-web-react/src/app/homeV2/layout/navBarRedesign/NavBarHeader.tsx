@@ -7,21 +7,12 @@
  * of the National Digital Twin Programme.
  */
 import React from 'react';
-import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-
-import { useNavBarContext } from '@app/homeV2/layout/navBarRedesign/NavBarContext';
-import NavBarToggler from '@app/homeV2/layout/navBarRedesign/NavBarToggler';
-import { useShowHomePageRedesign } from '@app/homeV3/context/hooks/useShowHomePageRedesign';
-import { useIsHomePage } from '@app/shared/useIsHomePage';
-import analytics, { EventType } from '@src/app/analytics';
-
-import DatahubCoreLogo from '@images/datahub_core.svg?react';
 
 const Container = styled.div`
     display: flex;
     width: 100%;
-    height: 40px;
+    height: 85px;
     min-height: 40px;
     align-items: center;
     gap: 8px;
@@ -29,58 +20,9 @@ const Container = styled.div`
     transition: padding 250ms ease-in-out;
 `;
 
-const Logotype = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 24px;
-    max-height: 24px;
-    max-width: 42px;
-    border-radius: 4px;
-    position: relative;
-    object-fit: contain;
-
-    & svg,
-    img {
-        max-height: 24px;
-        max-width: 42px;
-        min-width: 42px;
-        object-fit: contain;
-    }
-`;
-
-const StyledLink = styled(Link)`
-    display: flex;
-    height: 40px;
-    align-items: center;
-    max-width: calc(100% - 40px);
-    width: 100%;
-    gap: 8px;
-`;
-
-type Props = {
-    logotype?: React.ReactElement;
-};
-
-export default function NavBarHeader({ logotype }: Props) {
-    const { toggle, isCollapsed } = useNavBarContext();
-    const showHomepageRedesign = useShowHomePageRedesign();
-    const isHomePage = useIsHomePage();
-
-    function handleLogoClick() {
-        if (isHomePage && showHomepageRedesign) {
-            toggle();
-        }
-        analytics.event({ type: EventType.NavBarItemClick, label: 'Home' });
-    }
-
+export default function NavBarHeader() {
     return (
         <Container>
-            <StyledLink to="/" onClick={handleLogoClick}>
-                <Logotype>{logotype}</Logotype>
-                {!isCollapsed && <DatahubCoreLogo />}
-            </StyledLink>
-            {!isCollapsed && <NavBarToggler />}
         </Container>
     );
 }

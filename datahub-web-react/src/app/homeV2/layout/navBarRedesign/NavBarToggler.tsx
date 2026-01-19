@@ -16,23 +16,22 @@ import analytics, { EventType } from '@src/app/analytics';
 
 const Toggler = styled.button<{ $isCollapsed?: boolean }>`
     cursor: pointer;
-    margin: 0 0 0 auto;
+    margin: 0 0 0 0;
     padding: 4px;
     border-radius: 6px;
     border: none;
     display: flex;
-    transition: left 250ms ease-in-out;
     transition: background 300ms ease-in;
-    background: ${colors.gray[1600]};
-
-    &: hover {
-        background: #ebecf080;
-    }
+    background: transparent;
 
     & svg {
-        height: 20px;
-        width: 20px;
+        height: 24px;
+        width: 24px;
         color: ${colors.gray[1800]};
+        transition: color 200ms ease-in-out;
+
+        &:hover {
+            color: white;
     }
 `;
 

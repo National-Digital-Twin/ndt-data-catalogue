@@ -23,6 +23,7 @@ export const PageWrapper = styled.div`
     flex-direction: column;
     box-shadow: 0px 4px 8px 0px rgba(33, 23, 95, 0.08);
     align-items: center;
+    background-color: ${({ theme }) => theme.styles['content-background']};
 `;
 
 export const HomePageContainer = styled.div`
@@ -30,8 +31,10 @@ export const HomePageContainer = styled.div`
     flex: 1;
     overflow: hidden;
     margin: 5px;
+    margin-right: 0px;
+    margin-bottom: 0px;
     border: 1px solid ${colors.gray[100]};
-    border-radius: 12px;
+    border-top-left-radius: 12px;
     position: relative;
 `;
 
@@ -59,7 +62,6 @@ export const contentWidth = (additionalWidth = 0) => `
 
 export const ContentContainer = styled.div`
     z-index: 1;
-    padding: 24px 0 16px 0;
     height: 100%;
     display: flex;
     flex-direction: column;

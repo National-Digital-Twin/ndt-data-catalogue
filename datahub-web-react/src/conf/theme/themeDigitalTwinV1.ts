@@ -18,6 +18,7 @@ const themeDigitalTwinV1: Theme = {
         'primary-color-light': '#ece9f8',
         'layout-header-color': '#434343',
         'body-background': `linear-gradient(180deg, ${digitalTwinColours.bgGradientTop} 0%, ${digitalTwinColours.bgGradientBottom} 100%)`,
+        'content-background': digitalTwinColours.bg,
         'border-color-base': '#ececec',
         'homepage-background-upper-fade': '#FFFFFF',
         'homepage-background-lower-fade': '#FFFFFF',
@@ -31,9 +32,11 @@ const themeDigitalTwinV1: Theme = {
         'nav-item-text': digitalTwinColours.navItemText,
         'nav-item-hover': digitalTwinColours.navItemHover,
         'icon-selected': digitalTwinColours.iconSelected,
+        'logo-text-size': '24px',
+
     },
     assets: {
-        logoUrl: 'assets/logo.png',
+        logoUrl: 'assets/logos/data-catalogue-logo.png',
     },
     content: {
         title: 'Digital Twin Data Catalogue',

@@ -20,6 +20,7 @@ export type Theme = {
         'primary-color-dark': string;
         'layout-header-color': string;
         'body-background': string;
+        'content-background'?: string;
         'border-color-base': string;
         'homepage-background-upper-fade': string;
         'homepage-background-lower-fade': string;
@@ -35,6 +36,7 @@ export type Theme = {
         'component-background'?: string;
         'text-color'?: string;
         'text-color-secondary'?: string;
+        'logo-text-size'?: string;
         'heading-color'?: string;
         'background-color-light'?: string;
         'divider-color'?: string;

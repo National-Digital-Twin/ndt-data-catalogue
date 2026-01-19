@@ -11,7 +11,7 @@ import colors from '@conf/theme/colorThemes/color';
 import ColorTheme from '@conf/theme/colorThemes/types';
 
 const digitalTwinColours: ColorTheme = {
-    bg: colors.gray0,
+    bg: colors.ghostWhite,
     bgSurface: colors.gray400,
     bgSurfaceNewNav: colors.gray200,
     bgSurfaceDarker: colors.gray100,
