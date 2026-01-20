@@ -34,7 +34,7 @@ const themeDigitalTwinV1: Theme = {
         'logo-text-size': '24px',
     },
     assets: {
-        logoUrl: 'assets/logos/data-catalogue-logo.png',
+        logoUrl: 'assets/logos/data-catalogue-logo.svg',
     },
     content: {
         title: 'Digital Twin Data Catalogue',
