@@ -9,10 +9,10 @@
  * and is legally attributed to the Department for Business and Trade (UK) as the governing
  * entity.
  */
+import themeDigitalTwinV1 from '@conf/theme/themeDigitalTwinV1';
 import themeV1 from '@conf/theme/themeV1';
 import themeV2 from '@conf/theme/themeV2';
 import themeV2Dark from '@conf/theme/themeV2Dark';
-import themeDigitalTwinV1 from './themeDigitalTwinV1';
 
 // Add custom themes here
 const themes = { themeV1, themeV2, themeV2Dark, themeDigitalTwinV1 };

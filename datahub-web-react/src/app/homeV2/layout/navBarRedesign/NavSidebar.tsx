@@ -9,15 +9,7 @@
  * and is legally attributed to the Department for Business and Trade (UK) as the governing
  * entity.
  */
-import {
-    AppWindow,
-    Gear,
-    HardDrives,
-    Plugs,
-    Question,
-    SignOut,
-    UserCircle,
-} from '@phosphor-icons/react';
+import { AppWindow, Gear, HardDrives, Plugs, Question, SignOut, UserCircle } from '@phosphor-icons/react';
 import React, { useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
@@ -49,19 +41,18 @@ import { HelpLinkRoutes, PageRoutes } from '@src/conf/Global';
 import { EntityType } from '@src/types.generated';
 import { resolveRuntimePath } from '@utils/runtimeBasePath';
 
-import HomeIcon from '@images/dt-home.svg?react';
-import GlossaryIcon from '@images/dt-glossary.svg?react';
-import TagsIcon from '@images/dt-tags.svg?react';
-import DomainsIcon from '@images/dt-domains.svg?react';
-import StructuredPropertiesIcon from '@images/dt-structured-properties.svg?react';
-import AnalyticsIcon from '@images/dt-analytics.svg?react';
-
-import HomeIconSelected from '@images/dt-home-selected.svg?react';
-import GlossaryIconSelected from '@images/dt-glossary-selected.svg?react';
-import TagsIconSelected from '@images/dt-tags-selected.svg?react';
-import DomainsIconSelected from '@images/dt-domains-selected.svg?react';
-import StructuredPropertiesIconSelected from '@images/dt-structured-properties-selected.svg?react';
 import AnalyticsIconSelected from '@images/dt-analytics-selected.svg?react';
+import AnalyticsIcon from '@images/dt-analytics.svg?react';
+import DomainsIconSelected from '@images/dt-domains-selected.svg?react';
+import DomainsIcon from '@images/dt-domains.svg?react';
+import GlossaryIconSelected from '@images/dt-glossary-selected.svg?react';
+import GlossaryIcon from '@images/dt-glossary.svg?react';
+import HomeIconSelected from '@images/dt-home-selected.svg?react';
+import HomeIcon from '@images/dt-home.svg?react';
+import StructuredPropertiesIconSelected from '@images/dt-structured-properties-selected.svg?react';
+import StructuredPropertiesIcon from '@images/dt-structured-properties.svg?react';
+import TagsIconSelected from '@images/dt-tags-selected.svg?react';
+import TagsIcon from '@images/dt-tags.svg?react';
 
 const Container = styled.div`
     height: 100vh;
@@ -229,7 +220,7 @@ export const NavSidebar = () => {
                         key: 'dataSources',
                         isHidden: !showDataSources,
                         icon: <Plugs />,
-                        selectedIcon: <Plugs stroke='#FFCF06' />,
+                        selectedIcon: <Plugs stroke="#FFCF06" />,
                         link: PageRoutes.INGESTION,
                     },
                     {
@@ -358,7 +349,12 @@ export const NavSidebar = () => {
                     <>
                         <NavBarHeader />
                         <MenuWrapper>
-                            <NavBarMenu selectedKey={selectedKey} isCollapsed={isCollapsed} menu={mainMenu} iconSize={32} />
+                            <NavBarMenu
+                                selectedKey={selectedKey}
+                                isCollapsed={isCollapsed}
+                                menu={mainMenu}
+                                iconSize={32}
+                            />
                         </MenuWrapper>
                     </>
                 )}

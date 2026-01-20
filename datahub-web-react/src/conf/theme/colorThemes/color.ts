@@ -153,5 +153,5 @@ export default {
     utOrange: '#E4751B',
     ghostWhite: '#F3F5FA',
     antiFlashWhite: '#E9EAEE',
-    mint: '#48A478'
+    mint: '#48A478',
 };

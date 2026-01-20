@@ -9,7 +9,7 @@
  * and is legally attributed to the Department for Business and Trade (UK) as the governing
  * entity.
  */
-import { Menu, MenuItemProps, theme, Tooltip } from 'antd';
+import { Menu, MenuItemProps, Tooltip } from 'antd';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
@@ -76,18 +76,14 @@ const Icon = styled.div<{ $isSelected?: boolean; $size?: number }>`
 
     && svg {
         ${(props) =>
-            props.$isSelected
-                ? `color: ${({ theme }) => theme.styles['icon-selected']};`
-                : 'color: #ffffff;'}
+            props.$isSelected ? `color: ${({ theme }) => theme.styles['icon-selected']};` : 'color: #ffffff;'}
         width: ${(props) => props.$size ?? 20}px;
         height: ${(props) => props.$size ?? 20}px;
     }
 `;
 
 const StyledText = styled(Text)<{ $isSelected?: boolean }>`
-    ${(props) =>
-        props.$isSelected &&
-        `color: ${({ theme }) => theme.styles['nav-item-text']};`}
+    ${(props) => props.$isSelected && `color: ${({ theme }) => theme.styles['nav-item-text']};`}
 `;
 
 const ItemTitleContentWrapper = styled.div`

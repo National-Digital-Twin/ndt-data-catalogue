@@ -11,6 +11,7 @@
  */
 import { Layout } from 'antd';
 import React, { useContext, useState } from 'react';
+import { Link } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
 
 import { useNavBarContext } from '@app/homeV2/layout/navBarRedesign/NavBarContext';
@@ -23,13 +24,11 @@ import { SearchBarV2 } from '@app/searchV2/searchBarV2/SearchBarV2';
 import { useIsHomePage } from '@app/shared/useIsHomePage';
 import { useAppConfig } from '@app/useAppConfig';
 import { useShowNavBarRedesign } from '@app/useShowNavBarRedesign';
+import { Theme } from '@conf/theme/types';
+import analytics, { EventType } from '@src/app/analytics';
 import { EntityRegistry } from '@src/entityRegistryContext';
 
 import { AutoCompleteResultForEntity } from '@types';
-import analytics, { EventType } from '@src/app/analytics';
-
-import { Link } from 'react-router-dom';
-import { Theme } from '@conf/theme/types';
 
 const getStyles = ($isShowNavBarRedesign?: boolean) => {
     return {
@@ -65,7 +64,7 @@ const LogoWrapper = styled.div`
     display: flex;
     flex: 1;
     gap: 8px;
-`
+`;
 
 const Header = styled(Layout)<{ $isNavBarCollapsed?: boolean; $isShowNavBarRedesign?: boolean }>`
     background-color: transparent;
@@ -194,7 +193,7 @@ export const SearchHeader = ({
 
     const showSearchBarAutocompleteRedesign = appConfig.config.featureFlags?.showSearchBarAutocompleteRedesign;
     const FinalSearchBar = showSearchBarAutocompleteRedesign ? SearchBarV2 : SearchBar;
-    
+
     function handleLogoClick() {
         if (isHomePage && showHomepageRedesign) {
             toggle();
@@ -212,7 +211,9 @@ export const SearchHeader = ({
                             <LogoWrapper>
                                 <NavBarToggler />
                                 <StyledLink to="/" onClick={handleLogoClick}>
-                                    <Logotype>{<CustomLogo alt="logo" src={theme.assets.logoUrl} />}</Logotype>
+                                    <Logotype>
+                                        <CustomLogo alt="logo" src={theme.assets.logoUrl} />
+                                    </Logotype>
                                 </StyledLink>
                             </LogoWrapper>
                             <SearchBarContainer>
@@ -238,7 +239,7 @@ export const SearchHeader = ({
                                     showCommandK
                                 />
                             </SearchBarContainer>
-                            <UserMenuWrapper></UserMenuWrapper>
+                            <UserMenuWrapper />
                         </HeaderWrapper>
                     )}
                 </Header>

@@ -5,8 +5,8 @@
  * Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
  * entity
  */
+import digitalTwinColours from '@conf/theme/colorThemes/digitalTwin';
 import { Theme } from '@conf/theme/types';
-import digitalTwinColours from './colorThemes/digitalTwin';
 
 const themeDigitalTwinV1: Theme = {
     id: 'themeDigitalTwinV1',
@@ -32,7 +32,6 @@ const themeDigitalTwinV1: Theme = {
         'nav-item-hover': digitalTwinColours.navItemHover,
         'icon-selected': digitalTwinColours.iconSelected,
         'logo-text-size': '24px',
-
     },
     assets: {
         logoUrl: 'assets/logos/data-catalogue-logo.png',

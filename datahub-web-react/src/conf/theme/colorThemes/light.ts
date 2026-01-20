@@ -150,6 +150,11 @@ const lightTheme: ColorTheme = {
     tagsTrueYellowBorder: colors.trueyellow100,
     tagsTrueYellowIcon: colors.trueyellow200,
     tagsTrueYellowText: colors.trueyellow300,
+    bgGradientTop: '',
+    bgGradientBottom: '',
+    iconSelected: '',
+    navItemText: '',
+    navItemHover: '',
 };
 
 export default lightTheme;

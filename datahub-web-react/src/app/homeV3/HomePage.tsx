@@ -14,7 +14,7 @@ import React from 'react';
 import PersonalizationLoadingModal from '@app/homeV2/persona/PersonalizationLoadingModal';
 import HomePageContent from '@app/homeV3/HomePageContent';
 import Header from '@app/homeV3/header/Header';
-import { HomePageContainer, PageWrapper, StyledVectorBackground } from '@app/homeV3/styledComponents';
+import { HomePageContainer, PageWrapper } from '@app/homeV3/styledComponents';
 import { WelcomeToDataHubModal } from '@app/onboarding/WelcomeToDataHubModal';
 import { SearchablePage } from '@app/searchV2/SearchablePage';
 

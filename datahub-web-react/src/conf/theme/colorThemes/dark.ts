@@ -150,6 +150,11 @@ const darkTheme: ColorTheme = {
     tagsTrueYellowBorder: colors.trueyellow100,
     tagsTrueYellowIcon: colors.trueyellow200,
     tagsTrueYellowText: colors.trueyellow0,
+    bgGradientTop: '',
+    bgGradientBottom: '',
+    iconSelected: '',
+    navItemText: '',
+    navItemHover: '',
 };
 
 export default darkTheme;
