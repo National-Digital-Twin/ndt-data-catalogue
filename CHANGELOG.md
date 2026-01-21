@@ -18,6 +18,26 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ---
 
+## [0.90.1] 
+
+### Initial Reskin of the UI
+
+### Added 
+- Added new Digital Twin theme
+- Added new Digital Twin colour palette
+- Added Data Catalgoue logo to top navigation
+
+### Fixed 
+- 
+
+### Changed 
+- Removed the DataHub Logo
+- Applied the new Digital Twin theme to the UI
+- Changed some of the side nav icons to the new DT versions
+- Removed the search bar from the home page and displayed it in the top nav instead
+
+---
+
 ## [0.90.0] 
 
 ### Initial Public Release

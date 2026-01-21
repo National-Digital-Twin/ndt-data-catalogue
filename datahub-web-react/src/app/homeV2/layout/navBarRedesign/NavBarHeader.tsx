@@ -1,86 +1,34 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
 import React from 'react';
-import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { useNavBarContext } from '@app/homeV2/layout/navBarRedesign/NavBarContext';
-import NavBarToggler from '@app/homeV2/layout/navBarRedesign/NavBarToggler';
-import { useShowHomePageRedesign } from '@app/homeV3/context/hooks/useShowHomePageRedesign';
-import { useIsHomePage } from '@app/shared/useIsHomePage';
-import analytics, { EventType } from '@src/app/analytics';
-
-import DatahubCoreLogo from '@images/datahub_core.svg?react';
+import WaffleButton from '@images/dt-waffle.svg?react';
 
 const Container = styled.div`
     display: flex;
     width: 100%;
-    height: 40px;
+    height: 85px;
     min-height: 40px;
     align-items: center;
     gap: 8px;
-    margin-left: -3px;
+    margin-left: 12px;
     transition: padding 250ms ease-in-out;
 `;
 
-const Logotype = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 24px;
-    max-height: 24px;
-    max-width: 42px;
-    border-radius: 4px;
-    position: relative;
-    object-fit: contain;
-
-    & svg,
-    img {
-        max-height: 24px;
-        max-width: 42px;
-        min-width: 42px;
-        object-fit: contain;
-    }
-`;
-
-const StyledLink = styled(Link)`
-    display: flex;
-    height: 40px;
-    align-items: center;
-    max-width: calc(100% - 40px);
-    width: 100%;
-    gap: 8px;
-`;
-
-type Props = {
-    logotype?: React.ReactElement;
-};
-
-export default function NavBarHeader({ logotype }: Props) {
-    const { toggle, isCollapsed } = useNavBarContext();
-    const showHomepageRedesign = useShowHomePageRedesign();
-    const isHomePage = useIsHomePage();
-
-    function handleLogoClick() {
-        if (isHomePage && showHomepageRedesign) {
-            toggle();
-        }
-        analytics.event({ type: EventType.NavBarItemClick, label: 'Home' });
-    }
-
+export default function NavBarHeader() {
     return (
         <Container>
-            <StyledLink to="/" onClick={handleLogoClick} data-testid="nav-bar-home-logo">
-                <Logotype>{logotype}</Logotype>
-                {!isCollapsed && <DatahubCoreLogo />}
-            </StyledLink>
-            {!isCollapsed && <NavBarToggler />}
+            <WaffleButton width={32} height={32} />
         </Container>
     );
 }
