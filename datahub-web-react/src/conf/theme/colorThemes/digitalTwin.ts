@@ -1,16 +1,15 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin
+ * Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity
  */
 import colors from '@conf/theme/colorThemes/color';
 import ColorTheme from '@conf/theme/colorThemes/types';
 
-const lightTheme: ColorTheme = {
-    bg: colors.gray0,
+const digitalTwinColours: ColorTheme = {
+    bg: colors.ghostWhite,
     bgSurface: colors.gray400,
     bgSurfaceNewNav: colors.gray200,
     bgSurfaceDarker: colors.gray100,
@@ -27,6 +26,8 @@ const lightTheme: ColorTheme = {
     bgSurfaceWarning: colors.yellow0,
     bgSurfaceWarningHover: colors.yellow200,
     bgHover: colors.gray400,
+    bgGradientTop: colors.delftBlue,
+    bgGradientBottom: colors.eerieBlack,
     text: colors.gray800,
     textSecondary: colors.gray700,
     textTertiary: colors.gray600,
@@ -44,6 +45,7 @@ const lightTheme: ColorTheme = {
     iconInformation: colors.blue600,
     iconSuccess: colors.green200,
     iconWarning: colors.yellow700,
+    iconSelected: colors.dtAccentYellow,
     buttonFillBrand: colors.violet600,
     buttonFillFocus: colors.violet600,
     buttonSurfaceBrandFocus: colors.violet200,
@@ -107,6 +109,8 @@ const lightTheme: ColorTheme = {
     chartsInformationHigh: colors.blue700,
     navBgGradientTop: '#705EE40A',
     navBgGradientBottom: '#533FD100',
+    navItemText: colors.gray0,
+    navItemHover: colors.delftBlue,
     chartsInformationMedium: colors.blue600,
     chartsInformationLow: colors.blue400,
     chartsInformationBase: colors.blue300,
@@ -150,11 +154,6 @@ const lightTheme: ColorTheme = {
     tagsTrueYellowBorder: colors.trueyellow100,
     tagsTrueYellowIcon: colors.trueyellow200,
     tagsTrueYellowText: colors.trueyellow300,
-    bgGradientTop: '',
-    bgGradientBottom: '',
-    iconSelected: '',
-    navItemText: '',
-    navItemHover: '',
 };
 
-export default lightTheme;
+export default digitalTwinColours;

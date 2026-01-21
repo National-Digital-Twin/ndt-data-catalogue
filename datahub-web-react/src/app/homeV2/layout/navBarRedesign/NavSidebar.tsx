@@ -1,26 +1,15 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
-import {
-    AppWindow,
-    BookBookmark,
-    Gear,
-    Globe,
-    HardDrives,
-    Plugs,
-    Question,
-    SignOut,
-    SquaresFour,
-    Tag,
-    TextColumns,
-    TrendUp,
-    UserCircle,
-} from '@phosphor-icons/react';
+import { AppWindow, Gear, HardDrives, Plugs, Question, SignOut, UserCircle } from '@phosphor-icons/react';
 import React, { useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
@@ -42,7 +31,6 @@ import OnboardingContext from '@app/onboarding/OnboardingContext';
 import { useOnboardingTour } from '@app/onboarding/OnboardingTourContext.hooks';
 import { useIsHomePage } from '@app/shared/useIsHomePage';
 import { useAppConfig, useBusinessAttributesFlag } from '@app/useAppConfig';
-import { colors } from '@src/alchemy-components';
 import { getColor } from '@src/alchemy-components/theme/utils';
 import useGetLogoutHandler from '@src/app/auth/useGetLogoutHandler';
 import { HOME_PAGE_INGESTION_ID } from '@src/app/onboarding/config/HomePageOnboardingConfig';
@@ -53,11 +41,22 @@ import { HelpLinkRoutes, PageRoutes } from '@src/conf/Global';
 import { EntityType } from '@src/types.generated';
 import { resolveRuntimePath } from '@utils/runtimeBasePath';
 
-import AcrylIcon from '@images/acryl-light-mark.svg?react';
+import AnalyticsIconSelected from '@images/dt-analytics-selected.svg?react';
+import AnalyticsIcon from '@images/dt-analytics.svg?react';
+import DomainsIconSelected from '@images/dt-domains-selected.svg?react';
+import DomainsIcon from '@images/dt-domains.svg?react';
+import GlossaryIconSelected from '@images/dt-glossary-selected.svg?react';
+import GlossaryIcon from '@images/dt-glossary.svg?react';
+import HomeIconSelected from '@images/dt-home-selected.svg?react';
+import HomeIcon from '@images/dt-home.svg?react';
+import StructuredPropertiesIconSelected from '@images/dt-structured-properties-selected.svg?react';
+import StructuredPropertiesIcon from '@images/dt-structured-properties.svg?react';
+import TagsIconSelected from '@images/dt-tags-selected.svg?react';
+import TagsIcon from '@images/dt-tags.svg?react';
 
 const Container = styled.div`
     height: 100vh;
-    background-color: ${colors.gray[1600]};
+    background-color: transparent;
     display: flex;
     flex: column;
     align-items: center;
@@ -66,30 +65,22 @@ const Container = styled.div`
 const Content = styled.div<{ isCollapsed: boolean }>`
     display: flex;
     flex-direction: column;
-    padding: 17px 8px 17px 16px;
+    align-items: flex-start;
+    padding: 17px 8px 17px 26.25px;
     height: 100%;
-    width: ${(props) => (props.isCollapsed ? '60px' : '264px')};
+    width: ${(props) => (props.isCollapsed ? '105px' : '326px')};
     transition: width 250ms ease-in-out;
     overflow-x: hidden;
-`;
-
-const CustomLogo = styled.img`
-    object-fit: contain;
-    max-height: 26px;
-    max-width: 26px;
-    min-height: 20px;
-    min-width: 20px;
 `;
 
 const Spacer = styled.div`
     flex: 1;
 `;
 
-const DEFAULT_LOGO = 'assets/logos/acryl-dark-mark.svg';
-
 const MenuWrapper = styled.div`
     margin-top: 14px;
     height: 100%;
+    width: 100%;
 `;
 
 export const NavSidebar = () => {
@@ -128,10 +119,6 @@ export const NavSidebar = () => {
     // Update education steps allow list
     useUpdateEducationStepsAllowList(!!showDataSources, HOME_PAGE_INGESTION_ID);
 
-    const customLogoUrl = appConfig.config.visualConfig.logoUrl;
-    const hasCustomLogo = customLogoUrl && customLogoUrl !== DEFAULT_LOGO;
-    const logoComponent = hasCustomLogo ? <CustomLogo alt="logo" src={customLogoUrl} /> : <AcrylIcon />;
-
     const HelpContentMenuItems = themeConfig.content.menu.items.map((value) => ({
         title: value.label,
         description: value.description || '',
@@ -151,9 +138,9 @@ export const NavSidebar = () => {
         items: [
             {
                 type: NavBarMenuItemTypes.Item,
-                title: 'Home',
-                icon: <SquaresFour />,
-                selectedIcon: <SquaresFour weight="fill" />,
+                title: 'Dashboard',
+                icon: <HomeIcon />,
+                selectedIcon: <HomeIconSelected />,
                 key: 'home',
                 link: PageRoutes.ROOT,
                 onlyExactPathMapping: true,
@@ -168,8 +155,8 @@ export const NavSidebar = () => {
                         type: NavBarMenuItemTypes.Item,
                         title: 'Glossary',
                         key: 'glossary',
-                        icon: <BookBookmark />,
-                        selectedIcon: <BookBookmark weight="fill" />,
+                        icon: <GlossaryIcon />,
+                        selectedIcon: <GlossaryIconSelected />,
                         link: PageRoutes.GLOSSARY,
                         additionalLinksForPathMatching: entityRegistry
                             .getGlossaryEntities()
@@ -179,8 +166,8 @@ export const NavSidebar = () => {
                         type: NavBarMenuItemTypes.Item,
                         title: 'Tags',
                         key: 'tag',
-                        icon: <Tag />,
-                        selectedIcon: <Tag weight="fill" />,
+                        icon: <TagsIcon />,
+                        selectedIcon: <TagsIconSelected />,
                         link: PageRoutes.MANAGE_TAGS,
                         isHidden: !showManageTags,
                     },
@@ -206,8 +193,8 @@ export const NavSidebar = () => {
                         type: NavBarMenuItemTypes.Item,
                         title: 'Domains',
                         key: 'domains',
-                        icon: <Globe />,
-                        selectedIcon: <Globe weight="fill" />,
+                        icon: <DomainsIcon />,
+                        selectedIcon: <DomainsIconSelected />,
                         link: PageRoutes.DOMAINS,
                         additionalLinksForPathMatching: [`/${entityRegistry.getPathName(EntityType.Domain)}/:urn`],
                     },
@@ -216,8 +203,8 @@ export const NavSidebar = () => {
                         title: 'Structured Properties',
                         key: 'structuredProperties',
                         isHidden: !showStructuredProperties,
-                        icon: <TextColumns />,
-                        selectedIcon: <TextColumns weight="fill" />,
+                        icon: <StructuredPropertiesIcon />,
+                        selectedIcon: <StructuredPropertiesIconSelected />,
                         link: PageRoutes.STRUCTURED_PROPERTIES,
                     },
                 ],
@@ -233,14 +220,14 @@ export const NavSidebar = () => {
                         key: 'dataSources',
                         isHidden: !showDataSources,
                         icon: <Plugs />,
-                        selectedIcon: <Plugs weight="fill" />,
+                        selectedIcon: <Plugs stroke="#FFCF06" />,
                         link: PageRoutes.INGESTION,
                     },
                     {
                         type: NavBarMenuItemTypes.Item,
                         title: 'Analytics',
-                        icon: <TrendUp />,
-                        selectedIcon: <TrendUp weight="fill" />,
+                        icon: <AnalyticsIcon />,
+                        selectedIcon: <AnalyticsIconSelected />,
                         key: 'analytics',
                         isHidden: !showAnalytics,
                         link: PageRoutes.ANALYTICS,
@@ -360,9 +347,14 @@ export const NavSidebar = () => {
                     <NavSkeleton isCollapsed={isCollapsed} />
                 ) : (
                     <>
-                        <NavBarHeader logotype={logoComponent} />
+                        <NavBarHeader />
                         <MenuWrapper>
-                            <NavBarMenu selectedKey={selectedKey} isCollapsed={isCollapsed} menu={mainMenu} />
+                            <NavBarMenu
+                                selectedKey={selectedKey}
+                                isCollapsed={isCollapsed}
+                                menu={mainMenu}
+                                iconSize={32}
+                            />
                         </MenuWrapper>
                     </>
                 )}

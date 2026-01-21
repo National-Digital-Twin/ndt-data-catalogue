@@ -1,17 +1,18 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
-import { colors } from '@components';
 import React from 'react';
 import styled from 'styled-components';
 
 import GreetingText from '@app/homeV3/header/components/GreetingText';
-import SearchBar from '@app/homeV3/header/components/SearchBar';
 import { CenteredContainer, contentWidth } from '@app/homeV3/styledComponents';
 
 export const HeaderWrapper = styled.div`
@@ -19,8 +20,6 @@ export const HeaderWrapper = styled.div`
     justify-content: center;
     padding: 27px 0 24px 0;
     width: 100%;
-    background: linear-gradient(180deg, #f8fcff 0%, #fafafb 100%);
-    border-bottom: 1px solid ${colors.gray[100]};
     border-radius: 12px 12px 0 0;
     position: relative;
 `;
@@ -35,7 +34,6 @@ const Header = () => {
         <HeaderWrapper>
             <StyledCenteredContainer>
                 <GreetingText />
-                <SearchBar />
             </StyledCenteredContainer>
         </HeaderWrapper>
     );

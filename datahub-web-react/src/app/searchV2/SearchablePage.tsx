@@ -1,17 +1,19 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
 import { debounce } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
 import { useUserContext } from '@app/context/useUserContext';
-import { REDESIGN_COLORS } from '@app/entityV2/shared/constants';
 import { NavSidebar } from '@app/homeV2/layout/NavSidebar';
 import { NavSidebar as NavSidebarRedesign } from '@app/homeV2/layout/navBarRedesign/NavSidebar';
 import { SearchHeader } from '@app/searchV2/SearchHeader';
@@ -23,7 +25,6 @@ import { useAppConfig } from '@app/useAppConfig';
 import { useEntityRegistry } from '@app/useEntityRegistry';
 import { useShowNavBarRedesign } from '@app/useShowNavBarRedesign';
 import { useQuickFiltersContext } from '@providers/QuickFiltersContext';
-import { colors } from '@src/alchemy-components';
 
 import {
     GetAutoCompleteMultipleResultsQuery,
@@ -37,7 +38,7 @@ const Body = styled.div`
 `;
 
 const BodyBackground = styled.div<{ $isShowNavBarRedesign?: boolean }>`
-    background-color: ${(props) => (props.$isShowNavBarRedesign ? colors.gray[1600] : REDESIGN_COLORS.BACKGROUND)};
+    background-image: ${({ theme }) => theme.styles['body-background']};
     position: fixed;
     height: 100%;
     width: 100%;
@@ -49,14 +50,14 @@ const Navigation = styled.div<{ $isShowNavBarRedesign?: boolean }>`
 `;
 
 const Content = styled.div<{ $isShowNavBarRedesign?: boolean; $hideSearchBar?: boolean }>`
-    border-radius: ${(props) =>
+    border-top-left-radius: ${(props) =>
         props.$isShowNavBarRedesign ? props.theme.styles['border-radius-navbar-redesign'] : '8px'};
-    margin-top: ${(props) => (props.$isShowNavBarRedesign ? '56px' : '72px')};
+    margin-top: ${(props) => (props.$isShowNavBarRedesign ? '85px' : '72px')};
     ${(props) => props.$hideSearchBar && 'margin-top: 6px;'}
     ${(props) =>
         props.$isShowNavBarRedesign &&
         `
-        padding: 11px 15px 11px 3px;
+        padding: 11px 0 0 3px;
     `}
     flex: 1;
     display: flex;
@@ -131,22 +132,22 @@ export const SearchablePage = ({ children, hideSearchBar }: Props) => {
 
     return (
         <>
-            <SearchHeader
-                initialQuery={currentQuery as string}
-                placeholderText={themeConfig.content.search.searchbarMessage}
-                suggestions={
-                    (newSuggestionData &&
-                        newSuggestionData?.autoCompleteForMultiple &&
-                        newSuggestionData.autoCompleteForMultiple.suggestions) ||
-                    []
-                }
-                onSearch={search}
-                onQueryChange={autoComplete}
-                entityRegistry={entityRegistry}
-                hideSearchBar={hideSearchBar}
-            />
             <BodyBackground $isShowNavBarRedesign={isShowNavBarRedesign} />
             <Body>
+                <SearchHeader
+                    initialQuery={currentQuery as string}
+                    placeholderText={themeConfig.content.search.searchbarMessage}
+                    suggestions={
+                        (newSuggestionData &&
+                            newSuggestionData?.autoCompleteForMultiple &&
+                            newSuggestionData.autoCompleteForMultiple.suggestions) ||
+                        []
+                    }
+                    onSearch={search}
+                    onQueryChange={autoComplete}
+                    entityRegistry={entityRegistry}
+                    hideSearchBar={hideSearchBar}
+                />
                 <Navigation $isShowNavBarRedesign={isShowNavBarRedesign}>
                     <FinalNavBar />
                 </Navigation>

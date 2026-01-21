@@ -1,10 +1,13 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
 import { Tooltip } from '@components';
 import React, { useState } from 'react';
@@ -54,7 +57,7 @@ const LinkWrapper = styled.span`
 
     &:hover {
         cursor: pointer;
-        background-color: #4b39bc;
+        background-color: #ffffffff;
         box-shadow: 0px 0px 8px 4px rgba(0, 0, 0, 0.15);
     }
 

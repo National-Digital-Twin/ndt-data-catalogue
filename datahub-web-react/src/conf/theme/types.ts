@@ -1,10 +1,13 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
 import ColorTheme from '@conf/theme/colorThemes/types';
 
@@ -20,6 +23,7 @@ export type Theme = {
         'primary-color-dark': string;
         'layout-header-color': string;
         'body-background': string;
+        'content-background'?: string;
         'border-color-base': string;
         'homepage-background-upper-fade': string;
         'homepage-background-lower-fade': string;
@@ -35,11 +39,15 @@ export type Theme = {
         'component-background'?: string;
         'text-color'?: string;
         'text-color-secondary'?: string;
+        'logo-text-size'?: string;
         'heading-color'?: string;
         'background-color-light'?: string;
         'divider-color'?: string;
         'disabled-color'?: string;
         'steps-nav-arrow-color'?: string;
+        'nav-item-text'?: string;
+        'nav-item-hover'?: string;
+        'icon-selected'?: string;
     };
     assets: {
         logoUrl: string;
