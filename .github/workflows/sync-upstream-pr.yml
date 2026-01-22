@@ -194,6 +194,7 @@ jobs:
       
       - name: Summary
         if: always()
+<<<<<<< Updated upstream
         uses: actions/github-script@v8
         env:
           PR_EXISTS: ${{ steps.check-pr.outputs.pr_exists }}
@@ -244,3 +245,45 @@ jobs:
               
               core.error('Workflow did not complete successfully');
             }
+=======
+        run: |
+          if [ "${{ steps.check-pr.outputs.pr_exists }}" == "true" ]; then
+            cat >> "$GITHUB_STEP_SUMMARY" << EOF
+          ## ℹ️ PR Already Exists
+          
+          An upstream sync PR is already open and waiting for review.
+          
+          **Existing PR:** [#${{ steps.check-pr.outputs.existing_pr_number }}](${{ steps.check-pr.outputs.existing_pr_url }})
+          
+          **Action:** Please review and merge the existing PR before a new one will be created.
+          EOF
+            echo "Skipped: PR #${{ steps.check-pr.outputs.existing_pr_number }} already exists"
+            echo "URL: ${{ steps.check-pr.outputs.existing_pr_url }}"
+          elif [ "${{ steps.check-pr.outputs.pr_exists }}" == "false" ]; then
+            cat >> "$GITHUB_STEP_SUMMARY" << EOF
+          ## ✅ PR Created Successfully
+          
+          A new pull request has been created to sync upstream changes.
+          
+          **Branch:** \`${{ steps.create-branch.outputs.branch_name }}\`
+          
+          **Latest Commit:**
+          \`\`\`
+          ${{ steps.commit-info.outputs.latest_commit }}
+          \`\`\`
+          
+          **Sync Date:** ${{ steps.commit-info.outputs.sync_date }}
+          EOF
+            echo "Created PR branch: ${{ steps.create-branch.outputs.branch_name }}"
+            echo "Latest commit: ${{ steps.commit-info.outputs.latest_commit }}"
+          else
+            cat >> "$GITHUB_STEP_SUMMARY" << EOF
+          ## ❌ Workflow Failed
+          
+          The workflow encountered an error while checking for existing PRs or creating a new one.
+          
+          Please check the workflow logs for details.
+          EOF
+            echo "Error: Workflow did not complete successfully"
+          fi
+>>>>>>> Stashed changes

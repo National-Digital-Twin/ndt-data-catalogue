@@ -112,6 +112,7 @@ jobs:
       
       - name: Summary
         if: success()
+<<<<<<< Updated upstream
         uses: actions/github-script@v8
         with:
           script: |
@@ -142,3 +143,27 @@ jobs:
             
             core.info(`Successfully synced upstream/master to ${branchName} branch`);
             core.info(`Latest commit on ${branchName}: ${latestCommit.trim()}`);
+=======
+        run: |
+          LATEST_COMMIT=$(git log -1 --oneline datahub-mirror)
+          SYNC_TIME=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          
+          cat >> "$GITHUB_STEP_SUMMARY" << EOF
+          ## ✅ Sync Successful
+          
+          Successfully synced upstream DataHub master to \`datahub-mirror\` branch.
+          
+          **Sync Time:** $SYNC_TIME
+          
+          **Latest Commit:**
+          \`\`\`
+          $LATEST_COMMIT
+          \`\`\`
+          
+          **Branch:** [datahub-mirror](/${{ github.repository }}/tree/datahub-mirror)
+          EOF
+          
+          echo "Successfully synced upstream/master to datahub-mirror branch"
+          echo "Latest commit on datahub-mirror: $LATEST_COMMIT"
+          echo "Latest commit on datahub-mirror: $LATEST_COMMIT"
+>>>>>>> Stashed changes
