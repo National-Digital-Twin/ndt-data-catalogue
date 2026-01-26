@@ -86,7 +86,6 @@ jobs:
               core.notice(`Updated PR #${prNumber} branch '${branchName}' with latest changes from upstream-mirror`);
             } catch (error) {
               core.setFailed(`Failed to update PR branch: ${error.message}`);
-              throw error;
             }
       
       - name: Create new PR branch
@@ -191,7 +190,6 @@ jobs:
               core.info('  - The develop branch does not exist');
               core.info('  - There are no differences between the branches');
               core.info('  - The label upstream-sync does not exist');
-              throw error;
             }
       
       - name: Summary
