@@ -119,7 +119,7 @@ jobs:
             echo "sync_date=$SYNC_DATE"
           } >> "$GITHUB_OUTPUT"
       
-      - name: Create Pull Request to develop
+      - name: Create/Update Pull Request to develop
         uses: actions/github-script@v8
         env:
           BRANCH_NAME: ${{ steps.create-branch.outputs.branch_name }}
@@ -172,7 +172,7 @@ jobs:
                   labels: ['upstream-sync']
                 });
 
-              } else if(prExists === 'true') {
+              } else {
                 // Update existing PR
                 const { data: pr } = await github.rest.pulls.update({
                   owner: context.repo.owner,
@@ -223,7 +223,7 @@ jobs:
               
               core.info(`Updated existing PR #${prNumber}`);
               core.info(`URL: ${prUrl}`);
-            } else if (prExists === 'false') {
+            } else {
               await core.summary
                 .addRaw('## ✅ PR Created Successfully\n\n')
                 .addRaw('A new pull request has been created to sync upstream changes.\n\n')
