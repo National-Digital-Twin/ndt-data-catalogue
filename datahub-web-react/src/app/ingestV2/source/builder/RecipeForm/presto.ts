@@ -13,6 +13,7 @@ export const PRESTO = 'presto';
 export const PRESTO_HOST_PORT: RecipeField = {
     name: 'host_port',
     label: 'Host and Port',
+    helper: 'Presto host and port',
     tooltip:
         "The host and port where Presto is running. For example, 'presto-server:5432'. Note: this host must be accessible on the network where DataHub is running (or allowed via an IP Allow List, AWS PrivateLink, etc).",
     type: FieldType.TEXT,
@@ -25,6 +26,7 @@ export const PRESTO_HOST_PORT: RecipeField = {
 export const PRESTO_DATABASE: RecipeField = {
     name: 'database',
     label: 'Database',
+    helper: 'Specific Database to ingest',
     tooltip: 'Ingest metadata for a specific Database.',
     type: FieldType.TEXT,
     fieldPath: 'source.config.database',
@@ -36,6 +38,7 @@ export const PRESTO_DATABASE: RecipeField = {
 export const PRESTO_USERNAME: RecipeField = {
     name: 'username',
     label: 'Username',
+    helper: 'Presto username for metadata',
     tooltip: 'The Presto username used to extract metadata.',
     type: FieldType.TEXT,
     fieldPath: 'source.config.username',
@@ -47,6 +50,7 @@ export const PRESTO_USERNAME: RecipeField = {
 export const PRESTO_PASSWORD: RecipeField = {
     name: 'password',
     label: 'Password',
+    helper: 'Presto password for user',
     tooltip: 'The Presto password for the user.',
     type: FieldType.SECRET,
     fieldPath: 'source.config.password',

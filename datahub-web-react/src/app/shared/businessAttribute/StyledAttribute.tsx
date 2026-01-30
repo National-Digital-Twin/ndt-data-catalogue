@@ -35,7 +35,7 @@ interface Props {
     highlightText?: string;
     fontSize?: number;
     onOpenModal?: () => void;
-    refetch?: () => Promise<any>;
+    refetch?: () => void;
 }
 
 export default function StyledAttribute(props: Props) {

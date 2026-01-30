@@ -6,19 +6,15 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { Button, Modal } from 'antd';
+import { Modal } from '@components';
 import React, { useState } from 'react';
-import styled from 'styled-components';
 
 import { EntityAndType } from '@app/entity/shared/types';
 import { SearchSelect } from '@app/entityV2/shared/components/styled/search/SearchSelect';
 import ClickOutside from '@app/shared/ClickOutside';
+import { ConfirmationModal } from '@app/sharedV2/modals/ConfirmationModal';
 
 import { EntityType } from '@types';
-
-const StyledModal = styled(Modal)`
-    top: 30px;
-`;
 
 const MODAL_WIDTH_PX = 800;
 
@@ -52,20 +48,11 @@ export const SearchSelectModal = ({
     limit,
 }: SearchSelectModalProps) => {
     const [selectedEntities, setSelectedEntities] = useState<EntityAndType[]>([]);
+    const [showExitConfirmation, setShowExitConfirmation] = useState(false);
 
     const onCancelSelect = () => {
         if (selectedEntities.length > 0) {
-            Modal.confirm({
-                title: `Exit Selection`,
-                content: `Are you sure you want to exit? ${selectedEntities.length} selection(s) will be cleared.`,
-                onOk() {
-                    onCancel?.();
-                },
-                onCancel() {},
-                okText: 'Yes',
-                maskClosable: true,
-                closable: true,
-            });
+            setShowExitConfirmation(true);
         } else {
             onCancel?.();
         }
@@ -73,30 +60,29 @@ export const SearchSelectModal = ({
 
     return (
         <ClickOutside onClickOutside={onCancelSelect} wrapperClassName="search-select-modal">
-            <StyledModal
+            <Modal
                 wrapClassName="search-select-modal"
                 bodyStyle={MODAL_BODY_STYLE}
                 title={titleText || 'Select entities'}
                 width={MODAL_WIDTH_PX}
                 zIndex={UI_Z_INDEX}
-                visible
+                open
                 onCancel={onCancelSelect}
+                buttons={[
+                    {
+                        text: 'Cancel',
+                        variant: 'text',
+                        onClick: onCancel || (() => {}),
+                    },
+                    {
+                        text: continueText || 'Done',
+                        id: 'continueButton',
+                        onClick: () => onContinue(selectedEntities.map((entity) => entity.urn)),
+                        variant: 'filled',
+                        disabled: selectedEntities.length === 0,
+                    },
+                ]}
                 data-testid="search-select-modal"
-                footer={
-                    <>
-                        <Button onClick={onCancel} type="text">
-                            Cancel
-                        </Button>
-                        <Button
-                            type="primary"
-                            id="continueButton"
-                            onClick={() => onContinue(selectedEntities.map((entity) => entity.urn))}
-                            disabled={selectedEntities.length === 0}
-                        >
-                            {continueText || 'Done'}
-                        </Button>
-                    </>
-                }
             >
                 <SearchSelect
                     fixedEntityTypes={fixedEntityTypes}
@@ -105,7 +91,14 @@ export const SearchSelectModal = ({
                     setSelectedEntities={setSelectedEntities}
                     limit={limit}
                 />
-            </StyledModal>
+            </Modal>
+            <ConfirmationModal
+                isOpen={showExitConfirmation}
+                handleClose={() => setShowExitConfirmation(false)}
+                handleConfirm={() => onCancel?.()}
+                modalTitle="Exit Selection"
+                modalText={`Are you sure you want to exit? ${selectedEntities.length} selection(s) will be cleared.`}
+            />
         </ClickOutside>
     );
 };

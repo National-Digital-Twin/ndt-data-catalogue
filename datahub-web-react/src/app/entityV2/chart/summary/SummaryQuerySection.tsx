@@ -6,7 +6,8 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { Button, Modal } from 'antd';
+import { Modal } from '@components';
+import { Button } from 'antd';
 import React, { useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import styled from 'styled-components/macro';
@@ -58,9 +59,15 @@ const SummaryQuerySection = ({ query }: Props) => {
     return (
         <Container>
             <Modal
-                closeIcon={null}
+                title="Query"
                 width="800px"
-                footer={<Button onClick={() => setShowFullContentModal(false)}>Dismiss</Button>}
+                buttons={[
+                    {
+                        text: 'Dismiss',
+                        onClick: () => setShowFullContentModal(false),
+                        variant: 'filled',
+                    },
+                ]}
                 open={showFullContentModal}
                 onCancel={() => setShowFullContentModal(false)}
             >

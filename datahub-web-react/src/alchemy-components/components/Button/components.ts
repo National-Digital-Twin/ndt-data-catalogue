@@ -6,6 +6,7 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
+import { ButtonHTMLAttributes } from 'react';
 import styled from 'styled-components';
 
 import { ButtonStyleProps } from '@components/components/Button/types';
@@ -14,7 +15,7 @@ import { spacing } from '@components/theme';
 
 export const ButtonBase = styled.button(
     // Dynamic styles
-    (props: ButtonStyleProps) => ({ ...getButtonStyle(props) }),
+    (props: ButtonStyleProps & ButtonHTMLAttributes<HTMLButtonElement>) => ({ ...getButtonStyle(props) }),
     {
         // Base root styles
         display: 'flex',

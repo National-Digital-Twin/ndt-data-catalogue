@@ -78,6 +78,7 @@ export const InputField = styled.input({
 
     '&:disabled': {
         backgroundColor: colors.gray[1500],
+        cursor: 'not-allowed',
     },
 });
 

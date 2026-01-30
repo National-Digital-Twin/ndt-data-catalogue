@@ -8,12 +8,14 @@
  */
 import { GenericEntityProperties } from '@app/entity/shared/types';
 
-import { DataProduct, Entity, EntityType } from '@types';
+import { DataProduct, Entity, EntityType, ParentDocumentsResult } from '@types';
 
 type GetContextPathInput = Pick<
     GenericEntityProperties,
     'parent' | 'parentContainers' | 'parentDomains' | 'parentNodes' | 'domain'
->;
+> & {
+    parentDocuments?: ParentDocumentsResult;
+};
 
 export function getParentEntities(entityData: GetContextPathInput | null, entityType?: EntityType): Entity[] {
     if (!entityData) return [];
@@ -30,6 +32,9 @@ export function getParentEntities(entityData: GetContextPathInput | null, entity
 
         case EntityType.Domain:
             return entityData.parentDomains?.domains || [];
+
+        case EntityType.Document:
+            return entityData.parentDocuments?.documents || [];
 
         default: {
             // generic fallback

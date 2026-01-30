@@ -51,6 +51,9 @@ outputs:
   actions-change:
     description: "Actions code has changed"
     value: ${{ steps.filter.outputs.actions == 'true' }}
+  java-client-change:
+    description: "Java client code has changed"
+    value: ${{ steps.filter.outputs.java-client == 'true' || steps.trigger.outputs.trigger == 'manual' }}
 
 runs:
   using: "composite"
@@ -96,6 +99,7 @@ runs:
             - "metadata-service/**"
             - "metadata-utils/**"
             - "metadata-operation-context/**"
+            - "metadata-integration/**"
             - "datahub-graphql-core/**"
             - "docker/**"
           kafka-setup:
@@ -111,3 +115,6 @@ runs:
           actions:
             - "datahub-actions/**"
             - "docker/datahub-actions/**"
+          java-client:
+            - "metadata-integration/java/datahub-client/**"
+            - "metadata-models/**"

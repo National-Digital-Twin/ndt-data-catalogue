@@ -18,6 +18,7 @@ dependencies {
 
     implementation externalDependency.kafkaClients
     implementation externalDependency.kafkaAvroSerde
+    implementation project(':metadata-utils')
 
     testImplementation externalDependency.mockito
     testImplementation externalDependency.testng

@@ -76,7 +76,7 @@ import org.testng.annotations.Test;
     classes = {
       ConfigurationProvider.class,
       GraphQLEngineFactory.class,
-      MappingsBuilderFactory.class
+      MappingsBuilderFactory.class,
     })
 @ContextConfiguration(classes = GraphQLEngineFactoryTest.TestConfig.class)
 @TestPropertySource(
@@ -84,7 +84,7 @@ import org.testng.annotations.Test;
     properties = {
       "platformAnalytics.enabled=false",
       "graphQL.concurrency.separateThreadPool=true",
-      "LINEAGE_DEFAULT_LAST_DAYS_FILTER=30"
+      "LINEAGE_DEFAULT_LAST_DAYS_FILTER=30",
     })
 public class GraphQLEngineFactoryTest extends AbstractTestNGSpringContextTests {
 
@@ -128,6 +128,18 @@ public class GraphQLEngineFactoryTest extends AbstractTestNGSpringContextTests {
   @MockitoBean
   @Qualifier("entitySearchService")
   private EntitySearchService entitySearchService;
+
+  @MockitoBean
+  @Qualifier("semanticSearchService")
+  private com.linkedin.metadata.search.SemanticSearchService semanticSearchService;
+
+  @MockitoBean
+  @Qualifier("cachingEntitySearchService")
+  private com.linkedin.metadata.search.client.CachingEntitySearchService cachingEntitySearchService;
+
+  @MockitoBean
+  @Qualifier("semanticEntitySearchService")
+  private com.linkedin.metadata.search.semantic.SemanticEntitySearch semanticEntitySearchService;
 
   @MockitoBean
   @Qualifier("graphService")

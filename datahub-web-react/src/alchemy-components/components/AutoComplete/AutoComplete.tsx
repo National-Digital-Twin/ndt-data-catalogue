@@ -7,8 +7,9 @@
  * of the National Digital Twin Programme.
  */
 import { AutoComplete as AntdAutoComplete } from 'antd';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { OptionWrapper } from '@components/components/AutoComplete/OptionWrapper';
 import { DropdownWrapper } from '@components/components/AutoComplete/components';
 import {
     AUTOCOMPLETE_WRAPPER_CLASS_CSS_SELECTOR,
@@ -28,6 +29,8 @@ export default function AutoComplete({
     onClear,
     value,
     clickOutsideWidth,
+    options,
+    shouldPreventOptionSelectingByMouseMove,
     ...props
 }: React.PropsWithChildren<AutoCompleteProps>) {
     const { open } = props;
@@ -69,6 +72,29 @@ export default function AutoComplete({
         }
     };
 
+    const processedOptions = useMemo(() => {
+        if (!shouldPreventOptionSelectingByMouseMove) return options;
+
+        const wrapOption = (option: OptionType) => {
+            if (option.options) {
+                return {
+                    ...option,
+                    options: option.options.map(wrapOption),
+                };
+            }
+
+            if (React.isValidElement(option.label) && !option.children) {
+                return {
+                    ...option,
+                    label: <OptionWrapper>{option.label}</OptionWrapper>,
+                };
+            }
+            return option;
+        };
+
+        return options.map(wrapOption);
+    }, [options, shouldPreventOptionSelectingByMouseMove]);
+
     // Automatically close the dropdown on resize to avoid the dropdown's misalignment
     useEffect(() => {
         const onResize = () => setInternalOpen(false);
@@ -85,6 +111,7 @@ export default function AutoComplete({
             <AntdAutoComplete
                 open={internalOpen}
                 value={value}
+                options={processedOptions}
                 {...props}
                 listHeight={dropdownContentHeight}
                 data-testid={dataTestId}

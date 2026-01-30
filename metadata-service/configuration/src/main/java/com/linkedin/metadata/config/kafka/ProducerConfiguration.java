@@ -25,4 +25,6 @@ public class ProducerConfiguration {
   private String compressionType;
 
   private int maxRequestSize;
+
+  private String bootstrapServers;
 }

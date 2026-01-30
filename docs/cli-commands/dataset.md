@@ -281,7 +281,8 @@ Custom ownership types can be specified using the URN format.
 
 ### Field Types
 
-When defining schema fields, the following primitive types are supported:
+When defining schema fields, the following types are supported:
+Primitive
 
 - `string`
 - `number`
@@ -292,6 +293,16 @@ When defining schema fields, the following primitive types are supported:
 - `boolean`
 - `bytes`
 - `fixed`
+
+Complex
+
+- `array`
+- `map`
+- `union`
+- `record`
+- `date`
+- `time`
+- `timestamp`
 
 ## Implementation Notes
 

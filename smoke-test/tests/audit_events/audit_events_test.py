@@ -5,6 +5,7 @@
 # All support, maintenance and further development of this code is now the responsibility
 # of the National Digital Twin Programme.
 
+import logging
 import os
 import time
 from typing import List
@@ -18,6 +19,8 @@ from tests.utils import (
     login_as,
     wait_for_writes_to_sync,
 )
+
+logger = logging.getLogger(__name__)
 
 pytestmark = pytest.mark.no_cypress_suite1
 
@@ -188,7 +191,7 @@ def test_audit_token_events(auth_exclude_filter):
         ["urn:li:corpuser:user"],
         [],
     )
-    print(res_data)
+    logger.info(res_data)
     assert res_data
     assert res_data["usageEvents"]
     assert len(res_data["usageEvents"]) == 2
@@ -218,7 +221,7 @@ def test_login_events(auth_exclude_filter):
         ["urn:li:corpuser:user"],
         [],
     )
-    print(res_data)
+    logger.info(res_data)
     assert res_data
     assert res_data["usageEvents"]
     assert len(res_data["usageEvents"]) == 1
@@ -245,7 +248,7 @@ def test_failed_login_events(auth_exclude_filter):
         ["urn:li:corpuser:user"],
         [],
     )
-    print(res_data)
+    logger.info(res_data)
     assert res_data
     assert res_data["usageEvents"]
     assert len(res_data["usageEvents"]) == 1
@@ -329,7 +332,7 @@ def test_policy_events(auth_exclude_filter):
         ["urn:li:corpuser:datahub", "urn:li:corpuser:admin"],
         [],
     )
-    print(res_data)
+    logger.info(res_data)
     assert res_data
     assert res_data["usageEvents"]
     assert len(res_data["usageEvents"]) == 3 or len(res_data["usageEvents"]) == 2
@@ -425,7 +428,7 @@ def test_ingestion_source_events(auth_exclude_filter):
         ["urn:li:corpuser:datahub", "urn:li:corpuser:admin"],
         [],
     )
-    print(res_data)
+    logger.info(res_data)
     assert res_data
     assert res_data["usageEvents"]
     assert len(res_data["usageEvents"]) == 2
@@ -449,7 +452,7 @@ def test_user_events(auth_exclude_filter):
         ["urn:li:corpuser:__datahub_system"],
         ["corpUserKey", "corpUserInfo", "corpUserStatus", "corpUserCredentials"],
     )
-    print(res_data)
+    logger.info(res_data)
     assert len(res_data["usageEvents"]) == 4
     assert res_data["usageEvents"][0]["eventType"] == "UpdateUserEvent"
     assert res_data["usageEvents"][0]["entityUrn"] == "urn:li:corpuser:user"
@@ -546,7 +549,7 @@ def test_policy_create_delete(auth_exclude_filter):
         ["urn:li:corpuser:datahub", "urn:li:corpuser:admin"],
         [],
     )
-    print(res_data)
+    logger.info(res_data)
     assert res_data
     assert res_data["usageEvents"]
     assert len(res_data["usageEvents"]) == 3 or len(res_data["usageEvents"]) == 2

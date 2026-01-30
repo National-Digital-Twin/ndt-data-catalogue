@@ -54,7 +54,7 @@ const StyledLastRunText = styled(Typography.Text)`
 
 type Props = {
     description?: string;
-    assertionInfo: DatasetAssertionInfo;
+    assertionInfo?: DatasetAssertionInfo;
     lastEvaluation?: AssertionRunEvent;
 };
 
@@ -206,7 +206,7 @@ const getColumnAggregationText = (
  * Returns the React Component to render for the aggregation portion of the Assertion Description
  */
 const getAggregationText = (
-    scope: DatasetAssertionScope,
+    scope: DatasetAssertionScope | undefined | null,
     aggregation: AssertionStdAggregation | undefined | null,
     fields: Array<SchemaFieldRef> | undefined | null,
 ) => {
@@ -227,7 +227,7 @@ const getAggregationText = (
  * Returns the React Component to render for the operator portion of the Assertion Description
  */
 const getOperatorText = (
-    op: AssertionStdOperator,
+    op: AssertionStdOperator | undefined,
     parameters: AssertionStdParameters | undefined,
     nativeType: string | undefined,
 ) => {
@@ -356,7 +356,8 @@ const TOOLTIP_MAX_WIDTH = 440;
  * For example, Column 'X' values are in [1, 2, 3]
  */
 export const DatasetAssertionDescription = ({ description, assertionInfo, lastEvaluation }: Props) => {
-    const { scope, aggregation, fields, operator, parameters, nativeType, nativeParameters, logic } = assertionInfo;
+    const { scope, aggregation, fields, operator, parameters, nativeType, nativeParameters, logic } =
+        assertionInfo ?? {};
     const [isLogicVisible, setIsLogicVisible] = useState(false);
     /**
      * Build a description component from a) input (aggregation, inputs) b) the operator text

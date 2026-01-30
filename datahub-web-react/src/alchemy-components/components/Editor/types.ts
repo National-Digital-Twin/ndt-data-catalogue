@@ -43,4 +43,5 @@ export type EditorProps = {
     onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
     hideBorder?: boolean;
     uploadFileProps?: FileUploadProps;
+    fixedBottomToolbar?: boolean;
 };

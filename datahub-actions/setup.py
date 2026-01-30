@@ -81,7 +81,7 @@ framework_common = {
 plugins: Dict[str, Set[str]] = {
     # Source Plugins
     "kafka": {
-        "confluent-kafka[schemaregistry]",
+        "confluent-kafka[schemaregistry]<2.13.0",
     },
     # Action Plugins
     "executor": {
@@ -99,6 +99,10 @@ plugins: Dict[str, Set[str]] = {
         f"acryl-datahub[snowflake-slim]{_self_pin}",
     },
     "doc_propagation": set(),
+    "observability": {
+        "opentelemetry-api>=1.20.0",
+        "opentelemetry-sdk>=1.20.0",
+    },
     # Transformer Plugins (None yet)
 }
 

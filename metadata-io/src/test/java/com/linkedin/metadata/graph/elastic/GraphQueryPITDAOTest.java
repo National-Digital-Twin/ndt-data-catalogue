@@ -25,13 +25,16 @@ import static io.datahubproject.test.search.SearchTestUtils.TEST_OS_SEARCH_CONFI
 import static io.datahubproject.test.search.SearchTestUtils.TEST_OS_SEARCH_CONFIG_NO_PIT;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.fail;
 
 import com.datahub.util.exception.ESQueryException;
 import com.google.common.collect.ImmutableList;
@@ -467,7 +470,7 @@ public class GraphQueryPITDAOTest {
     // The method should throw an IllegalArgumentException for the mixed URNs
     try {
       dao.getLineageQuery(operationContext, urnsPerEntityType, lineageGraphFilters);
-      Assert.fail("Should throw IllegalArgumentException for URNs of different entity types");
+      fail("Should throw IllegalArgumentException for URNs of different entity types");
     } catch (IllegalArgumentException e) {
       // Expected exception
       Assert.assertEquals(e.getMessage(), "Urns must be of the same entity type.");
@@ -872,7 +875,7 @@ public class GraphQueryPITDAOTest {
 
     try {
       LineageResponse response = dao.getImpactLineage(operationContext, sourceUrn, filters, 1);
-      Assert.fail("Should throw exception for exceeding maxRelations limit");
+      fail("Should throw exception for exceeding maxRelations limit");
     } catch (RuntimeException e) {
       // Verify the exception message contains the maxRelations limit error
       // The exception may be wrapped by processSliceFutures, so use hasMessageInChain to check
@@ -1088,7 +1091,7 @@ public class GraphQueryPITDAOTest {
     // When partialResults=false and timeout occurs, should throw exception
     try {
       dao.getImpactLineage(operationContext, sourceUrn, filters, 1);
-      Assert.fail("Should throw exception when timeout occurs with partialResults=false");
+      fail("Should throw exception when timeout occurs with partialResults=false");
     } catch (RuntimeException e) {
       // The exception may be wrapped, so check both the exception and its cause
       Throwable cause = e.getCause();
@@ -1201,7 +1204,7 @@ public class GraphQueryPITDAOTest {
     } catch (IllegalStateException e) {
       // If we get IllegalStateException, it means timeout occurred but partialResults handling
       // didn't work
-      Assert.fail(
+      fail(
           "Should not throw IllegalStateException when partialResults=true. Got: "
               + e.getMessage());
     }
@@ -1272,7 +1275,7 @@ public class GraphQueryPITDAOTest {
     // which would result in a RuntimeException. We accept either case.
     try {
       dao.getImpactLineage(operationContext, sourceUrn, filters, 2);
-      Assert.fail("Should throw exception when remainingTime < 0 and partialResults=false");
+      fail("Should throw exception when remainingTime < 0 and partialResults=false");
     } catch (IllegalStateException e) {
       // Verify the exception message contains the expected information
       String message = e.getMessage();
@@ -1308,7 +1311,7 @@ public class GraphQueryPITDAOTest {
 
       // Accept either IllegalStateException in chain OR timeout-related RuntimeException
       if (!foundIllegalStateException && !foundTimeoutMessage) {
-        Assert.fail(
+        fail(
             "Expected IllegalStateException or timeout-related exception in chain but got: "
                 + e.getClass().getSimpleName()
                 + " - "
@@ -1647,7 +1650,7 @@ public class GraphQueryPITDAOTest {
     // When partialResults=false and an exception occurs, should throw exception
     try {
       dao.getImpactLineage(operationContext, sourceUrn, filters, 1);
-      Assert.fail("Should throw exception when slice processing fails and partialResults=false");
+      fail("Should throw exception when slice processing fails and partialResults=false");
     } catch (RuntimeException e) {
       // Verify the exception message contains the expected information
       String message = e.getMessage();
@@ -1995,7 +1998,7 @@ public class GraphQueryPITDAOTest {
     // This should throw an exception due to the search operation failure
     try {
       dao.getImpactLineage(operationContext, sourceUrn, filters, 1);
-      Assert.fail("Should throw RuntimeException for search operation failure");
+      fail("Should throw RuntimeException for search operation failure");
     } catch (RuntimeException e) {
       // The exception should be wrapped in our new exception handling
       // Check the entire exception chain for the expected messages
@@ -2074,8 +2077,7 @@ public class GraphQueryPITDAOTest {
     // Should throw IllegalStateException with exact message format
     try {
       dao.getImpactLineage(operationContext, sourceUrn, filters, 2);
-      Assert.fail(
-          "Should throw IllegalStateException when timeout occurs with partialResults=false");
+      fail("Should throw IllegalStateException when timeout occurs with partialResults=false");
     } catch (IllegalStateException e) {
       String message = e.getMessage();
       Assert.assertNotNull(message, "Exception message should not be null");
@@ -2490,8 +2492,7 @@ public class GraphQueryPITDAOTest {
                     paths.add(path);
                   }
                 } catch (Exception e) {
-                  Assert.fail(
-                      "Thread " + threadId + " should not throw exception: " + e.getMessage());
+                  fail("Thread " + threadId + " should not throw exception: " + e.getMessage());
                 }
               });
     }
@@ -2585,8 +2586,7 @@ public class GraphQueryPITDAOTest {
                     GraphQueryUtils.addEdgeToPaths(pathStore, testParent, null, testChild);
                   }
                 } catch (Exception e) {
-                  Assert.fail(
-                      "Thread " + threadId + " should not throw exception: " + e.getMessage());
+                  fail("Thread " + threadId + " should not throw exception: " + e.getMessage());
                 }
               });
     }
@@ -2722,7 +2722,7 @@ public class GraphQueryPITDAOTest {
     try {
       graphQueryDAO.getSearchResponse(
           operationContext, GraphFilters.outgoingFilter(EMPTY_FILTER), 0, 10);
-      Assert.fail("Expected ESQueryException to be thrown");
+      fail("Expected ESQueryException to be thrown");
     } catch (ESQueryException e) {
       Assert.assertEquals(e.getMessage(), "Search query failed:");
       Assert.assertNotNull(e.getCause());
@@ -2747,7 +2747,7 @@ public class GraphQueryPITDAOTest {
     // Test that executeSearch throws ESQueryException when client.search fails
     try {
       graphQueryDAO.executeSearch(searchRequest);
-      Assert.fail("Expected ESQueryException to be thrown");
+      fail("Expected ESQueryException to be thrown");
     } catch (ESQueryException e) {
       Assert.assertEquals(e.getMessage(), "Search query failed:");
       Assert.assertNotNull(e.getCause());
@@ -2773,7 +2773,7 @@ public class GraphQueryPITDAOTest {
     // Test that executeScrollSearchQuery throws ESQueryException when client.search fails
     try {
       graphQueryDAO.getSearchResponse(operationContext, graphFilters, sortCriteria, null, null, 10);
-      Assert.fail("Expected ESQueryException to be thrown");
+      fail("Expected ESQueryException to be thrown");
     } catch (ESQueryException e) {
       Assert.assertEquals(e.getMessage(), "Search query failed:");
       Assert.assertNotNull(e.getCause());
@@ -2945,7 +2945,7 @@ public class GraphQueryPITDAOTest {
     try {
       LineageResponse result =
           graphQueryDAO.getImpactLineage(operationContext, entityUrn, lineageGraphFilters, 2);
-      Assert.fail("Expected IllegalStateException to be thrown when PIT is disabled");
+      fail("Expected IllegalStateException to be thrown when PIT is disabled");
     } catch (IllegalStateException e) {
       // The method should fail fast with a clear error message when PIT is disabled
       // Check the entire exception chain for the expected messages
@@ -2981,7 +2981,7 @@ public class GraphQueryPITDAOTest {
       try {
         graphQueryDAO.getSearchResponse(
             operationContext, GraphFilters.outgoingFilter(EMPTY_FILTER), 0, 10);
-        Assert.fail("Expected ESQueryException to be thrown for: " + exceptionMessage);
+        fail("Expected ESQueryException to be thrown for: " + exceptionMessage);
       } catch (ESQueryException e) {
         Assert.assertEquals(e.getMessage(), "Search query failed:");
         Assert.assertNotNull(e.getCause());
@@ -3005,7 +3005,7 @@ public class GraphQueryPITDAOTest {
     try {
       graphQueryDAO.getSearchResponse(
           operationContext, GraphFilters.outgoingFilter(EMPTY_FILTER), 0, 10);
-      Assert.fail("Expected ESQueryException to be thrown");
+      fail("Expected ESQueryException to be thrown");
     } catch (ESQueryException e) {
       Assert.assertEquals(e.getMessage(), "Search query failed:");
       Assert.assertSame(e.getCause(), originalException);
@@ -3028,7 +3028,7 @@ public class GraphQueryPITDAOTest {
     try {
       graphQueryDAO.getSearchResponse(
           operationContext, GraphFilters.outgoingFilter(EMPTY_FILTER), 0, 10);
-      Assert.fail("Expected ESQueryException to be thrown");
+      fail("Expected ESQueryException to be thrown");
     } catch (ESQueryException e) {
       Assert.assertEquals(e.getMessage(), "Search query failed:");
       Assert.assertNotNull(e.getCause());
@@ -3054,7 +3054,7 @@ public class GraphQueryPITDAOTest {
     try {
       graphQueryDAO.getSearchResponse(
           operationContext, GraphFilters.outgoingFilter(EMPTY_FILTER), 0, 10);
-      Assert.fail("Expected ESQueryException to be thrown");
+      fail("Expected ESQueryException to be thrown");
     } catch (ESQueryException e) {
       Assert.assertEquals(e.getMessage(), "Search query failed:");
       Assert.assertNotNull(e.getCause());
@@ -3097,7 +3097,7 @@ public class GraphQueryPITDAOTest {
 
     try {
       graphQueryDAO.getImpactLineage(operationContext, testUrn, lineageGraphFilters, 5);
-      Assert.fail("Expected IllegalStateException to be thrown when PIT is disabled");
+      fail("Expected IllegalStateException to be thrown when PIT is disabled");
     } catch (IllegalStateException e) {
       // Check the entire exception chain for the expected messages
       Assert.assertTrue(
@@ -3168,7 +3168,7 @@ public class GraphQueryPITDAOTest {
     } catch (IllegalStateException e) {
       // This should NOT be the PIT validation exception
       if (hasMessageInChain(e, "Point-in-Time creation is required")) {
-        Assert.fail("PIT validation should have passed when PIT is enabled");
+        fail("PIT validation should have passed when PIT is enabled");
       }
       // Any other IllegalStateException is unexpected
       throw e;
@@ -3697,5 +3697,79 @@ public class GraphQueryPITDAOTest {
     dao.shutdown();
 
     // Test passes if no exception is thrown
+  }
+
+  @Test
+  public void testPitCreatedOnceAndCleanedUpInFinally() throws Exception {
+    // Tests that PIT is created once before the slice loop and cleaned up in finally
+    SearchClientShim<?> mockClient = mock(SearchClientShim.class);
+    when(mockClient.getEngineType()).thenReturn(SearchClientShim.SearchEngineType.OPENSEARCH_2);
+
+    GraphQueryPITDAO dao = createTrackedDAO(mockClient);
+
+    // Mock PIT creation
+    CreatePitResponse pitResponse = mock(CreatePitResponse.class);
+    when(pitResponse.getId()).thenReturn("test-pit-id");
+    when(mockClient.createPit(any(CreatePitRequest.class), any(RequestOptions.class)))
+        .thenReturn(pitResponse);
+
+    // Mock search responses
+    SearchHit[] hits = createFakeLineageHits(5, "urn:li:dataset:test", "dest", "DownstreamOf");
+    SearchResponse searchResponse = createFakeSearchResponse(hits, 5);
+    SearchResponse emptyResponse = createEmptySearchResponse(5);
+
+    mockSliceBasedSearch(mockClient, List.of(searchResponse), List.of(emptyResponse));
+
+    Urn sourceUrn = UrnUtils.getUrn("urn:li:dataset:test");
+    LineageGraphFilters filters =
+        LineageGraphFilters.forEntityType(
+            operationContext.getLineageRegistry(), DATASET_ENTITY_NAME, LineageDirection.UPSTREAM);
+
+    // Execute
+    dao.getImpactLineage(operationContext, sourceUrn, filters, 1);
+
+    // Verify PIT was created exactly once (not per slice)
+    verify(mockClient, times(1)).createPit(any(CreatePitRequest.class), any(RequestOptions.class));
+
+    // Verify PIT cleanup was called exactly once in finally
+    verify(mockClient, times(1))
+        .deletePit(
+            argThat(req -> req.getPitIds().contains("test-pit-id")), any(RequestOptions.class));
+  }
+
+  @Test
+  public void testPitCleanupHappensEvenOnSliceException() throws Exception {
+    // Tests that finally block executes and cleans up PIT even when slice fails
+    SearchClientShim<?> mockClient = mock(SearchClientShim.class);
+    when(mockClient.getEngineType()).thenReturn(SearchClientShim.SearchEngineType.OPENSEARCH_2);
+
+    GraphQueryPITDAO dao = createTrackedDAO(mockClient);
+
+    // Mock PIT creation
+    CreatePitResponse pitResponse = mock(CreatePitResponse.class);
+    when(pitResponse.getId()).thenReturn("test-pit-id");
+    when(mockClient.createPit(any(CreatePitRequest.class), any(RequestOptions.class)))
+        .thenReturn(pitResponse);
+
+    // Mock search to throw exception
+    when(mockClient.search(any(SearchRequest.class), any(RequestOptions.class)))
+        .thenThrow(new RuntimeException("Search failed"));
+
+    Urn sourceUrn = UrnUtils.getUrn("urn:li:dataset:test");
+    LineageGraphFilters filters =
+        LineageGraphFilters.forEntityType(
+            operationContext.getLineageRegistry(), DATASET_ENTITY_NAME, LineageDirection.UPSTREAM);
+
+    try {
+      dao.getImpactLineage(operationContext, sourceUrn, filters, 1);
+      fail("Should have thrown exception");
+    } catch (RuntimeException e) {
+      // Expected
+    }
+
+    // Verify PIT cleanup was STILL called in finally block
+    verify(mockClient, times(1))
+        .deletePit(
+            argThat(req -> req.getPitIds().contains("test-pit-id")), any(RequestOptions.class));
   }
 }

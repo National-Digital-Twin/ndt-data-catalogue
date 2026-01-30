@@ -5,6 +5,7 @@
 # All support, maintenance and further development of this code is now the responsibility
 # of the National Digital Twin Programme.
 
+
 class DaxQuery:
     @staticmethod
     def data_sample_query(table_name: str) -> str:

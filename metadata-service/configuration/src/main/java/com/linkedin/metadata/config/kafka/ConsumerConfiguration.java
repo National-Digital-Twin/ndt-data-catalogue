@@ -24,6 +24,7 @@ public class ConsumerConfiguration {
   private ConsumerOptions pe;
 
   private MetricsOptions metrics;
+  private String bootstrapServers;
 
   @Data
   public static class ConsumerOptions {

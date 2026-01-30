@@ -177,6 +177,7 @@ export const ResetCredentials: React.VFC<ResetCredentialsProps> = () => {
                                         htmlType="submit"
                                         className={styles.login_button}
                                         disabled={!formIsComplete}
+                                        data-testid="reset-password"
                                     >
                                         Reset credentials
                                     </Button>

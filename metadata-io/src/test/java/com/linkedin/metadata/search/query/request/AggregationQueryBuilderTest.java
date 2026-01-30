@@ -184,7 +184,8 @@ public class AggregationQueryBuilderTest {
       Optional<String> searchLabel,
       Optional<Boolean> searchIndexed,
       Optional<String> entityFieldName,
-      Optional<Boolean> eagerGlobalOrdinals) {
+      Optional<Boolean> eagerGlobalOrdinals,
+      boolean sanitizeRichText) {
     return new SearchableAnnotation(
         fieldName,
         fieldType,
@@ -206,7 +207,8 @@ public class AggregationQueryBuilderTest {
         searchLabel,
         searchIndexed,
         entityFieldName,
-        eagerGlobalOrdinals);
+        eagerGlobalOrdinals,
+        sanitizeRichText);
   }
 
   @Test
@@ -233,7 +235,8 @@ public class AggregationQueryBuilderTest {
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
-            Optional.empty());
+            Optional.empty(),
+            false);
 
     SearchConfiguration config = TEST_OS_SEARCH_CONFIG.getSearch();
     config.setMaxTermBucketSize(25);
@@ -273,7 +276,8 @@ public class AggregationQueryBuilderTest {
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
-            Optional.empty());
+            Optional.empty(),
+            false);
 
     SearchConfiguration config = TEST_OS_SEARCH_CONFIG.getSearch();
     config.setMaxTermBucketSize(25);
@@ -312,8 +316,8 @@ public class AggregationQueryBuilderTest {
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
-            Optional.empty() // eagerGlobalOrdinals
-            );
+            Optional.empty(), // eagerGlobalOrdinals
+            false);
 
     SearchableAnnotation annotation2 =
         new SearchableAnnotation(
@@ -337,8 +341,8 @@ public class AggregationQueryBuilderTest {
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
-            Optional.empty() // eagerGlobalOrdinals
-            );
+            Optional.empty(), // eagerGlobalOrdinals
+            false);
 
     SearchConfiguration config = TEST_OS_SEARCH_CONFIG.getSearch();
     config.setMaxTermBucketSize(25);
@@ -555,8 +559,8 @@ public class AggregationQueryBuilderTest {
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
-            Optional.empty() // eagerGlobalOrdinals
-            );
+            Optional.empty(), // eagerGlobalOrdinals
+            false);
 
     SearchableAnnotation annotation2 =
         new SearchableAnnotation(
@@ -580,8 +584,8 @@ public class AggregationQueryBuilderTest {
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
-            Optional.empty() // eagerGlobalOrdinals
-            );
+            Optional.empty(), // eagerGlobalOrdinals
+            false);
 
     SearchConfiguration config = TEST_OS_SEARCH_CONFIG.getSearch();
     config.setMaxTermBucketSize(25);
@@ -641,8 +645,8 @@ public class AggregationQueryBuilderTest {
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
-            Optional.empty() // eagerGlobalOrdinals
-            );
+            Optional.empty(), // eagerGlobalOrdinals
+            false);
 
     SearchableAnnotation annotation2 =
         new SearchableAnnotation(
@@ -666,8 +670,8 @@ public class AggregationQueryBuilderTest {
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
-            Optional.empty() // eagerGlobalOrdinals
-            );
+            Optional.empty(), // eagerGlobalOrdinals
+            false);
 
     SearchConfiguration config = TEST_OS_SEARCH_CONFIG.getSearch();
     config.setMaxTermBucketSize(25);
@@ -731,8 +735,8 @@ public class AggregationQueryBuilderTest {
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
-            Optional.empty() // eagerGlobalOrdinals
-            );
+            Optional.empty(), // eagerGlobalOrdinals
+            false);
 
     SearchConfiguration config = TEST_OS_SEARCH_CONFIG.getSearch();
     config.setMaxTermBucketSize(25);
@@ -886,8 +890,8 @@ public class AggregationQueryBuilderTest {
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
-            Optional.empty() // eagerGlobalOrdinals
-            );
+            Optional.empty(), // eagerGlobalOrdinals
+            false);
 
     SearchableAnnotation annotation2 =
         new SearchableAnnotation(
@@ -911,8 +915,8 @@ public class AggregationQueryBuilderTest {
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
-            Optional.empty() // eagerGlobalOrdinals
-            );
+            Optional.empty(), // eagerGlobalOrdinals
+            false);
 
     // Create two different entity specs
     EntitySpec entitySpec1 = mock(EntitySpec.class);
@@ -969,8 +973,8 @@ public class AggregationQueryBuilderTest {
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
-            Optional.empty() // eagerGlobalOrdinals
-            );
+            Optional.empty(), // eagerGlobalOrdinals
+            false);
 
     SearchableAnnotation annotation2 =
         new SearchableAnnotation(
@@ -994,8 +998,8 @@ public class AggregationQueryBuilderTest {
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
-            Optional.empty() // eagerGlobalOrdinals
-            );
+            Optional.empty(), // eagerGlobalOrdinals
+            false);
 
     SearchableAnnotation annotation3 =
         new SearchableAnnotation(
@@ -1019,8 +1023,8 @@ public class AggregationQueryBuilderTest {
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
-            Optional.empty() // eagerGlobalOrdinals
-            );
+            Optional.empty(), // eagerGlobalOrdinals
+            false);
 
     EntitySpec entitySpec1 = mock(EntitySpec.class);
     when(entitySpec1.getName()).thenReturn("dataset");
@@ -1079,7 +1083,8 @@ public class AggregationQueryBuilderTest {
             Optional.<String>empty(),
             Optional.<Boolean>empty(),
             Optional.<String>empty(),
-            Optional.empty());
+            Optional.empty(),
+            false);
 
     SearchableAnnotation annotation2 =
         new SearchableAnnotation(
@@ -1103,7 +1108,8 @@ public class AggregationQueryBuilderTest {
             Optional.<String>empty(),
             Optional.<Boolean>empty(),
             Optional.<String>empty(),
-            Optional.empty());
+            Optional.empty(),
+            false);
 
     EntitySpec entitySpec1 = mock(EntitySpec.class);
     when(entitySpec1.getName()).thenReturn("dataset");
@@ -1158,7 +1164,8 @@ public class AggregationQueryBuilderTest {
             Optional.<String>empty(),
             Optional.<Boolean>empty(),
             Optional.<String>empty(),
-            Optional.empty());
+            Optional.empty(),
+            false);
 
     SearchableAnnotation annotation2 =
         new SearchableAnnotation(
@@ -1182,7 +1189,8 @@ public class AggregationQueryBuilderTest {
             Optional.<String>empty(),
             Optional.<Boolean>empty(),
             Optional.<String>empty(),
-            Optional.empty());
+            Optional.empty(),
+            false);
 
     EntitySpec entitySpec1 = mock(EntitySpec.class);
     when(entitySpec1.getName()).thenReturn("dataset");
@@ -1237,7 +1245,8 @@ public class AggregationQueryBuilderTest {
             Optional.<String>empty(),
             Optional.<Boolean>empty(),
             Optional.<String>empty(),
-            Optional.empty());
+            Optional.empty(),
+            false);
 
     SearchableAnnotation annotation2 =
         new SearchableAnnotation(
@@ -1261,7 +1270,8 @@ public class AggregationQueryBuilderTest {
             Optional.<String>empty(),
             Optional.<Boolean>empty(),
             Optional.<String>empty(),
-            Optional.empty());
+            Optional.empty(),
+            false);
 
     EntitySpec entitySpec1 = mock(EntitySpec.class);
     when(entitySpec1.getName()).thenReturn("dataset");
@@ -1317,7 +1327,8 @@ public class AggregationQueryBuilderTest {
             Optional.<String>empty(),
             Optional.<Boolean>empty(),
             Optional.<String>empty(),
-            Optional.empty());
+            Optional.empty(),
+            false);
 
     SearchableAnnotation annotation2 =
         new SearchableAnnotation(
@@ -1341,7 +1352,8 @@ public class AggregationQueryBuilderTest {
             Optional.<String>empty(),
             Optional.<Boolean>empty(),
             Optional.<String>empty(),
-            Optional.empty());
+            Optional.empty(),
+            false);
 
     EntitySpec entitySpec1 = mock(EntitySpec.class);
     when(entitySpec1.getName()).thenReturn("dataset");
@@ -1416,7 +1428,8 @@ public class AggregationQueryBuilderTest {
             Optional.<String>empty(),
             Optional.<Boolean>empty(),
             Optional.<String>empty(),
-            Optional.empty());
+            Optional.empty(),
+            false);
 
     SearchableAnnotation annotation2 =
         new SearchableAnnotation(
@@ -1440,7 +1453,8 @@ public class AggregationQueryBuilderTest {
             Optional.<String>empty(),
             Optional.<Boolean>empty(),
             Optional.<String>empty(),
-            Optional.empty());
+            Optional.empty(),
+            false);
 
     SearchableAnnotation annotation3 =
         new SearchableAnnotation(
@@ -1464,7 +1478,8 @@ public class AggregationQueryBuilderTest {
             Optional.<String>empty(),
             Optional.<Boolean>empty(),
             Optional.<String>empty(),
-            Optional.empty());
+            Optional.empty(),
+            false);
 
     EntitySpec entitySpec1 = mock(EntitySpec.class);
     when(entitySpec1.getName()).thenReturn("dataset");

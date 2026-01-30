@@ -5,6 +5,7 @@
 # All support, maintenance and further development of this code is now the responsibility
 # of the National Digital Twin Programme.
 
+
 def get_qualified_table_name(urn: str) -> str:
     part: str = urn.split(",")[-2]
 

@@ -375,7 +375,7 @@ export function ActionsColumn({
                 <Icon
                     icon="Stop"
                     source="phosphor"
-                    // weight="fill"
+                    weight="fill"
                     color="primary"
                     onClick={(e) => {
                         e.stopPropagation();
@@ -389,7 +389,7 @@ export function ActionsColumn({
             <Icon
                 icon="Play"
                 source="phosphor"
-                // weight="fill"
+                weight="fill"
                 color="violet"
                 onClick={(e) => {
                     e.stopPropagation();

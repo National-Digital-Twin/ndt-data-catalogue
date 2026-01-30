@@ -30,7 +30,7 @@ type Props = {
     entitySubresource?: string;
     highlightText?: string;
     fontSize?: number;
-    refetch?: () => Promise<any>;
+    refetch?: () => void;
     readOnly?: boolean;
 };
 

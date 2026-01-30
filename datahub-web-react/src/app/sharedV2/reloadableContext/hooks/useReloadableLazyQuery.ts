@@ -6,12 +6,12 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { LazyQueryHookOptions, QueryTuple } from '@apollo/client';
+import { LazyQueryHookOptions, OperationVariables, QueryTuple } from '@apollo/client';
 import { useCallback, useEffect } from 'react';
 
 import { useReloadableContext } from '@app/sharedV2/reloadableContext/hooks/useReloadableContext';
 
-export function useReloadableLazyQuery<T, K>(
+export function useReloadableLazyQuery<T, K extends OperationVariables = OperationVariables>(
     lazyQueryHook: (options: LazyQueryHookOptions<T, K>) => QueryTuple<T, K>,
     key: { type: string; id?: string },
     options: LazyQueryHookOptions<T, K>,

@@ -6,11 +6,15 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import ReactFlow, { Background, BackgroundVariant, Edge, EdgeTypes, MiniMap, NodeTypes, useReactFlow } from 'reactflow';
 import 'reactflow/dist/style.css';
 import styled from 'styled-components';
 
+import LineageAnnotationNode, {
+    LINEAGE_ANNOTATION_NODE,
+} from '@app/lineageV3/LineageAnnotationNode/LineageAnnotationNode';
+import useAddAnnotationNodes from '@app/lineageV3/LineageAnnotationNode/useAddAnnotationNodes';
 import LineageBoundingBoxNode, {
     LINEAGE_BOUNDING_BOX_NODE_NAME,
 } from '@app/lineageV3/LineageBoundingBoxNode/LineageBoundingBoxNode';
@@ -25,6 +29,7 @@ import LineageEntityNode, { LINEAGE_ENTITY_NODE_NAME } from '@app/lineageV3/Line
 import LineageFilterNodeBasic, {
     LINEAGE_FILTER_NODE_NAME,
 } from '@app/lineageV3/LineageFilterNode/LineageFilterNodeBasic';
+import LineageGraphContext from '@app/lineageV3/LineageGraphContext';
 import LineageTransformationNode, {
     LINEAGE_TRANSFORMATION_NODE_NAME,
 } from '@app/lineageV3/LineageTransformationNode/LineageTransformationNode';
@@ -35,6 +40,7 @@ import SearchControl from '@app/lineageV3/controls/SearchControl';
 import ZoomControls from '@app/lineageV3/controls/ZoomControls';
 import LineageSVGs from '@app/lineageV3/lineageSVGs';
 import { LineageVisualizationNode } from '@app/lineageV3/useComputeGraph/NodeBuilder';
+import { LevelsInfo } from '@app/lineageV3/useComputeGraph/limitNodes/limitNodesUtils';
 
 const StyledReactFlow = styled(ReactFlow)<{ isDraggingBoundingBox: boolean; $edgesOnTop: boolean }>`
     ${({ isDraggingBoundingBox }) =>
@@ -57,6 +63,7 @@ const nodeTypes: NodeTypes = {
     [LINEAGE_TRANSFORMATION_NODE_NAME]: LineageTransformationNode,
     [LINEAGE_FILTER_NODE_NAME]: LineageFilterNodeBasic,
     [LINEAGE_BOUNDING_BOX_NODE_NAME]: LineageBoundingBoxNode,
+    [LINEAGE_ANNOTATION_NODE]: LineageAnnotationNode,
 };
 
 const edgeTypes: EdgeTypes = {
@@ -69,21 +76,35 @@ const edgeTypes: EdgeTypes = {
 interface Props {
     initialNodes: LineageVisualizationNode[];
     initialEdges: Edge[];
+    levelsInfo: LevelsInfo;
+    levelsMap: Map<string, number>;
 }
 
 // React flow doesn't always emit events if it re-renders at the same time
 const MemoizedLineageVisualization = React.memo(LineageVisualization);
 export default MemoizedLineageVisualization;
 
-function LineageVisualization({ initialNodes, initialEdges }: Props) {
+function LineageVisualization({ initialNodes, initialEdges, levelsInfo, levelsMap }: Props) {
     const [searchQuery, setSearchQuery] = useState('');
     const [isFocused, setIsFocused] = useState(false);
     const [isDraggingBoundingBox, setIsDraggingBoundingBox] = useState(false);
     const [searchedEntity, setSearchedEntity] = useState<string | null>(null);
     const { highlightedEdges, setSelectedColumn, setDisplayedMenuNode } = useContext(LineageDisplayContext);
-
     useFitView(searchedEntity);
     useHandleKeyboardDeselect(setSelectedColumn);
+    const { isModuleView } = useContext(LineageGraphContext);
+    const addAnnotationNodes = useAddAnnotationNodes();
+
+    const { nodes, edges } = useMemo(() => {
+        if (!isModuleView) {
+            return {
+                nodes: initialNodes,
+                edges: initialEdges,
+            };
+        }
+
+        return addAnnotationNodes(initialNodes, initialEdges, levelsInfo, levelsMap);
+    }, [isModuleView, initialNodes, initialEdges, levelsInfo, levelsMap, addAnnotationNodes]);
 
     return (
         <LineageVisualizationContext.Provider
@@ -100,8 +121,8 @@ function LineageVisualization({ initialNodes, initialEdges }: Props) {
             <LineageSVGs />
             <StyledReactFlow
                 isDraggingBoundingBox={isDraggingBoundingBox}
-                defaultNodes={initialNodes}
-                defaultEdges={initialEdges}
+                defaultNodes={nodes}
+                defaultEdges={edges}
                 // Selection change event does not get emitted without timeout
                 onPaneClick={() => setTimeout(() => setSelectedColumn(null), 0)}
                 onClick={() => setDisplayedMenuNode(null)}
@@ -126,10 +147,14 @@ function LineageVisualization({ initialNodes, initialEdges }: Props) {
                 onBlur={() => setIsFocused(false)}
             >
                 <Background variant={BackgroundVariant.Dots} />
-                <ZoomControls />
-                <SearchControl />
-                <LineageControls />
-                <MiniMap position="bottom-right" ariaLabel={null} pannable zoomable />
+                {!isModuleView && (
+                    <>
+                        <ZoomControls />
+                        <SearchControl />
+                        <LineageControls />
+                        <MiniMap position="bottom-right" ariaLabel={null} pannable zoomable />
+                    </>
+                )}
             </StyledReactFlow>
         </LineageVisualizationContext.Provider>
     );

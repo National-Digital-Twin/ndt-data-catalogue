@@ -9,8 +9,8 @@
 
 package com.linkedin.metadata.search.elasticsearch.index.entity.v2;
 
-import static com.linkedin.metadata.Constants.ENTITY_TYPE_URN_PREFIX;
 import static com.linkedin.metadata.Constants.STRUCTURED_PROPERTY_MAPPING_FIELD;
+import static com.linkedin.metadata.models.StructuredPropertyUtils.entityTypeMatches;
 import static com.linkedin.metadata.models.StructuredPropertyUtils.toElasticsearchFieldName;
 import static com.linkedin.metadata.models.annotation.SearchableAnnotation.OBJECT_FIELD_TYPES;
 import static com.linkedin.metadata.search.elasticsearch.index.entity.v2.V2LegacySettingsBuilder.*;
@@ -21,7 +21,6 @@ import static com.linkedin.metadata.search.utils.ESUtils.TYPE;
 
 import com.google.common.collect.ImmutableMap;
 import com.linkedin.common.urn.Urn;
-import com.linkedin.common.urn.UrnUtils;
 import com.linkedin.metadata.config.search.EntityIndexConfiguration;
 import com.linkedin.metadata.models.EntitySpec;
 import com.linkedin.metadata.models.LogicalValueType;
@@ -156,12 +155,16 @@ public class V2MappingsBuilder implements MappingsBuilder {
     Map<String, Object> structuredPropertiesForEntity = Collections.emptyMap();
 
     if (!structuredProperties.isEmpty()) {
-      Urn matchUrn = UrnUtils.getUrn(ENTITY_TYPE_URN_PREFIX + entityName);
-
       structuredPropertiesForEntity =
           getIndexMappingsForStructuredProperty(
               structuredProperties.stream()
-                  .filter(urnProp -> urnProp.getSecond().getEntityTypes().contains(matchUrn))
+                  .filter(
+                      urnProp ->
+                          urnProp.getSecond().getEntityTypes() != null
+                              && urnProp.getSecond().getEntityTypes().stream()
+                                  .anyMatch(
+                                      entityTypeUrn ->
+                                          entityTypeMatches(entityTypeUrn, entityName)))
                   .collect(Collectors.toSet()));
     }
 

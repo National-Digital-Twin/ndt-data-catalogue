@@ -6,6 +6,8 @@
 # All support, maintenance and further development of this code is now the responsibility
 # of the National Digital Twin Programme.
 
+set -euo pipefail
+
 export PGPASSWORD=$POSTGRES_PASSWORD
 
 POSTGRES_CREATE_DB=${POSTGRES_CREATE_DB:-true}

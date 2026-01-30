@@ -26,7 +26,6 @@ function useDeleteGlossaryEntity() {
             variables: {
                 urn: entityDataUrn,
             },
-            fetchPolicy: 'cache-first',
         })
             .catch((e) => {
                 message.destroy();

@@ -32,6 +32,10 @@ const StyledButton = styled(Button)`
     padding: 0;
 `;
 
+const IconWrapper = styled.div`
+    flex-shrink: 0;
+`;
+
 interface Props {
     content: React.ReactNode;
     localStorageKey: string;
@@ -59,7 +63,7 @@ export default function PageBanner({
     return (
         <BannerWrapper $backgroundColor={backgroundColor}>
             <IconTextWrapper>
-                {icon}
+                <IconWrapper>{icon}</IconWrapper>
                 {content}
             </IconTextWrapper>
             <StyledButton

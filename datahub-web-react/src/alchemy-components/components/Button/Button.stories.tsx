@@ -115,10 +115,10 @@ const meta = {
                 type: 'boolean',
             },
         },
-        isDisabled: {
+        disabled: {
             description: 'Whether the Button is disabled.',
             table: {
-                defaultValue: { summary: buttonDefaults?.isDisabled?.toString() },
+                defaultValue: { summary: 'false' },
             },
             control: {
                 type: 'boolean',
@@ -152,7 +152,7 @@ const meta = {
         iconPosition: buttonDefaults.iconPosition,
         isCircle: buttonDefaults.isCircle,
         isLoading: buttonDefaults.isLoading,
-        isDisabled: buttonDefaults.isDisabled,
+        disabled: false,
         isActive: buttonDefaults.isActive,
         onClick: () => console.log('Button clicked'),
     },
@@ -176,7 +176,7 @@ export const states = () => (
         <Button>Default</Button>
         <Button isLoading>Loading State</Button>
         <Button isActive>Active/Focus State</Button>
-        <Button isDisabled>Disabled State</Button>
+        <Button disabled>Disabled State</Button>
     </GridList>
 );
 

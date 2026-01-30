@@ -19,6 +19,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class EntityIndexConfiguration {
+
   private EntityIndexVersionConfiguration v2;
   private EntityIndexVersionConfiguration v3;
+  private SemanticSearchConfiguration semanticSearch;
 }

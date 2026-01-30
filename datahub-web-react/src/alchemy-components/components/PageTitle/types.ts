@@ -18,4 +18,5 @@ export interface PageTitleProps {
         icon?: React.ReactNode;
         onClick: () => void;
     };
+    titlePill?: React.ReactNode;
 }

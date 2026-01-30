@@ -4,7 +4,7 @@
   ~ Licensed under the Open Government Licence v3.0.
 -->
 
-# Classification
+# Classification (Deprecated)
 
 The classification feature enables sources to be configured to automatically predict info types for columns and use them as glossary terms. This is an explicit opt-in feature and is not enabled by default.
 

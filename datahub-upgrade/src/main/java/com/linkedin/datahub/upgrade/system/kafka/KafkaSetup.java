@@ -21,13 +21,13 @@ import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 @Slf4j
 public class KafkaSetup implements BlockingSystemUpgrade {
 
-  private final List<UpgradeStep> _steps;
+  private final List<UpgradeStep> steps;
 
   public KafkaSetup(
       OperationContext opContext,
       KafkaConfiguration kafkaConfiguration,
       KafkaProperties kafkaProperties) {
-    _steps =
+    this.steps =
         ImmutableList.of(
             new WaitForKafkaReadyStep(opContext, kafkaConfiguration, kafkaProperties),
             new CreateKafkaTopicsStep(opContext, kafkaConfiguration, kafkaProperties));
@@ -40,6 +40,6 @@ public class KafkaSetup implements BlockingSystemUpgrade {
 
   @Override
   public List<UpgradeStep> steps() {
-    return _steps;
+    return steps;
   }
 }

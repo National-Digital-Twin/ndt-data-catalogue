@@ -31,6 +31,7 @@ import com.linkedin.metadata.graph.GraphClient;
 import com.linkedin.metadata.graph.SiblingGraphService;
 import com.linkedin.metadata.models.registry.EntityRegistry;
 import com.linkedin.metadata.recommendation.RecommendationsService;
+import com.linkedin.metadata.search.SemanticSearchService;
 import com.linkedin.metadata.service.ApplicationService;
 import com.linkedin.metadata.service.AssertionService;
 import com.linkedin.metadata.service.BusinessAttributeService;
@@ -57,6 +58,7 @@ import lombok.Data;
 
 @Data
 public class GmsGraphQLEngineArgs {
+
   EntityClient entityClient;
   SystemEntityClient systemEntityClient;
   GraphClient graphClient;
@@ -113,5 +115,6 @@ public class GmsGraphQLEngineArgs {
   boolean systemTelemetryEnabled;
   MetricUtils metricUtils;
   S3Util s3Util;
+  SemanticSearchService semanticSearchService;
   // any fork specific args should go below this line
 }

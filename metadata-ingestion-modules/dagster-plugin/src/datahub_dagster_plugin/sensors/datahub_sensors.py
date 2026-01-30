@@ -266,6 +266,7 @@ class DatahubSensors:
     ) -> Optional[DagsterEnvironment]:
         module: Optional[str] = None
         repository: Optional[str] = None
+        location_name: Optional[str] = None
         if (
             context
             and context.dagster_run.job_code_origin
@@ -287,6 +288,9 @@ class DatahubSensors:
             else:
                 context.log.error("Unable to get Module")
 
+        if context and context.dagster_run.remote_job_origin:
+            location_name = context.dagster_run.remote_job_origin.location_name
+
         dagster_environment = DagsterEnvironment(
             is_cloud=os.getenv("DAGSTER_CLOUD_IS_BRANCH_DEPLOYMENT", None) is not None,
             is_branch_deployment=(
@@ -297,6 +301,7 @@ class DatahubSensors:
             branch=os.getenv("DAGSTER_CLOUD_DEPLOYMENT_NAME", "prod"),
             module=module,
             repository=repository,
+            location_name=location_name,
         )
         return dagster_environment
 

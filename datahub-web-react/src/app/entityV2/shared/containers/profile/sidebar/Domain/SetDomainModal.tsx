@@ -6,7 +6,7 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { Empty, Form, Modal, Select, message } from 'antd';
+import { Empty, Form, Select, message } from 'antd';
 import React, { useRef, useState } from 'react';
 
 import domainAutocompleteOptions from '@app/domainV2/DomainAutocompleteOptions';
@@ -21,9 +21,8 @@ import { useReloadableContext } from '@app/sharedV2/reloadableContext/hooks/useR
 import { ReloadableKeyTypeNamespace } from '@app/sharedV2/reloadableContext/types';
 import { getReloadableKeyType } from '@app/sharedV2/reloadableContext/utils';
 import { useEntityRegistry } from '@app/useEntityRegistry';
-import { Button } from '@src/alchemy-components';
+import { Modal } from '@src/alchemy-components';
 import analytics, { EntityActionType, EventType } from '@src/app/analytics';
-import { ModalButtonContainer } from '@src/app/shared/button/styledComponents';
 import { getModalDomContainer } from '@src/utils/focus';
 
 import { useBatchSetDomainMutation } from '@graphql/mutations.generated';
@@ -214,21 +213,22 @@ export const SetDomainModal = ({ urns, onCloseModal, refetch, defaultValue, onOk
             title={titleOverride || 'Set Domain'}
             open
             onCancel={onModalClose}
-            footer={
-                <ModalButtonContainer>
-                    <Button variant="text" color="gray" onClick={onModalClose} data-testid="cancel-button">
-                        Cancel
-                    </Button>
-                    <Button
-                        id="setDomainButton"
-                        disabled={selectedDomain === undefined}
-                        onClick={onOk}
-                        data-testid="submit-button"
-                    >
-                        Save
-                    </Button>
-                </ModalButtonContainer>
-            }
+            buttons={[
+                {
+                    text: 'Cancel',
+                    variant: 'text',
+                    onClick: onModalClose,
+                    buttonDataTestId: 'cancel-button',
+                },
+                {
+                    text: 'Save',
+                    variant: 'filled',
+                    disabled: selectedDomain === undefined,
+                    onClick: onOk,
+                    id: 'setDomainButton',
+                    buttonDataTestId: 'submit-button',
+                },
+            ]}
             getContainer={getModalDomContainer}
             data-testid="set-domain-modal"
         >

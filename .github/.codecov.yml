@@ -58,6 +58,9 @@ flag_management:
     - name: ingestion-prefect
       paths:
         - "metadata-ingestion-modules/prefect-plugin/**"
+    - name: metadata-integration
+      paths:
+        - "metadata-integration/**"
 coverage:
   status:
     project: false

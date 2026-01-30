@@ -8,7 +8,7 @@
  */
 import { SourceConfig } from '@app/ingest/source/conf/types';
 
-import tableauLogo from '@images/tableaulogo.png';
+import tableauLogo from '@images/tableaulogo.svg';
 
 const placeholderRecipe = `\
 source:
@@ -29,6 +29,8 @@ source:
     default_schema_map:
       mydatabase: public
       anotherdatabase: anotherschema
+    stateful_ingestion:
+      enabled: true
 `;
 
 export const TABLEAU = 'tableau';

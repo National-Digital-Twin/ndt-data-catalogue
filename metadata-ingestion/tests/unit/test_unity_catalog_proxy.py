@@ -25,14 +25,18 @@ class TestUnityCatalogProxy:
     @pytest.fixture
     def mock_proxy(self):
         """Create a mock UnityCatalogApiProxy for testing."""
-        with patch("datahub.ingestion.source.unity.proxy.WorkspaceClient"):
-            proxy = UnityCatalogApiProxy(
-                workspace_url="https://test.databricks.com",
-                personal_access_token="test_token",
-                warehouse_id="test_warehouse",
-                report=UnityCatalogReport(),
-            )
-            return proxy
+        from databricks.sdk import WorkspaceClient
+
+        mock_workspace_client = MagicMock(spec=WorkspaceClient)
+        mock_workspace_client.config.host = "https://test.databricks.com"
+        mock_workspace_client.config.token = "test_token"
+        mock_workspace_client.config.warehouse_id = "test_warehouse"
+
+        proxy = UnityCatalogApiProxy(
+            workspace_client=mock_workspace_client,
+            report=UnityCatalogReport(),
+        )
+        return proxy
 
     def test_build_datetime_where_conditions_empty(self, mock_proxy):
         """Test datetime conditions with no start/end time."""
@@ -590,27 +594,31 @@ class TestUnityCatalogProxy:
         assert len(table.upstream_notebooks) == 0
         assert len(table.downstream_notebooks) == 0
 
-    def test_constructor_with_databricks_api_page_size(self):
+    @patch("datahub.ingestion.source.unity.proxy.WorkspaceClient")
+    def test_constructor_with_databricks_api_page_size(self, mock_workspace_client):
         """Test UnityCatalogApiProxy constructor with databricks_api_page_size parameter."""
-        with patch("datahub.ingestion.source.unity.proxy.WorkspaceClient"):
-            # Test with default page size (0)
-            proxy = UnityCatalogApiProxy(
-                workspace_url="https://test.databricks.com",
-                personal_access_token="test_token",
-                warehouse_id="test_warehouse",
-                report=UnityCatalogReport(),
-            )
-            assert proxy.databricks_api_page_size == 0
+        from databricks.sdk import WorkspaceClient
 
-            # Test with custom page size
-            proxy = UnityCatalogApiProxy(
-                workspace_url="https://test.databricks.com",
-                personal_access_token="test_token",
-                warehouse_id="test_warehouse",
-                report=UnityCatalogReport(),
-                databricks_api_page_size=500,
-            )
-            assert proxy.databricks_api_page_size == 500
+        mock_client = MagicMock(spec=WorkspaceClient)
+        mock_client.config.host = "https://test.databricks.com"
+        mock_client.config.token = "test_token"
+        mock_client.config.warehouse_id = "test_warehouse"
+        mock_workspace_client.return_value = mock_client
+
+        # Test with default page size (0)
+        proxy = UnityCatalogApiProxy(
+            workspace_client=mock_client,
+            report=UnityCatalogReport(),
+        )
+        assert proxy.databricks_api_page_size == 0
+
+        # Test with custom page size
+        proxy = UnityCatalogApiProxy(
+            workspace_client=mock_client,
+            report=UnityCatalogReport(),
+            databricks_api_page_size=500,
+        )
+        assert proxy.databricks_api_page_size == 500
 
     @patch("datahub.ingestion.source.unity.proxy.WorkspaceClient")
     def test_check_basic_connectivity_with_page_size(self, mock_workspace_client):
@@ -618,11 +626,10 @@ class TestUnityCatalogProxy:
         # Setup mock
         mock_client = mock_workspace_client.return_value
         mock_client.catalogs.list.return_value = ["catalog1"]
+        mock_client.config.warehouse_id = "test_warehouse"
 
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
             databricks_api_page_size=100,
         )
@@ -641,11 +648,10 @@ class TestUnityCatalogProxy:
         mock_client = mock_workspace_client.return_value
         mock_client.catalogs.list.return_value = []
         mock_client.metastores.summary.return_value = None
+        mock_client.config.warehouse_id = "test_warehouse"
 
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
             databricks_api_page_size=200,
         )
@@ -664,11 +670,10 @@ class TestUnityCatalogProxy:
         # Setup mock
         mock_client = mock_workspace_client.return_value
         mock_client.schemas.list.return_value = []
+        mock_client.config.warehouse_id = "test_warehouse"
 
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
             databricks_api_page_size=300,
         )
@@ -711,11 +716,10 @@ class TestUnityCatalogProxy:
         # Setup mock
         mock_client = mock_workspace_client.return_value
         mock_client.tables.list.return_value = []
+        mock_client.config.warehouse_id = "test_warehouse"
 
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
             databricks_api_page_size=400,
         )
@@ -762,11 +766,10 @@ class TestUnityCatalogProxy:
         # Setup mock
         mock_client = mock_workspace_client.return_value
         mock_client.workspace.list.return_value = []
+        mock_client.config.warehouse_id = "test_warehouse"
 
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
             databricks_api_page_size=250,
         )
@@ -785,11 +788,10 @@ class TestUnityCatalogProxy:
         # Setup mock
         mock_client = mock_workspace_client.return_value
         mock_client.api_client.do.return_value = {"res": []}
+        mock_client.config.warehouse_id = "test_warehouse"
 
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
             databricks_api_page_size=150,
         )
@@ -821,11 +823,10 @@ class TestUnityCatalogProxy:
         # Setup mock
         mock_client = mock_workspace_client.return_value
         mock_client.registered_models.list.return_value = []
+        mock_client.config.warehouse_id = "test_warehouse"
 
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
             databricks_api_page_size=150,
         )
@@ -875,11 +876,10 @@ class TestUnityCatalogProxy:
         # Setup mock
         mock_client = mock_workspace_client.return_value
         mock_client.registered_models.list.return_value = []
+        mock_client.config.warehouse_id = "test_warehouse"
 
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
         )
 
@@ -927,6 +927,7 @@ class TestUnityCatalogProxy:
         mock_client = mock_workspace_client.return_value
         mock_version = ModelVersionInfo(version=1, comment="Test version")
         mock_client.model_versions.list.return_value = [mock_version]
+        mock_client.config.warehouse_id = "test_warehouse"
 
         # Mock get response with aliases
         mock_detailed_version = ModelVersionInfo(
@@ -935,9 +936,7 @@ class TestUnityCatalogProxy:
         mock_client.model_versions.get.return_value = mock_detailed_version
 
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
             databricks_api_page_size=75,
         )
@@ -994,11 +993,10 @@ class TestUnityCatalogProxy:
         mock_client = mock_workspace_client.return_value
         mock_version = ModelVersionInfo(version=1, comment="Test version")
         mock_client.model_versions.list.return_value = [mock_version]
+        mock_client.config.warehouse_id = "test_warehouse"
 
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
             databricks_api_page_size=75,
         )
@@ -1053,10 +1051,10 @@ class TestUnityCatalogProxy:
             Schema,
         )
 
+        mock_client = mock_workspace_client.return_value
+        mock_client.config.warehouse_id = "test_warehouse"
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
         )
 
@@ -1100,10 +1098,10 @@ class TestUnityCatalogProxy:
 
         from datahub.ingestion.source.unity.proxy_types import Model
 
+        mock_client = mock_workspace_client.return_value
+        mock_client.config.warehouse_id = "test_warehouse"
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
         )
 
@@ -1135,10 +1133,10 @@ class TestUnityCatalogProxy:
             Schema,
         )
 
+        mock_client = mock_workspace_client.return_value
+        mock_client.config.warehouse_id = "test_warehouse"
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
         )
 
@@ -1197,10 +1195,10 @@ class TestUnityCatalogProxy:
 
         from datahub.ingestion.source.unity.proxy_types import Model
 
+        mock_client = mock_workspace_client.return_value
+        mock_client.config.warehouse_id = "test_warehouse"
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
         )
 
@@ -1260,10 +1258,10 @@ class TestUnityCatalogProxy:
             RunTag,
         )
 
+        mock_client = mock_workspace_client.return_value
+        mock_client.config.warehouse_id = "test_warehouse"
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
         )
 
@@ -1319,10 +1317,10 @@ class TestUnityCatalogProxy:
     @patch("datahub.ingestion.source.unity.proxy.WorkspaceClient")
     def test_get_run_details_with_missing_run(self, mock_workspace_client):
         """Test get_run_details() handles missing run gracefully."""
+        mock_client = mock_workspace_client.return_value
+        mock_client.config.warehouse_id = "test_warehouse"
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
         )
 
@@ -1341,10 +1339,10 @@ class TestUnityCatalogProxy:
         """Test get_run_details() handles empty metrics and parameters."""
         from databricks.sdk.service.ml import Run, RunData, RunInfo, RunInfoStatus
 
+        mock_client = mock_workspace_client.return_value
+        mock_client.config.warehouse_id = "test_warehouse"
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
         )
 
@@ -1379,10 +1377,10 @@ class TestUnityCatalogProxy:
     @patch("datahub.ingestion.source.unity.proxy.WorkspaceClient")
     def test_get_run_details_with_api_error(self, mock_workspace_client):
         """Test get_run_details() handles API errors gracefully."""
+        mock_client = mock_workspace_client.return_value
+        mock_client.config.warehouse_id = "test_warehouse"
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
         )
 
@@ -1402,10 +1400,10 @@ class TestUnityCatalogProxy:
 
         from databricks.sdk.service.catalog import ModelVersionInfo
 
+        mock_client = mock_workspace_client.return_value
+        mock_client.config.warehouse_id = "test_warehouse"
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
         )
 
@@ -1454,10 +1452,10 @@ signature:
         """Test _extract_signature_from_files_api() handles missing MLmodel file."""
         from databricks.sdk.service.catalog import ModelVersionInfo
 
+        mock_client = mock_workspace_client.return_value
+        mock_client.config.warehouse_id = "test_warehouse"
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
         )
 
@@ -1484,10 +1482,10 @@ signature:
 
         from databricks.sdk.service.catalog import ModelVersionInfo
 
+        mock_client = mock_workspace_client.return_value
+        mock_client.config.warehouse_id = "test_warehouse"
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
         )
 
@@ -1526,10 +1524,10 @@ mlflow_version: 2.0.1
 
         from databricks.sdk.service.catalog import ModelVersionInfo
 
+        mock_client = mock_workspace_client.return_value
+        mock_client.config.warehouse_id = "test_warehouse"
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
         )
 
@@ -1570,10 +1568,10 @@ signature:
 
         from databricks.sdk.service.catalog import ModelVersionInfo
 
+        mock_client = mock_workspace_client.return_value
+        mock_client.config.warehouse_id = "test_warehouse"
         proxy = UnityCatalogApiProxy(
-            workspace_url="https://test.databricks.com",
-            personal_access_token="test_token",
-            warehouse_id="test_warehouse",
+            workspace_client=mock_client,
             report=UnityCatalogReport(),
         )
 
@@ -1633,17 +1631,14 @@ class TestUnityCatalogProxyAuthentication:
                 {"HTTPS_PROXY": "http://user:pass@proxy.com:8080"},
                 clear=True,
             ),
-            patch("datahub.ingestion.source.unity.proxy.WorkspaceClient") as mock_ws,
         ):
             mock_client = MagicMock()
             mock_client.config.host = "https://test.databricks.com"
             mock_client.config.token = "test-token"
-            mock_ws.return_value = mock_client
+            mock_client.config.warehouse_id = "test-warehouse"
 
             proxy = UnityCatalogApiProxy(
-                workspace_url="https://test.databricks.com",
-                personal_access_token="test-token",
-                warehouse_id="test-warehouse",
+                workspace_client=mock_client,
                 report=UnityCatalogReport(),
             )
 
@@ -1671,14 +1666,18 @@ class TestUnityCatalogProxyUsageSystemTables:
     @pytest.fixture
     def mock_proxy(self):
         """Create a mock UnityCatalogApiProxy for testing."""
-        with patch("datahub.ingestion.source.unity.proxy.WorkspaceClient"):
-            proxy = UnityCatalogApiProxy(
-                workspace_url="https://test.databricks.com",
-                personal_access_token="test_token",
-                warehouse_id="test_warehouse",
-                report=UnityCatalogReport(),
-            )
-            return proxy
+        from databricks.sdk import WorkspaceClient
+
+        mock_workspace_client = MagicMock(spec=WorkspaceClient)
+        mock_workspace_client.config.host = "https://test.databricks.com"
+        mock_workspace_client.config.token = "test_token"
+        mock_workspace_client.config.warehouse_id = "test_warehouse"
+
+        proxy = UnityCatalogApiProxy(
+            workspace_client=mock_workspace_client,
+            report=UnityCatalogReport(),
+        )
+        return proxy
 
     @patch(
         "datahub.ingestion.source.unity.proxy.UnityCatalogApiProxy._execute_sql_query"

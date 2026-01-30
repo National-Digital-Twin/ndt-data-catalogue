@@ -127,6 +127,7 @@ class DataJob(
                 platform=flow_urn.orchestrator,
                 name=flow_name,
                 platform_instance=platform_instance,
+                env=flow_urn.cluster,
             )
         urn = DataJobUrn.create_from_ids(
             job_id=name,
@@ -176,6 +177,7 @@ class DataJob(
         if fine_grained_lineages is not None:
             self.set_fine_grained_lineages(fine_grained_lineages)
 
+        env = None
         if self.flow_urn.cluster.upper() in builder.ALL_ENV_TYPES:
             env = self.flow_urn.cluster.upper()
         self._ensure_datajob_props().env = env
@@ -371,4 +373,5 @@ class DataJob(
     @property
     def env(self) -> Optional[str]:
         """Get the environment of the data job."""
-        return str(self._ensure_datajob_props().env)
+        env_value = self._ensure_datajob_props().env
+        return str(env_value) if env_value is not None else None

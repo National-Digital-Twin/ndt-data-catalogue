@@ -9,7 +9,22 @@
  * and is legally attributed to the Department for Business and Trade (UK) as the governing
  * entity.
  */
-import { AppWindow, Gear, HardDrives, Plugs, Question, SignOut, UserCircle } from '@phosphor-icons/react';
+import {
+    AppWindow,
+    BookBookmark,
+    FileText,
+    Gear,
+    Globe,
+    HardDrives,
+    Plugs,
+    Question,
+    SignOut,
+    SquaresFour,
+    Tag,
+    TextColumns,
+    TrendUp,
+    UserCircle,
+} from '@phosphor-icons/react';
 import React, { useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
@@ -21,16 +36,23 @@ import NavBarHeader from '@app/homeV2/layout/navBarRedesign/NavBarHeader';
 import NavBarMenu from '@app/homeV2/layout/navBarRedesign/NavBarMenu';
 import NavSkeleton from '@app/homeV2/layout/navBarRedesign/NavBarSkeleton';
 import {
+    NavBarMenuDropdownItem,
     NavBarMenuDropdownItemElement,
+    NavBarMenuGroup,
     NavBarMenuItemTypes,
     NavBarMenuItems,
 } from '@app/homeV2/layout/navBarRedesign/types';
 import useSelectedKey from '@app/homeV2/layout/navBarRedesign/useSelectedKey';
 import { useShowHomePageRedesign } from '@app/homeV3/context/hooks/useShowHomePageRedesign';
+import { useMFEConfigFromBackend } from '@app/mfeframework/mfeConfigLoader';
+import { getMfeMenuDropdownItems, getMfeMenuItems } from '@app/mfeframework/mfeNavBarMenuUtils';
 import OnboardingContext from '@app/onboarding/OnboardingContext';
 import { useOnboardingTour } from '@app/onboarding/OnboardingTourContext.hooks';
 import { useIsHomePage } from '@app/shared/useIsHomePage';
-import { useAppConfig, useBusinessAttributesFlag } from '@app/useAppConfig';
+import { useGetIngestionLink } from '@app/sharedV2/ingestionSources/useGetIngestionLink';
+import { useHasIngestionSources } from '@app/sharedV2/ingestionSources/useHasIngestionSources';
+import { useAppConfig, useBusinessAttributesFlag, useIsContextDocumentsEnabled } from '@app/useAppConfig';
+import { colors } from '@src/alchemy-components';
 import { getColor } from '@src/alchemy-components/theme/utils';
 import useGetLogoutHandler from '@src/app/auth/useGetLogoutHandler';
 import { HOME_PAGE_INGESTION_ID } from '@src/app/onboarding/config/HomePageOnboardingConfig';
@@ -83,6 +105,11 @@ const MenuWrapper = styled.div`
     width: 100%;
 `;
 
+const Footer = styled.div`
+    padding: 8px 8px 17px 16px;
+    border-top: 1px solid ${colors.gray[100]};
+`;
+
 export const NavSidebar = () => {
     const entityRegistry = useEntityRegistry();
     const themeConfig = useTheme();
@@ -94,12 +121,16 @@ export const NavSidebar = () => {
     const isHomePage = useIsHomePage();
     const location = useLocation();
     const showHomepageRedesign = useShowHomePageRedesign();
+    const isContextDocumentsEnabled = useIsContextDocumentsEnabled();
 
     const { isUserInitializing } = useContext(OnboardingContext);
     const { triggerModalTour } = useOnboardingTour();
     const { showOnboardingTour } = useHandleOnboardingTour();
     const { config } = useAppConfig();
     const logout = useGetLogoutHandler();
+
+    const { hasIngestionSources } = useHasIngestionSources();
+    const ingestionLink = useGetIngestionLink(hasIngestionSources);
 
     const showAnalytics = (config?.analyticsConfig?.enabled && me && me?.platformPrivileges?.viewAnalytics) || false;
     const showStructuredProperties =
@@ -128,13 +159,40 @@ export const NavSidebar = () => {
         key: `helpMenu${value.label}`,
     })) as NavBarMenuDropdownItemElement[];
 
+    // --- MFE YAML CONFIG ---
+    const mfeConfig: any = useMFEConfigFromBackend();
+
+    // MFE section (dropdown or spread)
+    let mfeSection: any[] = [];
+    if (mfeConfig) {
+        if (mfeConfig.subNavigationMode) {
+            mfeSection = [
+                {
+                    type: NavBarMenuItemTypes.Dropdown,
+                    title: 'MFE Apps',
+                    icon: <AppWindow />,
+                    key: 'mfe-dropdown',
+                    items: getMfeMenuDropdownItems(mfeConfig),
+                } as NavBarMenuDropdownItem,
+            ];
+        } else {
+            mfeSection = [
+                {
+                    type: NavBarMenuItemTypes.Group,
+                    key: 'mfe-group',
+                    title: 'MFE Apps',
+                    items: getMfeMenuItems(mfeConfig),
+                } as NavBarMenuGroup,
+            ];
+        }
+    }
     function handleHomeclick() {
         if (isHomePage && showHomepageRedesign) {
             toggle();
         }
     }
 
-    const mainMenu: NavBarMenuItems = {
+    const headerMenu: NavBarMenuItems = {
         items: [
             {
                 type: NavBarMenuItemTypes.Item,
@@ -145,6 +203,34 @@ export const NavSidebar = () => {
                 link: PageRoutes.ROOT,
                 onlyExactPathMapping: true,
                 onClick: () => handleHomeclick(),
+            },
+        ],
+    };
+
+    const mainContentMenu: NavBarMenuItems = {
+        items: [
+            ...mfeSection,
+            {
+                type: NavBarMenuItemTypes.Group,
+                key: 'context',
+                title: 'Context',
+                isHidden: !isContextDocumentsEnabled,
+                items: [
+                    {
+                        type: NavBarMenuItemTypes.Item,
+                        title: 'Documents',
+                        key: 'contextDocuments',
+                        icon: <FileText />,
+                        selectedIcon: <FileText weight="fill" />,
+                        link: PageRoutes.CONTEXT_DOCUMENTS,
+                        additionalLinksForPathMatching: [`/${entityRegistry.getPathName(EntityType.Document)}/:urn`],
+                        badge: {
+                            label: 'BETA',
+                            show: true,
+                            showDot: false,
+                        },
+                    },
+                ],
             },
             {
                 type: NavBarMenuItemTypes.Group,
@@ -221,7 +307,15 @@ export const NavSidebar = () => {
                         isHidden: !showDataSources,
                         icon: <Plugs />,
                         selectedIcon: <Plugs stroke="#FFCF06" />,
-                        link: PageRoutes.INGESTION,
+                        link: ingestionLink,
+                        onClick: () => {
+                            if (ingestionLink === PageRoutes.INGESTION_CREATE) {
+                                analytics.event({
+                                    type: EventType.EnterIngestionFlowEvent,
+                                    entryPoint: 'nav_menu',
+                                });
+                            }
+                        },
                     },
                     {
                         type: NavBarMenuItemTypes.Item,
@@ -234,11 +328,11 @@ export const NavSidebar = () => {
                     },
                 ],
             },
-            {
-                type: NavBarMenuItemTypes.Custom,
-                key: 'spacer',
-                render: () => <Spacer />,
-            },
+        ],
+    };
+
+    const footerMenu: NavBarMenuItems = {
+        items: [
             {
                 type: NavBarMenuItemTypes.Item,
                 title: 'Profile',
@@ -318,7 +412,12 @@ export const NavSidebar = () => {
             },
         ],
     };
-    const sk = useSelectedKey(mainMenu);
+
+    // Combine all menus for selected key calculation
+    const allMenuItems: NavBarMenuItems = {
+        items: [...headerMenu.items, ...mainContentMenu.items, ...footerMenu.items],
+    };
+    const sk = useSelectedKey(allMenuItems);
 
     useEffect(() => setSelectedKey(sk), [sk, setSelectedKey]);
 
@@ -342,7 +441,7 @@ export const NavSidebar = () => {
     return (
         <Container>
             {renderSvgSelectedGradientForReusingInIcons()}
-            <Content isCollapsed={isCollapsed}>
+            <Content id="nav-sidebar" data-collapsed={isCollapsed} isCollapsed={isCollapsed}>
                 {showSkeleton ? (
                     <NavSkeleton isCollapsed={isCollapsed} />
                 ) : (
@@ -352,10 +451,13 @@ export const NavSidebar = () => {
                             <NavBarMenu
                                 selectedKey={selectedKey}
                                 isCollapsed={isCollapsed}
-                                menu={mainMenu}
+                                menu={mainContentMenu}
                                 iconSize={32}
                             />
                         </MenuWrapper>
+                        <Footer>
+                            <NavBarMenu selectedKey={selectedKey} isCollapsed={isCollapsed} menu={footerMenu} />
+                        </Footer>
                     </>
                 )}
             </Content>

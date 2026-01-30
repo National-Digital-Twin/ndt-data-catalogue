@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { Modal } from 'antd';
 import React, { useContext, useMemo, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import styled from 'styled-components/macro';
@@ -16,7 +15,7 @@ import { SidebarSection } from '@app/entityV2/shared/containers/profile/sidebar/
 import { ViewTab } from '@app/entityV2/shared/tabs/Dataset/View/ViewDefinitionTab';
 import { DBT_URN } from '@app/ingest/source/builder/constants';
 import EntitySidebarContext from '@app/sharedV2/EntitySidebarContext';
-import { Button } from '@src/alchemy-components';
+import { Button, Modal } from '@src/alchemy-components';
 import CopyQuery from '@src/app/entity/shared/tabs/Dataset/Queries/CopyQuery';
 import { useIsEmbeddedProfile } from '@src/app/shared/useEmbeddedProfileLinkProps';
 import { useEntityRegistry } from '@src/app/useEntityRegistry';
@@ -123,13 +122,15 @@ export function SidebarLogicSection({ title, statement, highlightedStrings, exte
             content={
                 <>
                     <Modal
-                        closeIcon={null}
+                        title={title}
                         width="1000px"
-                        footer={
-                            <Button variant="text" key="back" onClick={() => setShowFullContentModal(false)}>
-                                Close
-                            </Button>
-                        }
+                        buttons={[
+                            {
+                                text: 'Close',
+                                variant: 'filled',
+                                onClick: () => setShowFullContentModal(false),
+                            },
+                        ]}
                         open={showFullContentModal}
                         onCancel={() => setShowFullContentModal(false)}
                     >

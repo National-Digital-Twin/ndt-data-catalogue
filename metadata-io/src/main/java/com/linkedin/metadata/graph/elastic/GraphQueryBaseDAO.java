@@ -1673,4 +1673,9 @@ public abstract class GraphQueryBaseDAO implements GraphQueryDAO {
 
     return allRelationships;
   }
+
+  @Override
+  public void cleanupPointInTime(String pitId) {
+    ESUtils.cleanupPointInTime(getClient(), pitId, "API Request");
+  }
 }

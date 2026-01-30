@@ -513,7 +513,7 @@ export class DatasetEntity implements Entity<Dataset> {
     };
 
     displayName = (data: Dataset) => {
-        return data?.properties?.name || data.name || data.urn;
+        return data?.editableProperties?.name || data?.properties?.name || data.name || data.urn;
     };
 
     platformLogoUrl = (data: Dataset) => {
@@ -542,6 +542,7 @@ export class DatasetEntity implements Entity<Dataset> {
             EntityCapabilityType.LINEAGE,
             EntityCapabilityType.HEALTH,
             EntityCapabilityType.APPLICATIONS,
+            EntityCapabilityType.RELATED_DOCUMENTS,
         ]);
     };
 

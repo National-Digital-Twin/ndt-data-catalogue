@@ -28,4 +28,5 @@ public class SearchConfiguration {
   private CustomConfiguration custom;
   private GraphQueryConfiguration graph;
   private WordGramConfiguration wordGram;
+  private SearchValidationConfiguration validation;
 }

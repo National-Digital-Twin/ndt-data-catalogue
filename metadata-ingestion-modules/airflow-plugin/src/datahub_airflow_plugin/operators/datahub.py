@@ -5,7 +5,7 @@
 # All support, maintenance and further development of this code is now the responsibility
 # of the National Digital Twin Programme.
 
-from typing import Any, List, Union
+from typing import TYPE_CHECKING, Any, List, Union
 
 from airflow.models import BaseOperator
 from avrogen.dict_wrapper import DictWrapper
@@ -17,6 +17,21 @@ from datahub_airflow_plugin.hooks.datahub import (
     DatahubKafkaHook,
     DatahubRestHook,
 )
+
+if TYPE_CHECKING:
+    from jinja2 import Environment
+
+    # Import Context with version compatibility for type checking
+    # Import to different names to avoid redefinition errors, then assign to Context
+    Context: Any
+    try:
+        from airflow.utils.context import Context as _AirflowContext
+
+        Context = _AirflowContext
+    except ImportError:
+        from airflow.sdk.definitions.context import Context as _Airflow3Context
+
+        Context = _Airflow3Context  # type: ignore[no-redef]
 
 
 class DatahubBaseOperator(BaseOperator):
@@ -63,7 +78,9 @@ class DatahubEmitterOperator(DatahubBaseOperator):
         )
         self.metadata = mces
 
-    def _render_template_fields(self, field_value, context, jinja_env):
+    def _render_template_fields(
+        self, field_value: Any, context: "Context", jinja_env: "Environment"
+    ) -> Any:
         if isinstance(field_value, DictWrapper):
             for key, value in field_value.items():
                 setattr(
@@ -80,7 +97,7 @@ class DatahubEmitterOperator(DatahubBaseOperator):
             return super().render_template(field_value, context, jinja_env)
         return field_value
 
-    def execute(self, context):
+    def execute(self, context: "Context") -> None:
         if context:
             jinja_env = self.get_template_env()
 
