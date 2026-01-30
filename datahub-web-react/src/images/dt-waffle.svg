@@ -1,3 +1,11 @@
+<!--
+  ~ SPDX-License-Identifier: Apache-2.0
+  ~
+  ~ © Crown Copyright 2025. This work has been developed by the National Digital Twin
+  ~ Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
+  ~ entity
+-->
+
 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M2 5.65714V2.34286C2 2.1535 2.1535 2 2.34286 2H5.65714C5.8465 2 6 2.1535 6 2.34286V5.65714C6 5.8465 5.8465 6 5.65714 6H2.34286C2.1535 6 2 5.8465 2 5.65714Z" fill="#4379BF" stroke="#4379BF" stroke-width="1.5"/>
 <path d="M10 5.65714V2.34286C10 2.1535 10.1535 2 10.3429 2H13.6571C13.8465 2 14 2.1535 14 2.34286V5.65714C14 5.8465 13.8465 6 13.6571 6H10.3429C10.1535 6 10 5.8465 10 5.65714Z" fill="#4379BF" stroke="#4379BF" stroke-width="1.5"/>
