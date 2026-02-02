@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { useMemo } from 'react';
 
 import { useListSecretsQuery } from '@graphql/ingestion.generated';

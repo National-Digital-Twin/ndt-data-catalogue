@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { Breadcrumb } from '@components';
 import React, { useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components';

@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { FieldType, FilterRecipeField, FilterRule } from '@app/ingestV2/source/builder/RecipeForm/common';

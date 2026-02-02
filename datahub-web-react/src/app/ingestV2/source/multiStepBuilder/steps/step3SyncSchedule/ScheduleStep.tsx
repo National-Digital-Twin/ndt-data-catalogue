@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { Icon, Switch, Text } from '@components';
 import cronstrue from 'cronstrue';
 import React, { useEffect, useMemo, useRef, useState } from 'react';

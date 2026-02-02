@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { SelectOption } from '@components';
 import { v4 as uuidv4 } from 'uuid';
 

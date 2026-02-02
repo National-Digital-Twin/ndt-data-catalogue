@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { useCallback, useMemo, useState } from 'react';
 
 import { useUrlQueryParam } from '@app/shared/useUrlQueryParam';

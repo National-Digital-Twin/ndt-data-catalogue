@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { LoadingOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, SearchBar, Tooltip } from '@components';
 import { Divider } from 'antd';

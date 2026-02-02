@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { Button, colors } from '@components';
 import { Typography } from 'antd';
 import React, { useCallback, useMemo } from 'react';

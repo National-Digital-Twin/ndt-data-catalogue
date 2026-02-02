@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { PictureOutlined } from '@ant-design/icons';
 import { Modal } from '@components';
 import { useCommands } from '@remirror/react';

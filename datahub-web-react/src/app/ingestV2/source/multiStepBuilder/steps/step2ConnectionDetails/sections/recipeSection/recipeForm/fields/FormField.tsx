@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import React, { useMemo } from 'react';
 
 import { FieldType } from '@app/ingestV2/source/builder/RecipeForm/common';

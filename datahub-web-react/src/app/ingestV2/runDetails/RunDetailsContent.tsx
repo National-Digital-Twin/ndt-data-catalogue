@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { LoadingOutlined } from '@ant-design/icons';
 import { ApolloError } from '@apollo/client';
 import { Icon, Pill } from '@components';

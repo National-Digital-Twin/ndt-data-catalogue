@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { Input, Switch, Text, colors } from '@components';
 import React, { useState } from 'react';
 import Cron from 'react-js-cron';

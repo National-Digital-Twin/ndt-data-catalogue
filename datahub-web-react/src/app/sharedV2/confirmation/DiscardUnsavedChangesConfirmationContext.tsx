@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { Location } from 'history';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Prompt, useHistory } from 'react-router';

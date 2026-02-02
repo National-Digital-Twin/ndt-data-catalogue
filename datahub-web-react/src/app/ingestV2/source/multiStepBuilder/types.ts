@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { SourceBuilderState } from '@app/ingestV2/source/builder/types';
 import { Step } from '@app/sharedV2/forms/multiStepForm/types';
 

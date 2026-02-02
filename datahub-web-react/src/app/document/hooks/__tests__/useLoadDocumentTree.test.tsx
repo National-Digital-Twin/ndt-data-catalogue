@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import { waitFor } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';

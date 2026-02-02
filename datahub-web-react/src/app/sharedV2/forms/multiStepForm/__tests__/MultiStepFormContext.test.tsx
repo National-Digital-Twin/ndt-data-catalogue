@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { act, renderHook } from '@testing-library/react-hooks';
 import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';

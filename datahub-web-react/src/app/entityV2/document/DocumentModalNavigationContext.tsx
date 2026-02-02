@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { createContext, useContext } from 'react';
 
 // Context for handling breadcrumb navigation within the document modal

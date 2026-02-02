@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { Breadcrumb } from '@components';
 import React, { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router';

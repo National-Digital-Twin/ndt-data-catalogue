@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { describe, expect, it } from 'vitest';
 
 import { GetRelatedDocumentsQuery, RelatedDocumentsFieldsFragment } from '@graphql/document.generated';

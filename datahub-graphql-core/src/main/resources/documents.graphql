@@ -55,6 +55,13 @@ extend type Mutation {
   Requires the EDIT_ENTITY_DOCS or EDIT_ENTITY privilege for the document, or MANAGE_DOCUMENTS platform privilege.
   """
   updateDocumentSettings(input: UpdateDocumentSettingsInput!): Boolean!
+
+  """
+  Merge a draft document into its parent (the document it is a draft of).
+  This copies the draft's content to the published document and optionally deletes the draft.
+  Requires the EDIT_ENTITY_DOCS or EDIT_ENTITY privilege for both documents, or MANAGE_DOCUMENTS platform privilege.
+  """
+  mergeDraft(input: MergeDraftInput!): Boolean!
 }
 
 extend type Query {
@@ -565,6 +572,21 @@ input UpdateDocumentSubTypeInput {
   The new sub-type for the document (e.g., "FAQ", "Tutorial", "Runbook"). Set to null to clear the sub-type.
   """
   subType: String
+}
+
+"""
+Input required to merge a draft into its parent document
+"""
+input MergeDraftInput {
+  """
+  The URN of the draft document to merge
+  """
+  draftUrn: String!
+
+  """
+  Whether to delete the draft document after merging. Defaults to true.
+  """
+  deleteDraft: Boolean
 }
 
 """

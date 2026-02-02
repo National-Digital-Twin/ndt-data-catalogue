@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { LoadingOutlined } from '@ant-design/icons';
 import { Result } from 'antd';
 import React, { useCallback, useEffect, useRef, useState } from 'react';

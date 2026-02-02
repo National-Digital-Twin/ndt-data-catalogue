@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { RecipeField } from '@app/ingestV2/source/builder/RecipeForm/common';
 
 export function resolveDynamicOptions<T extends RecipeField>(field: T, values: Record<string, any>): T {

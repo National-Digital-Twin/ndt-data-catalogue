@@ -9,22 +9,7 @@
  * and is legally attributed to the Department for Business and Trade (UK) as the governing
  * entity.
  */
-import {
-    AppWindow,
-    BookBookmark,
-    FileText,
-    Gear,
-    Globe,
-    HardDrives,
-    Plugs,
-    Question,
-    SignOut,
-    SquaresFour,
-    Tag,
-    TextColumns,
-    TrendUp,
-    UserCircle,
-} from '@phosphor-icons/react';
+import { AppWindow, FileText, Gear, HardDrives, Plugs, Question, SignOut, UserCircle } from '@phosphor-icons/react';
 import React, { useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
@@ -93,10 +78,6 @@ const Content = styled.div<{ isCollapsed: boolean }>`
     width: ${(props) => (props.isCollapsed ? '105px' : '326px')};
     transition: width 250ms ease-in-out;
     overflow-x: hidden;
-`;
-
-const Spacer = styled.div`
-    flex: 1;
 `;
 
 const MenuWrapper = styled.div`

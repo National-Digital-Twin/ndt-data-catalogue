@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { Modal } from '@components';
 import { FromToProps } from '@remirror/core-types';
 import { getMarkRange } from '@remirror/core-utils';

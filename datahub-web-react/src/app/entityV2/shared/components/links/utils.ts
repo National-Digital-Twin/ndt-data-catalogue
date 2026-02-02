@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { isFileUrl } from '@components/components/Editor/extensions/fileDragDrop';
 
 import { GeneralizedLinkFormData, LinkFormData, LinkFormVariant } from '@app/entityV2/shared/components/links/types';

@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { Modal, message } from 'antd';
 import React, { useState } from 'react';
 import styled from 'styled-components';

@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { colors } from '@components';
 import { X } from '@phosphor-icons/react';
 import styled from 'styled-components';

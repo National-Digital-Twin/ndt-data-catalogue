@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { blue } from '@ant-design/colors';
 import { PlusOutlined } from '@ant-design/icons';
 import { Button } from '@components';

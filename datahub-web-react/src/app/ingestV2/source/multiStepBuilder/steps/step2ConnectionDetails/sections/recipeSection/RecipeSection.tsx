@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { Form, message } from 'antd';
 import React, { useCallback, useMemo, useState } from 'react';
 import YAML from 'yamljs';

@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { get, omit } from 'lodash';
 
 import { FieldType, PROFILING_ENABLED, RecipeField } from '@app/ingestV2/source/builder/RecipeForm/common';

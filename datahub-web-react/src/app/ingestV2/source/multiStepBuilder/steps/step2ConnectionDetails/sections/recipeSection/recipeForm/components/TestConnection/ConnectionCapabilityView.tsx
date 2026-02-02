@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { Icon, Text, spacing } from '@components';
 import { Tooltip } from 'antd';
