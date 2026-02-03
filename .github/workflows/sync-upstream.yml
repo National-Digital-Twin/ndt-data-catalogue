@@ -14,27 +14,51 @@ jobs:
   sync-upstream:
     name: Sync to upstream-mirror branch
     runs-on: ubuntu-latest
-    
+
+    permissions:
+      contents: write  # Required to push changes
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Fetch full history
-      
+
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       
+      - name: Fetch upstream URL (fallback)
+        if: ${{ !github.event.repository.parent.clone_url }}
+        id: fetch_upstream
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Fetching upstream URL from GitHub API..."
+          UPSTREAM_URL=$(gh api "repos/$GITHUB_REPOSITORY" --jq '.parent.clone_url')
+          echo "clone_url=$UPSTREAM_URL" >> "$GITHUB_OUTPUT"
+
       - name: Add upstream remote
+        env:
+          UPSTREAM_URL: ${{ github.event.repository.parent.clone_url || steps.fetch_upstream.outputs.clone_url }}
         run: |
-          git remote add upstream https://github.com/datahub-project/datahub.git || true
+          if [ -z "$UPSTREAM_URL" ] || [ "$UPSTREAM_URL" = "null" ]; then
+            echo "::error::Could not determine upstream repository URL. Ensure this repository is a fork."
+            exit 1
+          fi
+          
+          echo "Found upstream URL: $UPSTREAM_URL"
+          
+          # Add or update the upstream remote
+          if git remote | grep -q "^upstream$"; then
+            git remote set-url upstream "$UPSTREAM_URL"
+          else
+            git remote add upstream "$UPSTREAM_URL"
+          fi
+          
           git remote -v
-      
-      - name: Fetch upstream
-        run: |
-          git fetch upstream
-      
+
       - name: Check upstream-mirror branch exists
         uses: actions/github-script@v8
         with:
@@ -71,13 +95,17 @@ jobs:
                 return;
               }
             }
-      
+
+      - name: Fetch upstream
+        run: |
+          git fetch upstream master -f --no-tags
+
       - name: Sync with upstream master
         run: |
           git checkout upstream-mirror
           # Reset to upstream/master to get exact copy with full history
           git reset --hard upstream/master
-      
+
       - name: Push to upstream-mirror
         run: |
           git push origin upstream-mirror --force
@@ -109,7 +137,7 @@ jobs:
               .addRaw('```\n')
               .addRaw(`${latestCommit.trim()}\n`)
               .addRaw('```\n\n')
-              .addRaw(`**Branch:** [${branchName}](/${{ github.repository }}/tree/${branchName})\n`)
+              .addRaw(`**Branch:** [${branchName}](/$GITHUB_REPOSITORY/tree/${branchName})\n`)
               .write();
             
             core.info(`Successfully synced upstream/master to ${branchName} branch`);
