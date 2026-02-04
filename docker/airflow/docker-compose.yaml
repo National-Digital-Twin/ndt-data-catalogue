@@ -18,6 +18,10 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
 
 # Basic Airflow cluster configuration for CeleryExecutor with Redis and PostgreSQL.
 #
@@ -43,10 +47,6 @@
 #                                Default: ''
 #
 # Feel free to modify this file to suit your needs.
-# This file is unmodified from its original version developed by Acryl Data, Inc.,
-# and is now included as part of a repository maintained by the National Digital Twin Programme.
-# All support, maintenance and further development of this code is now the responsibility
-# of the National Digital Twin Programme.
 ---
 x-airflow-common:
   &airflow-common

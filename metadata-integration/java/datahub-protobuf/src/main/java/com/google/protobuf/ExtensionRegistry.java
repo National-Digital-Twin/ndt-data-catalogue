@@ -1,10 +1,6 @@
-/*
- * SPDX-License-Identifier: Apache-2.0
+/* SPDX-License-Identifier: Apache-2.0
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by the National Digital Twin Programme.
  */
 
 // Protocol Buffers - Google's data interchange format
@@ -36,6 +32,13 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+/*
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
+ */
 
 package com.google.protobuf;
 

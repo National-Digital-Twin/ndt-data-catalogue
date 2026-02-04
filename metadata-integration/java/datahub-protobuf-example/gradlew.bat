@@ -1,9 +1,7 @@
 rem SPDX-License-Identifier: Apache-2.0
 rem
-rem This file is unmodified from its original version developed by Acryl Data, Inc.,
-rem and is now included as part of a repository maintained by the National Digital Twin Programme.
-rem All support, maintenance and further development of this code is now the responsibility
-rem of the National Digital Twin Programme.
+rem Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by the National Digital Twin Programme.
+rem
 
 @rem
 @rem Copyright 2015 the original author or authors.
@@ -20,6 +18,14 @@ rem of the National Digital Twin Programme.
 @rem See the License for the specific language governing permissions and
 @rem limitations under the License.
 @rem
+@rem SPDX-License-Identifier: Apache-2.0
+@rem
+
+rem This file is unmodified from its original version developed by Acryl Data, Inc.,
+rem and is now included as part of a repository maintained by the National Digital Twin Programme.
+rem All support, maintenance and further development of this code is now the responsibility
+rem of the National Digital Twin Programme.
+rem 
 
 @if "%DEBUG%" == "" @echo off
 @rem ##########################################################################

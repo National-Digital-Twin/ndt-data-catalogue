@@ -1,12 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: Apache-2.0
 #
-# This file is unmodified from its original version developed by Acryl Data, Inc.,
-# and is now included as part of a repository maintained by the National Digital Twin Programme.
-# All support, maintenance and further development of this code is now the responsibility
-# of the National Digital Twin Programme.
-
-
+# Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by the National Digital Twin Programme.
 #
 # Copyright © 2015-2021 the original authors.
 #
@@ -23,6 +18,11 @@
 # limitations under the License.
 #
 # SPDX-License-Identifier: Apache-2.0
+#
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
 #
 
 ##############################################################################
