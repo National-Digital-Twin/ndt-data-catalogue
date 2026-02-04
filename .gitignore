@@ -150,4 +150,6 @@ metadata-ingestion-modules/acryl-cloud
 # node
 node_modules
 
+# remove claude files from the remote repo until a decision is made with NDTP regarding which AI provider to use
 .claude/
+CLAUDE.md
