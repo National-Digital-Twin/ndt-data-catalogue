@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
+
+run_id: oracle-mview-lineage-test
+
+source:
+  type: oracle
+  config:
+    username: system
+    password: example
+    host_port: localhost:51521
+    service_name: XEPDB1
+    
+    # Focus on materialized view lineage
+    include_stored_procedures: false
+    include_materialized_views: true
+    
+    # Enable lineage features
+    include_view_lineage: true
+    include_view_column_lineage: true
+    
+    data_dictionary_mode: "ALL"
+    
+    schema_pattern:
+      allow:
+        - "^ANALYTICS_SCHEMA$"  # Has materialized views
+        - "^SYSTEM$"            # Has test_mview
+    
+    profiling:
+      enabled: false
+      
+sink:
+  type: file
+  config:
+    filename: "oracle_mces.json"

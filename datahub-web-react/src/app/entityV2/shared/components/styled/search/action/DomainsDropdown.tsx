@@ -6,12 +6,13 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { Modal, message } from 'antd';
+import { message } from 'antd';
 import React, { useState } from 'react';
 
 import ActionDropdown from '@app/entityV2/shared/components/styled/search/action/ActionDropdown';
 import { SetDomainModal } from '@app/entityV2/shared/containers/profile/sidebar/Domain/SetDomainModal';
 import { handleBatchError } from '@app/entityV2/shared/utils';
+import { ConfirmationModal } from '@app/sharedV2/modals/ConfirmationModal';
 
 import { useBatchSetDomainMutation } from '@graphql/mutations.generated';
 
@@ -24,6 +25,8 @@ type Props = {
 // eslint-disable-next-line
 export default function DomainsDropdown({ urns, disabled = false, refetch }: Props) {
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    const [isUnsetModalVisible, setIsUnsetModalVisible] = useState(false);
+
     const [batchSetDomainMutation] = useBatchSetDomainMutation();
 
     const batchUnsetDomains = () => {
@@ -39,6 +42,7 @@ export default function DomainsDropdown({ urns, disabled = false, refetch }: Pro
                     message.success({ content: 'Removed Domain!', duration: 2 });
                     refetch?.();
                 }
+                setIsUnsetModalVisible(false);
             })
             .catch((e) => {
                 message.destroy();
@@ -65,17 +69,7 @@ export default function DomainsDropdown({ urns, disabled = false, refetch }: Pro
                     {
                         title: 'Unset Domain',
                         onClick: () => {
-                            Modal.confirm({
-                                title: `If you continue, Domain will be removed for the selected assets.`,
-                                content: `Are you sure you want to unset Domain for these assets?`,
-                                onOk() {
-                                    batchUnsetDomains();
-                                },
-                                onCancel() {},
-                                okText: 'Yes',
-                                maskClosable: true,
-                                closable: true,
-                            });
+                            setIsUnsetModalVisible(true);
                         },
                     },
                 ]}
@@ -90,6 +84,13 @@ export default function DomainsDropdown({ urns, disabled = false, refetch }: Pro
                     }}
                 />
             )}
+            <ConfirmationModal
+                isOpen={isUnsetModalVisible}
+                handleClose={() => setIsUnsetModalVisible(false)}
+                handleConfirm={batchUnsetDomains}
+                modalTitle="Domain will be removed for the selected assets"
+                modalText="Are you sure you want to unset Domain for these assets?"
+            />
         </>
     );
 }

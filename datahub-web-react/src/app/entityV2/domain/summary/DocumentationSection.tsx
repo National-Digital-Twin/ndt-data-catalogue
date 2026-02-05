@@ -11,7 +11,7 @@ import { Divider, Typography } from 'antd';
 import React from 'react';
 import styled from 'styled-components';
 
-import { useEntityData, useRefetch, useRouteToTab } from '@app/entity/shared/EntityContext';
+import { useEntityData, useRouteToTab } from '@app/entity/shared/EntityContext';
 import { AddLinkModal } from '@app/entityV2/shared/components/styled/AddLinkModal';
 import { EmptyTab } from '@app/entityV2/shared/components/styled/EmptyTab';
 import { ANTD_GRAY } from '@app/entityV2/shared/constants';
@@ -60,7 +60,6 @@ const StyledFileOutlined = styled(FileOutlined)`
 export const DocumentationSection = () => {
     // The summary tab consists of modules
     const { entityData } = useEntityData();
-    const refetch = useRefetch();
     const routeToTab = useRouteToTab();
 
     const description = entityData?.editableProperties?.description || entityData?.properties?.description || '';
@@ -91,7 +90,7 @@ export const DocumentationSection = () => {
             <Documentation>
                 {(hasDescription && <Editor content={description} readOnly />) || (
                     <EmptyTab tab="documentation">
-                        <AddLinkModal refetch={refetch} />
+                        <AddLinkModal />
                         <Button
                             data-testid="add-documentation"
                             onClick={() => routeToTab({ tabName: 'Documentation', tabParams: { editing: true } })}
@@ -100,7 +99,7 @@ export const DocumentationSection = () => {
                         </Button>
                     </EmptyTab>
                 )}
-                <LinkList refetch={refetch} />
+                <LinkList />
             </Documentation>
         </>
     );

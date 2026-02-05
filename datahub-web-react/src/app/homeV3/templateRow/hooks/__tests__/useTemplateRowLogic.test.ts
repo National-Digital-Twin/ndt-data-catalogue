@@ -122,6 +122,7 @@ describe('useTemplateRowLogic', () => {
                     rowIndex: 1,
                     moduleIndex: 0,
                     rowSide: 'left',
+                    numberOfModulesInRow: 2,
                 },
                 key: 'urn:li:module:0-0',
             });
@@ -133,6 +134,7 @@ describe('useTemplateRowLogic', () => {
                     rowIndex: 1,
                     moduleIndex: 1,
                     rowSide: 'right',
+                    numberOfModulesInRow: 2,
                 },
                 key: 'urn:li:module:1-1',
             });

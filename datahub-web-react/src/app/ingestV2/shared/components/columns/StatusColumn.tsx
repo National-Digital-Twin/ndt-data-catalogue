@@ -8,11 +8,14 @@
  */
 import { LoadingOutlined } from '@ant-design/icons';
 import { Icon, Pill } from '@components';
-import { Button } from 'antd';
 import React from 'react';
 import styled from 'styled-components';
 
-import { EXECUTION_REQUEST_STATUS_LOADING, EXECUTION_REQUEST_STATUS_RUNNING } from '@app/ingestV2/executions/constants';
+import {
+    EXECUTION_REQUEST_STATUS_LOADING,
+    EXECUTION_REQUEST_STATUS_PENDING,
+    EXECUTION_REQUEST_STATUS_RUNNING,
+} from '@app/ingestV2/executions/constants';
 import {
     getExecutionRequestStatusDisplayColor,
     getExecutionRequestStatusDisplayText,
@@ -30,9 +33,17 @@ const AllStatusWrapper = styled.div`
     flex-direction: column;
 `;
 
-const StatusButton = styled(Button)`
+const StatusButton = styled.div<{ $clickable?: boolean }>`
     padding: 0px;
     margin: 0px;
+
+    ${(props) =>
+        props.$clickable &&
+        `
+            :hover {
+                cursor: pointer;
+            }
+        `}
 `;
 
 interface StatusProps {
@@ -50,11 +61,11 @@ export function StatusColumn({ status, onClick, dataTestId }: StatusProps) {
             <StatusContainer>
                 <StatusButton
                     data-testid={dataTestId}
-                    type="link"
                     onClick={(e) => {
                         e.stopPropagation();
                         onClick?.();
                     }}
+                    $clickable={status !== EXECUTION_REQUEST_STATUS_PENDING}
                 >
                     <Pill
                         customIconRenderer={() =>

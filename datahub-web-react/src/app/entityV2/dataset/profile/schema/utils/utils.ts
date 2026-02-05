@@ -55,7 +55,8 @@ export function convertEditableSchemaMetadataForUpdate(
     };
 }
 
-export function filterKeyFieldPath(showKeySchema: boolean, field: SchemaField) {
+export function filterKeyFieldPath(showKeySchema: boolean | undefined, field: SchemaField) {
+    if (showKeySchema === undefined) return true;
     return field.fieldPath.indexOf(KEY_SCHEMA_PREFIX) > -1 ? showKeySchema : !showKeySchema;
 }
 
@@ -98,7 +99,7 @@ export function pathMatchesExact(fieldPathA?: string | null, fieldPathB?: string
 export function groupByFieldPath(
     schemaRows?: Array<SchemaField>,
     options: {
-        showKeySchema: boolean;
+        showKeySchema: boolean | undefined;
     } = { showKeySchema: false },
 ): Array<ExtendedSchemaFields> {
     const rows = [

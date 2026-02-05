@@ -6,12 +6,13 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { Modal, message } from 'antd';
+import { message } from 'antd';
 import React, { useState } from 'react';
 
 import ActionDropdown from '@app/entityV2/shared/components/styled/search/action/ActionDropdown';
 import SetDataProductModal from '@app/entityV2/shared/containers/profile/sidebar/DataProduct/SetDataProductModal';
 import { handleBatchError } from '@app/entityV2/shared/utils';
+import { ConfirmationModal } from '@app/sharedV2/modals/ConfirmationModal';
 
 import { useBatchSetDataProductMutation } from '@graphql/dataProduct.generated';
 
@@ -24,6 +25,7 @@ type Props = {
 // eslint-disable-next-line
 export default function DataProductsDropdown({ urns, disabled = false, refetch }: Props) {
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    const [isUnsetModalVisible, setIsUnsetModalVisible] = useState(false);
     const [batchSetDataProductMutation] = useBatchSetDataProductMutation();
 
     const batchUnsetDataProducts = () => {
@@ -42,6 +44,7 @@ export default function DataProductsDropdown({ urns, disabled = false, refetch }
                         refetch?.();
                     }, 2000);
                 }
+                setIsUnsetModalVisible(false);
             })
             .catch((e) => {
                 message.destroy();
@@ -68,17 +71,7 @@ export default function DataProductsDropdown({ urns, disabled = false, refetch }
                     {
                         title: 'Unset Data Product',
                         onClick: () => {
-                            Modal.confirm({
-                                title: `If you continue, Data Product will be removed for the selected assets.`,
-                                content: `Are you sure you want to unset Data Product for these assets?`,
-                                onOk() {
-                                    batchUnsetDataProducts();
-                                },
-                                onCancel() {},
-                                okText: 'Yes',
-                                maskClosable: true,
-                                closable: true,
-                            });
+                            setIsUnsetModalVisible(true);
                         },
                     },
                 ]}
@@ -94,6 +87,13 @@ export default function DataProductsDropdown({ urns, disabled = false, refetch }
                     refetch={refetch}
                 />
             )}
+            <ConfirmationModal
+                isOpen={isUnsetModalVisible}
+                handleClose={() => setIsUnsetModalVisible(false)}
+                handleConfirm={batchUnsetDataProducts}
+                modalTitle="Data Product will be removed for the selected assets"
+                modalText="Are you sure you want to unset Data Product for these assets?"
+            />
         </>
     );
 }

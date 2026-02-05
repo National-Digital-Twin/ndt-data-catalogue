@@ -6,7 +6,7 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { Button, Modal } from 'antd';
+import { Modal } from '@components';
 import React from 'react';
 
 import { SchemaSummary } from '@app/entityV2/shared/tabs/Dataset/Validations/SchemaSummary';
@@ -33,9 +33,15 @@ export const SchemaSummaryModal = ({ schema, onClose }: Props) => {
             style={modalStyle}
             bodyStyle={modalBodyStyle}
             title="View Schema Assertion"
-            visible
+            open
             onCancel={onClose}
-            footer={<Button onClick={onClose}>Close</Button>}
+            buttons={[
+                {
+                    text: 'Close',
+                    variant: 'filled',
+                    onClick: onClose,
+                },
+            ]}
         >
             <SchemaSummary schema={schema} />
         </Modal>

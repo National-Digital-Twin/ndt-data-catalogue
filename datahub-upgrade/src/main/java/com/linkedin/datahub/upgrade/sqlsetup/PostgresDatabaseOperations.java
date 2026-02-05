@@ -49,6 +49,7 @@ public class PostgresDatabaseOperations implements DatabaseOperations {
     // The iamRole parameter is not used for PostgreSQL (IAM permissions are managed by AWS IAM)
     // The actual IAM permissions are managed by AWS IAM policies, not stored in PostgreSQL
     String escapedUser = escapePostgresIdentifier(username);
+    String escapedUserLiteral = escapePostgresStringLiteral(username);
     return String.format(
         """
         DO
@@ -61,13 +62,14 @@ public class PostgresDatabaseOperations implements DatabaseOperations {
         $$;
         GRANT rds_iam TO %s;
         """,
-        escapedUser, escapedUser, escapedUser);
+        escapedUserLiteral, escapedUser, escapedUser);
   }
 
   @Override
   public String createTraditionalUserSql(String username, String password) {
     String escapedUser = escapePostgresIdentifier(username);
     String escapedPassword = escapePostgresStringLiteral(password);
+    String escapedUserLiteral = escapePostgresStringLiteral(username);
     return String.format(
         """
         DO
@@ -79,7 +81,7 @@ public class PostgresDatabaseOperations implements DatabaseOperations {
         END
         $$;
         """,
-        escapedUser, escapedUser, escapedPassword);
+        escapedUserLiteral, escapedUser, escapedPassword);
   }
 
   @Override
@@ -107,9 +109,8 @@ public class PostgresDatabaseOperations implements DatabaseOperations {
             END IF;
         END
         $$;
-        ALTER USER %s WITH REPLICATION;
         """,
-        escapedUserLiteral, escapedUser, escapedPassword, escapedUser);
+        escapedUserLiteral, escapedUser, escapedPassword);
   }
 
   @Override
@@ -120,6 +121,7 @@ public class PostgresDatabaseOperations implements DatabaseOperations {
     String escapedDatabase = escapePostgresIdentifier(databaseName);
 
     return java.util.Arrays.asList(
+        String.format("ALTER USER %s WITH REPLICATION;", escapedUser),
         String.format("GRANT CONNECT ON DATABASE %s TO %s", escapedDatabase, escapedUser),
         String.format("GRANT USAGE ON SCHEMA public TO %s", escapedUser),
         String.format("GRANT CREATE ON DATABASE %s TO %s", escapedDatabase, escapedUser),

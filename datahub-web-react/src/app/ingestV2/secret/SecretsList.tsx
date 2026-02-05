@@ -15,6 +15,7 @@ import styled from 'styled-components';
 
 import TabToolbar from '@app/entity/shared/components/styled/TabToolbar';
 import EmptySources from '@app/ingestV2/EmptySources';
+import { DEFAULT_PAGE_SIZE } from '@app/ingestV2/constants';
 import { SecretBuilderModal } from '@app/ingestV2/secret/SecretBuilderModal';
 import {
     addSecretToListSecretsCache,
@@ -93,8 +94,6 @@ type TableDataType = {
     name: string;
     description: string | null;
 };
-
-const DEFAULT_PAGE_SIZE = 25;
 
 interface Props {
     showCreateModal: boolean;

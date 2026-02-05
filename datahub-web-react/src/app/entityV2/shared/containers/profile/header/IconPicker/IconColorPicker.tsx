@@ -6,9 +6,9 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { Input, Modal } from 'antd';
+import { Modal } from '@components';
+import { Input } from 'antd';
 import React from 'react';
-import styled from 'styled-components';
 
 import { useEntityData, useRefetch } from '@app/entity/shared/EntityContext';
 import { ChatIconPicker } from '@app/entityV2/shared/containers/profile/header/IconPicker/IconPicker';
@@ -37,14 +37,6 @@ function snakeToCamel(string) {
     return start + rest.map(capitalize).join('');
 }
 
-const Title = styled.span`
-    font-size: 16px;
-    font-weight: 600;
-    position: relative;
-    bottom: 6px;
-    left: 6px;
-`;
-
 const IconColorPicker: React.FC<IconColorPickerProps> = ({
     name,
     open,
@@ -64,25 +56,32 @@ const IconColorPicker: React.FC<IconColorPickerProps> = ({
     return (
         <Modal
             open={open}
+            title={`Choose an icon for ${name || 'Domain'}`}
             onCancel={() => onClose()}
-            onOk={() => {
-                updateDisplayProperties({
-                    variables: {
-                        urn,
-                        input: {
-                            colorHex: stagedColor,
-                            icon: {
-                                iconLibrary: IconLibrary.Material,
-                                name: capitalize(snakeToCamel(stagedIcon)),
-                                style: 'Outlined',
+            buttons={[
+                {
+                    text: 'Apply',
+                    onClick: () => {
+                        updateDisplayProperties({
+                            variables: {
+                                urn,
+                                input: {
+                                    colorHex: stagedColor,
+                                    icon: {
+                                        iconLibrary: IconLibrary.Material,
+                                        name: capitalize(snakeToCamel(stagedIcon)),
+                                        style: 'Outlined',
+                                    },
+                                },
                             },
-                        },
+                        }).then(() => refetch());
+                        onChangeColor?.(stagedColor);
+                        onChangeIcon?.(stagedIcon);
+                        onClose();
                     },
-                }).then(() => refetch());
-                onChangeColor?.(stagedColor);
-                onChangeIcon?.(stagedIcon);
-                onClose();
-            }}
+                    variant: 'filled',
+                },
+            ]}
         >
             <Input
                 type="color"
@@ -96,7 +95,6 @@ const IconColorPicker: React.FC<IconColorPickerProps> = ({
                 }}
                 onChange={(e) => setStagedColor(e.target.value)}
             />
-            <Title>Choose an icon for {name || 'Domain'}</Title>
             <ChatIconPicker color={stagedColor} onIconPick={(i) => setStagedIcon(i)} />
         </Modal>
     );

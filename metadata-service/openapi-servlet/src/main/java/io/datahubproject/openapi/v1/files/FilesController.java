@@ -199,7 +199,10 @@ public class FilesController {
     FileUploadScenario scenario = fileInfo.getScenario();
     switch (scenario) {
       case ASSET_DOCUMENTATION:
-        validateAssetDocumentationPermissions(fileInfo, opContext, authentication);
+        validateAssetReadPermissions(fileInfo, opContext, authentication);
+        break;
+      case ASSET_DOCUMENTATION_LINKS:
+        validateAssetReadPermissions(fileInfo, opContext, authentication);
         break;
         // Add additional scenarios here as needed
       default:
@@ -210,14 +213,15 @@ public class FilesController {
   }
 
   /**
-   * Validates permissions for files in the ASSET_DOCUMENTATION scenario.
+   * Validates permissions for files in the ASSET_DOCUMENTATION and ASSET_DOCUMENTATION_LINKS
+   * scenario.
    *
    * @param fileInfo The file info containing the referenced asset
    * @param opContext The operation context for the current user
    * @param authentication The current user's authentication
    * @throws UnauthorizedException if the user doesn't have READ permission on the referenced asset
    */
-  private void validateAssetDocumentationPermissions(
+  private void validateAssetReadPermissions(
       DataHubFileInfo fileInfo, OperationContext opContext, Authentication authentication) {
     Urn relatedUrn = fileInfo.getReferencedByAsset();
     if (!AuthUtil.isAPIAuthorizedEntityUrns(opContext, READ, Collections.singleton(relatedUrn))) {

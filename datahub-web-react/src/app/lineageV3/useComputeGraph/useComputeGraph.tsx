@@ -9,11 +9,13 @@
 import { useContext, useMemo } from 'react';
 import { Edge } from 'reactflow';
 
+import LineageGraphContext from '@app/lineageV3/LineageGraphContext';
 import { LineageNodesContext, useIgnoreSchemaFieldStatus } from '@app/lineageV3/common';
 import { LineageVisualizationNode } from '@app/lineageV3/useComputeGraph/NodeBuilder';
 import computeDataFlowGraph from '@app/lineageV3/useComputeGraph/computeDataFlowGraph';
 import computeImpactAnalysisGraph from '@app/lineageV3/useComputeGraph/computeImpactAnalysisGraph';
 import getFineGrainedLineage, { FineGrainedLineageData } from '@app/lineageV3/useComputeGraph/getFineGrainedLineage';
+import { LevelsInfo } from '@app/lineageV3/useComputeGraph/limitNodes/limitNodesUtils';
 
 import { EntityType } from '@types';
 
@@ -22,6 +24,8 @@ interface ProcessedData {
     flowNodes: LineageVisualizationNode[];
     flowEdges: Edge[];
     resetPositions: boolean;
+    levelsInfo: LevelsInfo;
+    levelsMap?: Map<string, number>;
 }
 
 /**
@@ -44,6 +48,7 @@ export default function useComputeGraph(): ProcessedData {
         showGhostEntities,
     } = useContext(LineageNodesContext);
     const displayVersionNumber = displayVersion[0];
+    const { isModuleView } = useContext(LineageGraphContext);
 
     const fineGrainedLineage = useMemo(
         () => {
@@ -54,7 +59,7 @@ export default function useComputeGraph(): ProcessedData {
         [nodes, edges, rootType, dataVersion],
     );
 
-    const { flowNodes, flowEdges, resetPositions } = useMemo(
+    const { flowNodes, flowEdges, resetPositions, levelsInfo, levelsMap } = useMemo(
         () => {
             const context = {
                 rootType,
@@ -65,10 +70,26 @@ export default function useComputeGraph(): ProcessedData {
                 showDataProcessInstances,
                 showGhostEntities,
             };
+
             if (rootType === EntityType.DataFlow) {
-                return computeDataFlowGraph(rootUrn, rootType, context, ignoreSchemaFieldStatus);
+                const result = computeDataFlowGraph(rootUrn, rootType, context, ignoreSchemaFieldStatus);
+                return {
+                    ...result,
+                    levelsInfo: {},
+                    levelsMap: new Map(),
+                };
             }
-            return computeImpactAnalysisGraph(rootUrn, rootType, context, ignoreSchemaFieldStatus);
+
+            return computeImpactAnalysisGraph(
+                rootUrn,
+                rootType,
+                context,
+                ignoreSchemaFieldStatus,
+                undefined,
+                new Map(),
+                undefined,
+                isModuleView,
+            );
         }, // eslint-disable-next-line react-hooks/exhaustive-deps
         [
             rootUrn,
@@ -83,8 +104,9 @@ export default function useComputeGraph(): ProcessedData {
             showGhostEntities,
             ignoreSchemaFieldStatus,
             dataVersion,
+            isModuleView,
         ],
     );
 
-    return { flowNodes, flowEdges, fineGrainedLineage, resetPositions };
+    return { flowNodes, flowEdges, fineGrainedLineage, resetPositions, levelsInfo, levelsMap };
 }

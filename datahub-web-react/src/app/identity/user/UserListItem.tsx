@@ -27,6 +27,11 @@ type Props = {
     user: CorpUser;
     canManageUserCredentials: boolean;
     selectRoleOptions: Array<DataHubRole>;
+    rolesLoading: boolean;
+    rolesHasMore: boolean;
+    rolesObserverRef: (node: HTMLDivElement | null) => void;
+    rolesSearchQuery: string;
+    setRolesSearchQuery: (query: string) => void;
     onDelete?: () => void;
     refetch?: () => void;
 };
@@ -60,7 +65,18 @@ const MenuIcon = styled(MoreOutlined)<{ fontSize?: number }>`
     margin-left: 5px;
 `;
 
-export default function UserListItem({ user, canManageUserCredentials, selectRoleOptions, onDelete, refetch }: Props) {
+export default function UserListItem({
+    user,
+    canManageUserCredentials,
+    selectRoleOptions,
+    rolesLoading,
+    rolesHasMore,
+    rolesObserverRef,
+    rolesSearchQuery,
+    setRolesSearchQuery,
+    onDelete,
+    refetch,
+}: Props) {
     const entityRegistry = useEntityRegistry();
     const [isViewingResetToken, setIsViewingResetToken] = useState(false);
     const displayName = entityRegistry.getDisplayName(EntityType.CorpUser, user);
@@ -149,6 +165,11 @@ export default function UserListItem({ user, canManageUserCredentials, selectRol
                     user={user}
                     userRoleUrn={userRoleUrn || ''}
                     selectRoleOptions={selectRoleOptions}
+                    rolesLoading={rolesLoading}
+                    rolesHasMore={rolesHasMore}
+                    rolesObserverRef={rolesObserverRef}
+                    rolesSearchQuery={rolesSearchQuery}
+                    setRolesSearchQuery={setRolesSearchQuery}
                     refetch={refetch}
                 />
                 <Dropdown trigger={['click']} menu={{ items }}>

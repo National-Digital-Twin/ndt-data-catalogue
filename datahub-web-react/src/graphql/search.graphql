@@ -6,6 +6,7 @@
 # of the National Digital Twin Programme.
 
 #import "./incident.graphql"
+#import "./fragments.graphql"
 
 fragment autoCompleteFields on Entity {
     urn
@@ -371,6 +372,31 @@ fragment autoCompleteFields on Entity {
     }
     ... on StructuredPropertyEntity {
         ...structuredPropertyFields
+    }
+    ... on Document {
+        urn
+        type
+        subType
+        platform {
+            ...platformFields
+        }
+        info {
+            title
+            source {
+                sourceType
+                externalUrl
+                externalId
+            }
+        }
+        parentDocuments {
+            documents {
+                urn
+                type
+                info {
+                    title
+                }
+            }
+        }
     }
 }
 
@@ -1162,6 +1188,56 @@ fragment searchResultsWithoutSchemaField on Entity {
     ... on Incident {
         ...incidentFields
     }
+    ... on Document {
+        urn
+        type
+        subType
+        platform {
+            ...platformFields
+        }
+        dataPlatformInstance {
+            ...dataPlatformInstanceFields
+        }
+        info {
+            title
+            source {
+                sourceType
+                externalUrl
+                externalId
+            }
+            created {
+                time
+                actor {
+                    urn
+                    type
+                    ...entityDisplayNameFields
+                    editableProperties {
+                        pictureLink
+                    }
+                }
+            }
+            lastModified {
+                time
+                actor {
+                    urn
+                    type
+                    ...entityDisplayNameFields
+                    editableProperties {
+                        pictureLink
+                    }
+                }
+            }
+        }
+        parentDocuments {
+            documents {
+                urn
+                type
+                info {
+                    title
+                }
+            }
+        }
+    }
 }
 
 fragment searchResultFieldsNoLineage on Entity {
@@ -1465,6 +1541,17 @@ query getSearchResultsForMultipleTrimmed($input: SearchAcrossEntitiesInput!) {
         }
         facets {
             ...facetFields
+        }
+    }
+}
+
+# Lightweight search query
+query getEntitySearchResultsAutoCompleteFields($input: SearchAcrossEntitiesInput!) {
+    searchAcrossEntities(input: $input) {
+        searchResults {
+            entity {
+                ...autoCompleteFields
+            }
         }
     }
 }

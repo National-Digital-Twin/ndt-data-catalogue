@@ -6,7 +6,8 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { Button, Modal, Table, Typography } from 'antd';
+import { Modal } from '@components';
+import { Button, Table, Typography } from 'antd';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -99,7 +100,13 @@ export default function ProfilingRunsChart({ profiles, areAllProfilesPartitioned
     return (
         <>
             {selectedProfile && (
-                <Modal width="100%" footer={null} title={profileModalTitle} visible={showModal} onCancel={onClose}>
+                <Modal
+                    buttons={[]}
+                    width="100%"
+                    title={profileModalTitle || 'Profile'}
+                    open={showModal}
+                    onCancel={onClose}
+                >
                     <TableStats
                         rowCount={selectedProfile.rowCount || -1}
                         columnCount={selectedProfile.columnCount || -1}

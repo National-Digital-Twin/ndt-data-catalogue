@@ -5,10 +5,13 @@
 # All support, maintenance and further development of this code is now the responsibility
 # of the National Digital Twin Programme.
 
+import logging
+
 from slack_sdk import WebClient
 
 from tests.utilities import env_vars
 
+logger = logging.getLogger(__name__)
 datahub_stats = {}
 
 
@@ -50,4 +53,4 @@ def send_message(exitstatus):
         send_to_slack("PASSED" if exitstatus == 0 else "FAILED")
     except Exception as e:
         # We don't want to fail pytest at all
-        print(f"Exception happened for sending msg to slack {e}")
+        logger.info(f"Exception happened for sending msg to slack {e}")

@@ -46,6 +46,7 @@ export interface SelectProps<OptionType extends NestedSelectOption = NestedSelec
     loadData?: (node: OptionType) => void;
     onSearch?: (query: string) => void;
     width?: number | 'full' | 'fit-content';
+    minWidth?: string;
     height?: number;
     placeholder?: string;
     searchPlaceholder?: string;
@@ -258,7 +259,7 @@ export const NestedSelect = <OptionType extends NestedSelectOption = NestedSelec
     const rootOptions = parentValueToOptions[NO_PARENT_VALUE] || [];
 
     return (
-        <Container ref={selectRef} size={size || 'md'} width={props.width || 255}>
+        <Container ref={selectRef} size={size || 'md'} width={props.width || 255} $minWidth={props.minWidth}>
             {label && <SelectLabel onClick={handleSelectClick}>{label}</SelectLabel>}
             {isVisible && (
                 <Dropdown

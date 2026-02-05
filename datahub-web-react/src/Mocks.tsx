@@ -3804,6 +3804,7 @@ export const mocks = [
                         manageApplications: true,
                         manageFeatures: true,
                         manageHomePageTemplates: true,
+                        manageDocuments: true,
                     },
                 },
             },

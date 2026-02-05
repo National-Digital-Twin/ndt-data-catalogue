@@ -80,7 +80,7 @@ public class GlossaryTermsPatchBuilderTest {
 
     ImmutableTriple<String, String, JsonNode> operation = pathValues.get(0);
     assertEquals(operation.getLeft(), "add");
-    assertTrue(operation.getMiddle().startsWith("/glossaryTerms/"));
+    assertTrue(operation.getMiddle().startsWith("/terms/"));
     assertTrue(operation.getRight().isObject());
     assertEquals(operation.getRight().get("urn").asText(), termUrn.toString());
     assertEquals(operation.getRight().get("context").asText(), context);
@@ -98,7 +98,7 @@ public class GlossaryTermsPatchBuilderTest {
 
     ImmutableTriple<String, String, JsonNode> operation = pathValues.get(0);
     assertEquals(operation.getLeft(), "add");
-    assertTrue(operation.getMiddle().startsWith("/glossaryTerms/"));
+    assertTrue(operation.getMiddle().startsWith("/terms/"));
     assertTrue(operation.getRight().isObject());
     assertEquals(operation.getRight().get("urn").asText(), termUrn.toString());
     assertNull(operation.getRight().get("context"));
@@ -116,7 +116,7 @@ public class GlossaryTermsPatchBuilderTest {
 
     ImmutableTriple<String, String, JsonNode> operation = pathValues.get(0);
     assertEquals(operation.getLeft(), "remove");
-    assertTrue(operation.getMiddle().startsWith("/glossaryTerms/"));
+    assertTrue(operation.getMiddle().startsWith("/terms/"));
     assertNull(operation.getRight());
   }
 

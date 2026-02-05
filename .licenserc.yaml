@@ -13,12 +13,14 @@ header:
       
   paths-ignore:
     - '**/*.md'
+    - '**/*.MD'
     - '**/*.mdx'
     - '**/*.txt'
     - '**/*.pdl'
     - '**/*.json'
     - '**/*.avsc'
     - '**/*.lkml'
+    - '**/*.*.disabled'
     - 'buildSrc/src/main/java/com/linkedin/metadata/models/registry/config'
     - 'buildSrc/src/main/java/com/linkedin/metadata/aspect/plugins/config'
     - 'datahub-frontend/public'

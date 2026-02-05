@@ -5,15 +5,13 @@
  * and is now included as part of a repository maintained by the National Digital Twin Programme.
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
+ *
+ *
+ * Copyright 2018-2025 contributors to the OpenLineage project
+ *
+ *
+ * This class is shadowed from Openlineage to support foreachBatch in streaming
  */
-
-/*
-/* Copyright 2018-2025 contributors to the OpenLineage project
-/* SPDX-License-Identifier: Apache-2.0
-*/
-/*
-This class is shadowed from Openlineage to support foreachBatch in streaming
-*/
 package io.openlineage.spark.agent.lifecycle.plan;
 
 import io.openlineage.client.OpenLineage.OutputDataset;

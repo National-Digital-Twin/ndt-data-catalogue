@@ -12,7 +12,7 @@ import { CSSProperties } from 'styled-components';
 import { IconNames } from '@components/components/Icon';
 import { ColorOptions, SizeOptions } from '@components/theme/config';
 
-export type SwitchLabelPosition = 'left' | 'top';
+export type SwitchLabelPosition = 'left' | 'top' | 'right';
 
 export interface SwitchProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
     label: string;

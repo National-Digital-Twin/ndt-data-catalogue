@@ -6,8 +6,8 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { Tooltip } from '@components';
-import { Button, Form, Modal, Select, Tag } from 'antd';
+import { Modal, Tooltip } from '@components';
+import { Button, Form, Select, Tag } from 'antd';
 import React, { ReactNode, useRef, useState } from 'react';
 import styled from 'styled-components/macro';
 
@@ -148,8 +148,22 @@ export const SelectPlatformModal = ({ onCloseModal, defaultValues, onOk, titleOv
     return (
         <Modal
             title={titleOverride || 'Select Platform'}
-            visible
+            open
             onCancel={onModalClose}
+            buttons={[
+                {
+                    text: 'Cancel',
+                    variant: 'text',
+                    onClick: onModalClose,
+                },
+                {
+                    text: 'Add',
+                    variant: 'filled',
+                    onClick: handleOk,
+                    id: 'setPlatformButton',
+                    disabled: selectedPlatforms?.length === 0,
+                },
+            ]}
             footer={
                 <>
                     <Button onClick={onModalClose} type="text">

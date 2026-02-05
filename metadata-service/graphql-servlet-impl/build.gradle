@@ -23,6 +23,7 @@ dependencies {
   implementation externalDependency.springCore
   implementation externalDependency.springWeb
   implementation externalDependency.springWebMVC
+  implementation externalDependency.springBootAutoconfigure
   implementation externalDependency.graphqlJava
   implementation externalDependency.springBeans
   implementation externalDependency.springContext

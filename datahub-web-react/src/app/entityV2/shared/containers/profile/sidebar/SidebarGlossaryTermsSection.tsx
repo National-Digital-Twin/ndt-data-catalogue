@@ -15,6 +15,7 @@ import { EMPTY_MESSAGES } from '@app/entityV2/shared/constants';
 import EmptySectionText from '@app/entityV2/shared/containers/profile/sidebar/EmptySectionText';
 import SectionActionButton from '@app/entityV2/shared/containers/profile/sidebar/SectionActionButton';
 import { SidebarSection } from '@app/entityV2/shared/containers/profile/sidebar/SidebarSection';
+import { useEntityDataExtractor } from '@app/entityV2/shared/containers/profile/sidebar/hooks/useEntityDataExtractor';
 import { ENTITY_PROFILE_GLOSSARY_TERMS_ID } from '@app/onboarding/config/EntityProfileOnboardingConfig';
 import AddTagTerm from '@app/sharedV2/tags/AddTagTerm';
 import TagTermGroup from '@app/sharedV2/tags/TagTermGroup';
@@ -30,9 +31,10 @@ const Content = styled.div`
 
 interface Props {
     readOnly?: boolean;
+    properties?: any;
 }
 
-export const SidebarGlossaryTermsSection = ({ readOnly }: Props) => {
+export const SidebarGlossaryTermsSection = ({ readOnly, properties }: Props) => {
     const { entityType, entityData } = useEntityData();
     const refetch = useRefetch();
     const mutationUrn = useMutationUrn();
@@ -40,7 +42,14 @@ export const SidebarGlossaryTermsSection = ({ readOnly }: Props) => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [addModalType, setAddModalType] = useState<EntityType | undefined>(undefined);
 
-    const areTermsEmpty = !entityData?.glossaryTerms?.terms?.length;
+    // Extract glossary terms using custom hook
+    const { data: glossaryTerms, isEmpty: areTermsEmpty } = useEntityDataExtractor({
+        customPath: properties?.customTermPath,
+        defaultPath: 'glossaryTerms',
+        arrayProperty: 'terms',
+    });
+
+    const canEditTerms = !!entityData?.privileges?.canEditGlossaryTerms;
 
     return (
         <div id={ENTITY_PROFILE_GLOSSARY_TERMS_ID}>
@@ -50,7 +59,7 @@ export const SidebarGlossaryTermsSection = ({ readOnly }: Props) => {
                     <Content>
                         {!areTermsEmpty ? (
                             <TagTermGroup
-                                editableGlossaryTerms={entityData?.glossaryTerms}
+                                editableGlossaryTerms={glossaryTerms}
                                 canAddTerm
                                 canRemove
                                 entityUrn={mutationUrn}
@@ -73,6 +82,7 @@ export const SidebarGlossaryTermsSection = ({ readOnly }: Props) => {
                             setAddModalType(EntityType.GlossaryTerm);
                             event.stopPropagation();
                         }}
+                        actionPrivilege={canEditTerms}
                         dataTestId="add-terms-button"
                     />
                 }

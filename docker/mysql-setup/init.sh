@@ -6,6 +6,7 @@
 # All support, maintenance and further development of this code is now the responsibility
 # of the National Digital Twin Programme.
 
+set -euo pipefail
 
 : ${MYSQL_PORT:=3306}
 : ${MYSQL_ARGS:=--ssl=0}

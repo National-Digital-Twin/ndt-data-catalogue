@@ -6,12 +6,12 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { Form, Input, Modal, Typography } from 'antd';
+import { Form, Input, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 import { SecretBuilderState } from '@app/ingest/secret/types';
 import { useEnterKeyListener } from '@app/shared/useEnterKeyListener';
-import { Button } from '@src/alchemy-components';
+import { Button, Modal } from '@src/alchemy-components';
 import { ModalButtonContainer } from '@src/app/shared/button/styledComponents';
 
 const NAME_FIELD_NAME = 'name';
@@ -62,7 +62,7 @@ export const SecretBuilderModal = ({ initialState, editSecret, open, onSubmit, o
     return (
         <Modal
             width={540}
-            title={<Typography.Text>{titleText}</Typography.Text>}
+            title={titleText}
             open={open}
             onCancel={onCloseModal}
             zIndex={1051} // one higher than other modals - needed for managed ingestion forms

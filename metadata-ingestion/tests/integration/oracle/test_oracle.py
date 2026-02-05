@@ -5,6 +5,8 @@
 # All support, maintenance and further development of this code is now the responsibility
 # of the National Digital Twin Programme.
 
+import os
+import time
 from typing import Any
 from unittest import mock
 from unittest.mock import MagicMock, patch
@@ -15,12 +17,75 @@ from sqlalchemy import exc
 
 from datahub.ingestion.api.source import StructuredLogLevel
 from datahub.ingestion.source.sql.oracle import OracleInspectorObjectWrapper
+from datahub.testing import mce_helpers
 from tests.integration.oracle.common import (  # type: ignore[import-untyped]
     OracleSourceMockDataBase,
     OracleTestCaseBase,
 )
+from tests.test_helpers.click_helpers import run_datahub_cmd
+from tests.test_helpers.docker_helpers import wait_for_port
 
 FROZEN_TIME = "2022-02-03 07:00:00"
+
+
+@pytest.fixture(scope="module")
+def oracle_runner(docker_compose_runner, pytestconfig):
+    test_resources_dir = pytestconfig.rootpath / "tests/integration/oracle"
+    with docker_compose_runner(
+        test_resources_dir / "docker-compose.yml", "oracle"
+    ) as docker_services:
+        wait_for_port(
+            docker_services,
+            "testoracle",
+            1521,
+            timeout=300,
+        )
+
+        time.sleep(30)  # Extra time for setup scripts to complete
+
+        yield docker_services
+
+
+SOURCE_FILES_PATH = "./tests/integration/oracle/source_files"
+config_files = [f for f in os.listdir(SOURCE_FILES_PATH) if f.endswith(".yml")]
+
+
+@pytest.mark.parametrize("config_file", config_files)
+@freeze_time(FROZEN_TIME, ignore=["oracledb", "oracledb.thin_impl"])
+@pytest.mark.integration
+def test_oracle_ingest(oracle_runner, pytestconfig, tmp_path, mock_time, config_file):
+    test_resources_dir = pytestconfig.rootpath / "tests/integration/oracle"
+    # Run the metadata ingestion pipeline.
+    config_file_path = (test_resources_dir / f"source_files/{config_file}").resolve()
+    run_datahub_cmd(
+        ["ingest", "-c", f"{config_file_path}"], tmp_path=tmp_path, check_result=True
+    )
+
+    # Verify the output.
+    mce_helpers.check_golden_file(
+        pytestconfig,
+        output_path=tmp_path / "oracle_mces.json",
+        golden_path=test_resources_dir
+        / f"golden_files/golden_mces_{config_file.replace('.yml', '.json')}",
+    )
+
+
+@pytest.mark.integration
+def test_oracle_test_connection(oracle_runner):
+    """Test Oracle connection using the test_connection method."""
+    from datahub.ingestion.source.sql.oracle import OracleSource
+
+    config_dict = {
+        "username": "system",
+        "password": "example",
+        "host_port": "localhost:51521",
+        "service_name": "XEPDB1",
+    }
+
+    report = OracleSource.test_connection(config_dict)
+    assert report.basic_connectivity is not None
+    assert report.basic_connectivity.capable
+    assert report.basic_connectivity.failure_reason is None
 
 
 class OracleErrorHandlingMockData(OracleSourceMockDataBase):
@@ -63,7 +128,7 @@ class TestOracleSourceErrorHandling(OracleIntegrationTestCase):
         super().__init__(
             pytestconfig=pytestconfig,
             tmp_path=tmp_path,
-            golden_file_name="golden_test_error_handling.json",
+            golden_file_name="golden_files/golden_test_error_handling.json",
             output_file_name="oracle_mce_output_error_handling.json",
             add_database_name_to_urn=False,
         )
@@ -159,7 +224,7 @@ def test_oracle_source_integration_with_out_database(pytestconfig, tmp_path):
     oracle_source_integration_test = OracleIntegrationTestCase(
         pytestconfig=pytestconfig,
         tmp_path=tmp_path,
-        golden_file_name="golden_test_ingest_with_out_database.json",
+        golden_file_name="golden_files/golden_test_ingest_with_out_database.json",
         output_file_name="oracle_mce_output_with_out_database.json",
         add_database_name_to_urn=False,
     )
@@ -172,7 +237,7 @@ def test_oracle_source_integration_with_database(pytestconfig, tmp_path):
     oracle_source_integration_test = OracleIntegrationTestCase(
         pytestconfig=pytestconfig,
         tmp_path=tmp_path,
-        golden_file_name="golden_test_ingest_with_database.json",
+        golden_file_name="golden_files/golden_test_ingest_with_database.json",
         output_file_name="oracle_mce_output_with_database.json",
         add_database_name_to_urn=True,
     )

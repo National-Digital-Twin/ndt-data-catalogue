@@ -5,6 +5,8 @@
 # All support, maintenance and further development of this code is now the responsibility
 # of the National Digital Twin Programme.
 
+from __future__ import annotations
+
 import datetime
 import logging
 import random
@@ -15,6 +17,7 @@ from pydantic import Field, model_validator
 
 from datahub.configuration.common import ConfigModel, DynamicTypedConfig, HiddenFromDocs
 from datahub.ingestion.graph.config import DatahubClientConfig
+from datahub.ingestion.recording.config import RecordingConfig
 from datahub.ingestion.sink.file import FileSinkConfig
 
 logger = logging.getLogger(__name__)
@@ -98,6 +101,10 @@ class PipelineConfig(ConfigModel):
     datahub_api: Optional[DatahubClientConfig] = None
     pipeline_name: Optional[str] = None
     failure_log: FailureLoggingConfig = FailureLoggingConfig()
+    recording: Optional[RecordingConfig] = Field(
+        default=None,
+        description="Recording configuration for debugging ingestion runs.",
+    )
 
     _raw_dict: Optional[dict] = (
         None  # the raw dict that was parsed to construct this config

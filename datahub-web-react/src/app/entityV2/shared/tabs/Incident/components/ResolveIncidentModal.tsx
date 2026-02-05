@@ -6,7 +6,8 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { Button, Form, Input, Modal } from 'antd';
+import { Modal } from '@components';
+import { Form, Input } from 'antd';
 import React from 'react';
 
 import { IncidentState } from '@types';
@@ -40,16 +41,21 @@ export const ResolveIncidentModal = ({
         <>
             <Modal
                 title="Resolve Incident"
-                visible={isResolvedModalVisible}
+                open={isResolvedModalVisible}
                 destroyOnClose
                 onCancel={handleClose}
-                footer={[
-                    <Button type="text" onClick={handleClose}>
-                        Cancel
-                    </Button>,
-                    <Button form="resolveIncidentForm" key="submit" htmlType="submit" data-testid="confirm-resolve">
-                        Resolve
-                    </Button>,
+                buttons={[
+                    {
+                        text: 'Cancel',
+                        variant: 'text',
+                        onClick: handleClose,
+                    },
+                    {
+                        text: 'Resolve',
+                        variant: 'filled',
+                        onClick: form.submit,
+                        buttonDataTestId: 'confirm-resolve',
+                    },
                 ]}
             >
                 <Form form={form} name="resolveIncidentForm" onFinish={onResolvedIncident} layout="vertical">

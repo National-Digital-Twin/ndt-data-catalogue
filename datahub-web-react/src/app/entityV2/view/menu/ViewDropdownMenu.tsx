@@ -229,6 +229,7 @@ export const ViewDropdownMenu = ({
             });
     };
 
+    // TODO: Replace this Modal
     const confirmDeleteView = () => {
         if (onClickDelete) {
             onClickDelete?.();

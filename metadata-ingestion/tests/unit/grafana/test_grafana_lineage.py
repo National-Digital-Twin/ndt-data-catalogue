@@ -56,7 +56,7 @@ def lineage_extractor(mock_graph, mock_report):
 def test_extract_panel_lineage_no_datasource(lineage_extractor):
     panel = Panel(id="1", title="Test Panel", type="graph", datasource=None, targets=[])
 
-    lineage = lineage_extractor.extract_panel_lineage(panel)
+    lineage = lineage_extractor.extract_panel_lineage(panel, "test-dashboard")
     assert lineage is None
 
 
@@ -69,7 +69,7 @@ def test_extract_panel_lineage_unknown_datasource(lineage_extractor):
         targets=[],
     )
 
-    lineage = lineage_extractor.extract_panel_lineage(panel)
+    lineage = lineage_extractor.extract_panel_lineage(panel, "test-dashboard")
     assert lineage is None
 
 
@@ -99,7 +99,7 @@ def test_extract_panel_lineage_postgres(lineage_extractor):
         ],
     )
 
-    lineage = lineage_extractor.extract_panel_lineage(panel)
+    lineage = lineage_extractor.extract_panel_lineage(panel, "test-dashboard")
     assert lineage is not None, "Lineage should not be None"
     assert isinstance(lineage, MetadataChangeProposalWrapper)
     assert isinstance(lineage.aspect, UpstreamLineageClass)
@@ -133,7 +133,7 @@ def test_extract_panel_lineage_mysql(lineage_extractor):
         ],
     )
 
-    lineage = lineage_extractor.extract_panel_lineage(panel)
+    lineage = lineage_extractor.extract_panel_lineage(panel, "test-dashboard")
     assert lineage is not None, "Lineage should not be None"
     assert isinstance(lineage, MetadataChangeProposalWrapper)
     assert isinstance(lineage.aspect, UpstreamLineageClass)
@@ -149,7 +149,7 @@ def test_extract_panel_lineage_prometheus(lineage_extractor):
         targets=[{"expr": "rate(http_requests_total[5m])"}],
     )
 
-    lineage = lineage_extractor.extract_panel_lineage(panel)
+    lineage = lineage_extractor.extract_panel_lineage(panel, "test-dashboard")
     assert lineage is None
 
 

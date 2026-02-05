@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
+
+run_id: oracle-usage-lineage-test
+
+source:
+  type: oracle
+  config:
+    username: system
+    password: example
+    host_port: localhost:51521
+    service_name: XEPDB1
+    
+    # Enable all new features
+    include_stored_procedures: true
+    include_materialized_views: true
+    include_usage_stats: true
+    include_operational_stats: true
+    
+    # Enable lineage features
+    include_view_lineage: true
+    include_view_column_lineage: true
+    
+    data_dictionary_mode: "ALL"
+    
+    schema_pattern:
+      allow:
+        - "^HR_SCHEMA$"
+        - "^SALES_SCHEMA$"
+        - "^ANALYTICS_SCHEMA$"
+        - "^SYSTEM$"
+    
+    procedure_pattern:
+      allow:
+        - ".*"
+        
+    profiling:
+      enabled: false
+      
+sink:
+  type: file
+  config:
+    filename: "oracle_mces.json"

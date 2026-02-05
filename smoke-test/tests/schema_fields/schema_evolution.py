@@ -5,6 +5,7 @@
 # All support, maintenance and further development of this code is now the responsibility
 # of the National Digital Twin Programme.
 
+import logging
 import time
 from enum import Enum
 
@@ -17,6 +18,8 @@ from datahub.emitter.mce_builder import make_dataset_urn, make_schema_field_urn
 from datahub.emitter.mcp import MetadataChangeProposalWrapper
 from datahub.ingestion.graph.client import DataHubGraph
 from tests.utils import ingest_file_via_rest, wait_for_writes_to_sync
+
+logger = logging.getLogger(__name__)
 
 _MAX_DELAY_UNTIL_WRITES_VISIBLE_SECS = 30
 _ATTEMPT_RETRY_INTERVAL_SECS = 1
@@ -150,7 +153,7 @@ def test_schema_evolution_field_dropped(
     now = int(time.time())
 
     urn = make_dataset_urn("bigquery", f"my_dataset.my_table.{now}")
-    print(urn)
+    logger.info(urn)
 
     schema_with_2_fields = _create_schema_with_fields(
         urn, 2, field_path_style=field_path_style
@@ -164,7 +167,7 @@ def test_schema_evolution_field_dropped(
     )
 
     for field_name in field_names:
-        print("Checking field: ", field_name)
+        logger.info("Checking field: ", field_name)
         assert_schema_field_exists(graph_client, urn, field_name)
 
     # Evolve the schema
@@ -197,7 +200,7 @@ def test_soft_deleted_entity(graph_client: DataHubGraph):
     now = int(time.time())
 
     urn = make_dataset_urn("bigquery", f"my_dataset.my_table.{now}")
-    print(urn)
+    logger.info(urn)
 
     schema_with_2_fields = _create_schema_with_fields(urn, 2)
     field_names = [field.fieldPath for field in schema_with_2_fields.fields]
@@ -209,7 +212,7 @@ def test_soft_deleted_entity(graph_client: DataHubGraph):
     )
 
     for field_name in field_names:
-        print("Checking field: ", field_name)
+        logger.info("Checking field: ", field_name)
         assert_schema_field_exists(graph_client, urn, field_name)
 
     # Soft delete the dataset

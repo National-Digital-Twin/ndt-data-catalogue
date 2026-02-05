@@ -7,7 +7,7 @@
  * of the National Digital Twin Programme.
  */
 import { Button, Form, Modal, Select, Tag, Typography, message } from 'antd';
-import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components/macro';
 
 import analytics, { EntityActionType, EventType } from '@app/analytics';
@@ -15,11 +15,11 @@ import { handleBatchError } from '@app/entity/shared/utils';
 import { OwnerLabel } from '@app/shared/OwnerLabel';
 import { useGetRecommendations } from '@app/shared/recommendation';
 import { addUserFiltersToSearchInput } from '@app/shared/userSearchUtils';
+import { useOwnershipTypes } from '@app/sharedV2/owners/useOwnershipTypes';
 import { useEntityRegistry } from '@app/useEntityRegistry';
 import { getModalDomContainer } from '@utils/focus';
 
 import { useBatchAddOwnersMutation, useBatchRemoveOwnersMutation } from '@graphql/mutations.generated';
-import { useListOwnershipTypesQuery } from '@graphql/ownership.generated';
 import { useGetSearchResultsLazyQuery } from '@graphql/search.generated';
 import { CorpUser, Entity, EntityType, OwnerEntityType, OwnershipTypeEntity } from '@types';
 
@@ -125,14 +125,7 @@ export const EditOwnersModal = ({
     const [inputValue, setInputValue] = useState('');
     const [batchAddOwnersMutation] = useBatchAddOwnersMutation();
     const [batchRemoveOwnersMutation] = useBatchRemoveOwnersMutation();
-    const { data: ownershipTypesData, loading } = useListOwnershipTypesQuery({
-        variables: {
-            input: {},
-        },
-    });
-    const ownershipTypes = useMemo(() => {
-        return ownershipTypesData?.listOwnershipTypes?.ownershipTypes || [];
-    }, [ownershipTypesData]);
+    const { ownershipTypes, loading } = useOwnershipTypes();
 
     const [selectedOwners, setSelectedOwners] = useState<SelectedOwner[]>(
         defaultValuesToSelectedOwners(defaultValues || []),

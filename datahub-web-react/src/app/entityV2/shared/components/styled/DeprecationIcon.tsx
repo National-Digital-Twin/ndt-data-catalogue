@@ -7,10 +7,10 @@
  * of the National Digital Twin Programme.
  */
 import { Tooltip, colors } from '@components';
-import { Divider, Modal, Typography, message } from 'antd';
+import { Divider, Typography, message } from 'antd';
 import { TooltipPlacement } from 'antd/es/tooltip';
 import moment from 'moment';
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import analytics, { EventType } from '@app/analytics';
@@ -20,6 +20,7 @@ import CompactMarkdownViewer from '@app/entityV2/shared/tabs/Documentation/compo
 import { EntityLink } from '@app/homeV2/reference/sections/EntityLink';
 import { getV1FieldPathFromSchemaFieldUrn } from '@app/lineageV2/lineageUtils';
 import { toLocalDateString } from '@app/shared/time/timeUtils';
+import { ConfirmationModal } from '@app/sharedV2/modals/ConfirmationModal';
 import { StructuredPopover } from '@src/alchemy-components/components/StructuredPopover';
 
 import { useBatchUpdateDeprecationMutation } from '@graphql/mutations.generated';
@@ -108,6 +109,7 @@ export const DeprecationIcon = ({
     popoverPlacement = 'bottom',
 }: Props) => {
     const [batchUpdateDeprecationMutation] = useBatchUpdateDeprecationMutation();
+    const [showUndeprecateModal, setShowUndeprecateModal] = useState(false);
 
     let decommissionTimeSeconds;
     if (deprecation.decommissionTime) {
@@ -148,6 +150,7 @@ export const DeprecationIcon = ({
                         resources: subResource ? [{ resourceUrn: urn, subResource, subResourceType }] : undefined,
                     });
                 }
+                setShowUndeprecateModal(false);
             })
             .catch((e) => {
                 message.destroy();
@@ -198,21 +201,7 @@ export const DeprecationIcon = ({
                         )}
                         {isDividerNeeded && showUndeprecate ? <ThinDivider /> : null}
                         {showUndeprecate && (
-                            <IconGroup
-                                onClick={() =>
-                                    Modal.confirm({
-                                        title: `Confirm Mark as un-deprecated`,
-                                        content: `Are you sure you want to mark this asset as un-deprecated?`,
-                                        onOk() {
-                                            batchUndeprecate();
-                                        },
-                                        onCancel() {},
-                                        okText: 'Yes',
-                                        maskClosable: true,
-                                        closable: true,
-                                    })
-                                }
-                            >
+                            <IconGroup onClick={() => setShowUndeprecateModal(true)}>
                                 <MarkAsDeprecatedButton internalText="Mark as un-deprecated" />
                             </IconGroup>
                         )}
@@ -225,6 +214,13 @@ export const DeprecationIcon = ({
             <DeprecatedContainer>
                 <DeprecatedIcon />
                 {showText ? 'Deprecated' : null}
+                <ConfirmationModal
+                    isOpen={showUndeprecateModal}
+                    handleClose={() => setShowUndeprecateModal(false)}
+                    handleConfirm={batchUndeprecate}
+                    modalTitle="Confirm Mark as un-deprecated"
+                    modalText="Are you sure you want to mark these assets as un-deprecated?"
+                />
             </DeprecatedContainer>
         </StructuredPopover>
     );

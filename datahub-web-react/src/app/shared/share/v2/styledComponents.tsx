@@ -6,7 +6,8 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { Button, Checkbox, Form, Menu, Modal, Typography } from 'antd';
+import { Modal } from '@components';
+import { Button, Checkbox, Form, Menu, Typography } from 'antd';
 import styled from 'styled-components';
 
 import { REDESIGN_COLORS } from '@app/entityV2/shared/constants';

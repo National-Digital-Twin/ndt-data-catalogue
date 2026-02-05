@@ -31,6 +31,7 @@ export interface NavBarMenuBaseElement {
     disabled?: boolean;
     href?: string;
     dataTestId?: string;
+    icon?: React.ReactNode;
 }
 
 export type Badge = {
@@ -63,7 +64,8 @@ export type NavBarMenuDropdownItemElement = NavBarMenuBaseElement & {
 export type NavBarMenuGroup = NavBarMenuBaseElement & {
     title?: string;
     type: NavBarMenuItemTypes.Group;
-    items?: Array<NavBarMenuLinkItem | NavBarMenuDropdownItem>;
+    items?: Array<NavBarMenuLinkItem | NavBarMenuDropdownItem | NavBarCustomElement>;
+    renderTitle?: () => React.ReactNode;
 };
 
 export type NavBarCustomElement = NavBarMenuBaseElement & {

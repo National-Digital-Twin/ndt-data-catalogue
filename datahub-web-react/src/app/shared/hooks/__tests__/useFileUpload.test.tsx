@@ -35,6 +35,7 @@ vi.mock('@app/shared/hooks/useCreateFile', () => ({
     default: () => ({
         createFile: mockCreateFile,
     }),
+    S3_FILE_ID_NAME_SEPARATOR: '__',
 }));
 
 describe('useFileUpload', () => {

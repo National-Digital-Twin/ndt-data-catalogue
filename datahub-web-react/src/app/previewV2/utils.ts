@@ -41,6 +41,7 @@ export const isNullOrUndefined = (value: any) => {
     return value === null || value === undefined;
 };
 
+// TODO: Change Modals in this file
 export function useRemoveDomainAssets(setShouldRefetchEmbeddedListSearch) {
     const { entityState, refetch, entityType } = useEntityContext();
     const [unsetDomainMutation] = useUnsetDomainMutation();

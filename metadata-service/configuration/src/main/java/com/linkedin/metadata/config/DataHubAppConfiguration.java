@@ -108,4 +108,7 @@ public class DataHubAppConfiguration {
 
   /** Structured properties related configurations */
   private StructuredPropertiesConfiguration structuredProperties;
+
+  /** Consistency checks configuration */
+  private ConsistencyChecksConfiguration consistencyChecks;
 }

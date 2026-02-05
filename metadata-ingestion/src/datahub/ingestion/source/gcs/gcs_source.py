@@ -11,7 +11,10 @@ from typing import Iterable, List, Optional
 from pydantic import Field, SecretStr, model_validator
 
 from datahub.configuration.common import ConfigModel
-from datahub.configuration.source_common import DatasetSourceConfigMixin
+from datahub.configuration.source_common import (
+    DatasetSourceConfigMixin,
+    LowerCaseDatasetUrnConfigMixin,
+)
 from datahub.ingestion.api.common import PipelineContext
 from datahub.ingestion.api.decorators import (
     SupportStatus,
@@ -53,7 +56,10 @@ class HMACKey(ConfigModel):
 
 
 class GCSSourceConfig(
-    StatefulIngestionConfigBase, DatasetSourceConfigMixin, PathSpecsConfigMixin
+    StatefulIngestionConfigBase,
+    DatasetSourceConfigMixin,
+    PathSpecsConfigMixin,
+    LowerCaseDatasetUrnConfigMixin,
 ):
     credential: HMACKey = Field(
         description="Google cloud storage [HMAC keys](https://cloud.google.com/storage/docs/authentication/hmackeys)",
@@ -125,6 +131,7 @@ class GCSSource(StatefulIngestionSourceBase):
                 aws_region="auto",
             ),
             env=self.config.env,
+            convert_urns_to_lowercase=self.config.convert_urns_to_lowercase,
             max_rows=self.config.max_rows,
             number_of_files_to_sample=self.config.number_of_files_to_sample,
             platform=PLATFORM_GCS,  # Ensure GCS platform is used for correct container subtypes

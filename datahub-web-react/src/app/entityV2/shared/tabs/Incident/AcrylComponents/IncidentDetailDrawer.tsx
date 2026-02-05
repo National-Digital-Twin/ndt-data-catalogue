@@ -6,7 +6,7 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { Drawer, Modal } from 'antd';
+import { Drawer } from 'antd';
 import React, { useState } from 'react';
 
 import { IncidentDrawerHeader } from '@app/entityV2/shared/tabs/Incident/AcrylComponents/IncidentDrawerHeader';
@@ -14,6 +14,7 @@ import { IncidentEditor } from '@app/entityV2/shared/tabs/Incident/AcrylComponen
 import { IncidentView } from '@app/entityV2/shared/tabs/Incident/AcrylComponents/IncidentView';
 import { IncidentAction } from '@app/entityV2/shared/tabs/Incident/constant';
 import { EntityStagedForIncident, IncidentTableRow } from '@app/entityV2/shared/tabs/Incident/types';
+import { ConfirmationModal } from '@app/sharedV2/modals/ConfirmationModal';
 import ClickOutside from '@src/app/shared/ClickOutside';
 import { EntityPrivileges, Incident } from '@src/types.generated';
 
@@ -38,20 +39,11 @@ export const IncidentDetailDrawer = ({
 }: IncidentDetailDrawerProps) => {
     const [isEditView, setIsEditView] = useState<boolean>(false);
     const showEditor = isEditView || mode === IncidentAction.CREATE;
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
     const onCloseModal = () => {
         if (showEditor) {
-            Modal.confirm({
-                title: 'Exit Editor',
-                content: `Are you sure you want to exit the editor? All changes will be lost`,
-                onOk() {
-                    onCancel?.();
-                },
-                onCancel() {},
-                okText: 'Yes',
-                maskClosable: true,
-                closable: true,
-            });
+            setShowConfirmationModal(true);
         } else {
             onCancel?.();
         }
@@ -68,7 +60,7 @@ export const IncidentDetailDrawer = ({
                 width={600}
                 placement="right"
                 closable={false}
-                visible
+                open
                 bodyStyle={modalBodyStyle}
                 onClose={onCloseModal}
             >
@@ -94,6 +86,13 @@ export const IncidentDetailDrawer = ({
                     <IncidentView incident={incident as IncidentTableRow} />
                 )}
             </Drawer>
+            <ConfirmationModal
+                isOpen={showConfirmationModal}
+                handleClose={() => setShowConfirmationModal(false)}
+                handleConfirm={() => onCancel?.()}
+                modalTitle="Exit View Editor"
+                modalText="Are you sure you want to exit View editor? All changes will be lost"
+            />
         </ClickOutside>
     );
 };

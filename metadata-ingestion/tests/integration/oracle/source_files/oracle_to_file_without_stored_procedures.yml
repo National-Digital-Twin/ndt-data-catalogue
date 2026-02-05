@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
+
+run_id: oracle-no-procedures-test
+
+source:
+  type: oracle
+  config:
+    username: system
+    password: example
+    host_port: localhost:51521
+    service_name: XEPDB1
+    include_stored_procedures: false
+    include_materialized_views: true
+    
+    # Enable lineage features to test materialized view lineage
+    include_view_lineage: true
+    include_view_column_lineage: true
+    
+    schema_pattern:
+      allow:
+        - "^HR_SCHEMA"
+    profiling:
+      enabled: false
+sink:
+  type: file
+  config:
+    filename: "oracle_mces.json"

@@ -19,11 +19,6 @@ import { useGetEntitiesQuery } from '@src/graphql/entity.generated';
 
 import { Entity, EntityPath, LineageDirection } from '@types';
 
-const StyledModal = styled(Modal)`
-    width: 70vw;
-    max-width: 850px;
-`;
-
 const PathWrapper = styled.div`
     display: inline-block;
     margin: 15px 0 15px -4px;
@@ -92,7 +87,7 @@ export default function EntityPathsModal({ paths, resultEntityUrn, hideModal }: 
         })
     );
     return (
-        <StyledModal
+        <Modal
             data-testid="entity-paths-modal"
             title={
                 <Header>
@@ -101,13 +96,13 @@ export default function EntityPathsModal({ paths, resultEntityUrn, hideModal }: 
                 </Header>
             }
             width="75vw"
-            visible
+            open
             onCancel={hideModal}
             onOk={hideModal}
             footer={null}
             bodyStyle={{ padding: '16px 24px' }}
         >
             {loading ? <Skeleton /> : loadedState}
-        </StyledModal>
+        </Modal>
     );
 }
