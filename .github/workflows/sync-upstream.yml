@@ -28,20 +28,33 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      
-      - name: Fetch upstream URL (fallback)
-        if: ${{ !github.event.repository.parent.clone_url }}
-        id: fetch_upstream
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Fetching upstream URL from GitHub API..."
-          UPSTREAM_URL=$(gh api "repos/$GITHUB_REPOSITORY" --jq '.parent.clone_url')
-          echo "clone_url=$UPSTREAM_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Determine upstream details
+        id: upstream-details
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+
+            const parent =
+              context.payload?.repository?.parent ??
+              (await github.rest.repos.get({ owner, repo })).data?.parent ??
+              null;
+
+            if (!parent) {
+              core.setFailed("No parent repository found. Ensure this repository is a fork.");
+              return; 
+            }
+
+            console.log(`Detected URL: ${parent.clone_url}`);
+            console.log(`Detected Branch: ${parent.default_branch}`);
+
+            core.setOutput('clone_url', parent.clone_url);
+            core.setOutput('default_branch', parent.default_branch);
 
       - name: Add upstream remote
         env:
-          UPSTREAM_URL: ${{ github.event.repository.parent.clone_url || steps.fetch_upstream.outputs.clone_url }}
+          UPSTREAM_URL: ${{ steps.upstream-details.outputs.clone_url }}
         run: |
           if [ -z "$UPSTREAM_URL" ] || [ "$UPSTREAM_URL" = "null" ]; then
             echo "::error::Could not determine upstream repository URL. Ensure this repository is a fork."
@@ -61,6 +74,8 @@ jobs:
 
       - name: Check upstream-mirror branch exists
         uses: actions/github-script@v8
+        env:
+          UPSTREAM_DEFAULT_BRANCH: ${{ steps.upstream-details.outputs.default_branch }}
         with:
           script: |
             const branchName = 'upstream-mirror';
@@ -80,7 +95,7 @@ jobs:
                   .addRaw(`The \`${branchName}\` branch does not exist in this repository.\n\n`)
                   .addRaw('Please create it first by running:\n\n')
                   .addRaw(`\`\`\`bash\n`)
-                  .addRaw(`git checkout -b ${branchName} upstream/master\n`)
+                  .addRaw(`git checkout -b ${branchName} upstream/${process.env.UPSTREAM_DEFAULT_BRANCH}\n`)
                   .addRaw(`git push origin ${branchName}\n`)
                   .addRaw(`\`\`\`\n`)
                   .write();
@@ -97,14 +112,18 @@ jobs:
             }
 
       - name: Fetch upstream
+        env:
+          UPSTREAM_DEFAULT_BRANCH: ${{ steps.upstream-details.outputs.default_branch }}
         run: |
-          git fetch upstream master -f --no-tags
+          git fetch upstream $UPSTREAM_DEFAULT_BRANCH -f --no-tags
 
-      - name: Sync with upstream master
+      - name: Sync with upstream
+        env:
+          UPSTREAM_DEFAULT_BRANCH: ${{ steps.upstream-details.outputs.default_branch }}
         run: |
           git checkout upstream-mirror
-          # Reset to upstream/master to get exact copy with full history
-          git reset --hard upstream/master
+          # Reset to upstream default branch to get exact copy with full history
+          git reset --hard upstream/$UPSTREAM_DEFAULT_BRANCH
 
       - name: Push to upstream-mirror
         run: |
@@ -113,9 +132,12 @@ jobs:
       - name: Summary
         if: success()
         uses: actions/github-script@v8
+        env:
+          UPSTREAM_DEFAULT_BRANCH: ${{ steps.upstream-details.outputs.default_branch }}
         with:
           script: |
             const branchName = 'upstream-mirror';
+            const upstreamDefaultBranch = process.env.UPSTREAM_DEFAULT_BRANCH;
             
             // Get latest commit info
             let latestCommit = '';
@@ -131,7 +153,7 @@ jobs:
             
             await core.summary
               .addRaw('## ✅ Sync Successful\n\n')
-              .addRaw(`Successfully synced upstream DataHub master to \`${branchName}\` branch.\n\n`)
+              .addRaw(`Successfully synced upstream DataHub ${upstreamDefaultBranch} to \`${branchName}\` branch.\n\n`)
               .addRaw(`**Sync Time:** ${syncTime}\n\n`)
               .addRaw('**Latest Commit:**\n')
               .addRaw('```\n')
@@ -140,5 +162,5 @@ jobs:
               .addRaw(`**Branch:** [${branchName}](/$GITHUB_REPOSITORY/tree/${branchName})\n`)
               .write();
             
-            core.info(`Successfully synced upstream/master to ${branchName} branch`);
+            core.info(`Successfully synced upstream/${upstreamDefaultBranch} to ${branchName} branch`);
             core.info(`Latest commit on ${branchName}: ${latestCommit.trim()}`);

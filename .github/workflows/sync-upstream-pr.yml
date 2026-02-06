@@ -19,18 +19,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
+          ref: upstream-mirror
           fetch-depth: 0  # Fetch full history
       
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      
-      - name: Fetch upstream-mirror branch
-        run: |
-          git fetch origin upstream-mirror
-          git checkout upstream-mirror
-      
+
       - name: Check for existing upstream-sync PR
         id: check-pr
         uses: actions/github-script@v8
@@ -57,8 +53,9 @@ jobs:
               core.setFailed(`Failed to check for existing PRs: ${error.message}`);
             }
       
-      - name: Update existing PR branch
+      - name: Check update safety
         if: steps.check-pr.outputs.pr_exists == 'true'
+        id: update-safety
         uses: actions/github-script@v8
         env:
           PR_NUMBER: ${{ steps.check-pr.outputs.existing_pr_number }}
@@ -75,11 +72,48 @@ jobs:
               });
               
               const branchName = pr.head.ref;
+              core.setOutput('branch_name', branchName);
+              core.setOutput('existing_pr_body', pr.body ?? '')
+              
+              // Fetch the PR branch
+              await exec.exec('git', ['fetch', 'origin', branchName, '--no-tags']);
+              
+              // Check if the PR branch is strictly behind upstream-mirror (no extra commits)
+              // We compare origin/<branch> because we haven't checked it out locally yet
+              const exitCode = await exec.exec(
+                'git',
+                ['merge-base', '--is-ancestor', `origin/${branchName}`, 'upstream-mirror'],
+                { ignoreReturnCode: true });
+              
+              if (exitCode === 0) {
+                core.info(`Branch '${branchName}' has not diverged and is strictly behind upstream-mirror. Safe to update.`);
+                core.setOutput('is_update_safe', 'true');
+              } else {
+                core.warning(`Branch '${branchName}' has diverged from upstream-mirror, assuming work is underway to complete the PR.`);
+                core.warning('Skipping update.');
+                core.setOutput('is_update_safe', 'false');
+              }
+            } catch (error) {
+              core.setFailed(`Failed to check update safety: ${error.message}`);
+            }
+
+      - name: Update existing PR branch
+        if: |
+          steps.check-pr.outputs.pr_exists == 'true' &&
+          steps.update-safety.outputs.is_update_safe == 'true'
+        uses: actions/github-script@v8
+        env:
+          PR_NUMBER: ${{ steps.check-pr.outputs.existing_pr_number }}
+          BRANCH_NAME: ${{ steps.update-safety.outputs.branch_name }}
+        with:
+          script: |
+            const prNumber = parseInt(process.env.PR_NUMBER, 10);
+            const branchName = process.env.BRANCH_NAME;
+            
+            try {
               core.info(`Updating existing PR branch: ${branchName}`);
               
-              // Fetch the PR branch and update it with latest from upstream-mirror
-              await exec.exec('git', ['fetch', 'origin', branchName]);
-              await exec.exec('git', ['checkout', branchName]);
+              await exec.exec('git', ['switch', branchName]);
               await exec.exec('git', ['reset', '--hard', 'upstream-mirror']);
               await exec.exec('git', ['push', 'origin', branchName, '--force']);
               
@@ -96,31 +130,65 @@ jobs:
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
           
           # Create new branch from upstream-mirror
-          git checkout -b "$BRANCH_NAME"
+          git switch -c "$BRANCH_NAME"
           git push origin "$BRANCH_NAME"
           
           echo "Created and pushed branch: ${BRANCH_NAME}"
       
       - name: Get commit information
         id: commit-info
-        run: |
-          # Ensure we're on upstream-mirror to get the correct commit info
-          git checkout upstream-mirror
-          
-          LATEST_COMMIT=$(git log -1 --oneline)
-          SYNC_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-          
-          # Use multiline output syntax for GitHub Actions
-          {
-            echo "latest_commit<<EOF"
-            echo "$LATEST_COMMIT"
-            echo "EOF"
-            echo "sync_date=$SYNC_DATE"
-          } >> "$GITHUB_OUTPUT"
-      
+        uses: actions/github-script@v8
+        with:
+          script: |
+            try {
+              // Ensure we're on upstream-mirror to get the correct commit info
+              await exec.exec('git', ['switch', 'upstream-mirror']);
+              
+              const { stdout: latestCommit } = await exec.getExecOutput('git', ['log', '-1']);
+              
+              // Format date as YYYY-MM-DD HH:MM:SS UTC to match previous bash output
+              const now = new Date();
+              const syncDate = now.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+              
+              core.setOutput('latest_commit', latestCommit.trim());
+              core.setOutput('sync_date', syncDate);
+            } catch (error) {
+              core.setFailed(`Failed to get commit info: ${error.message}`);
+            }
+
+      - name: Determine upstream details
+        id: upstream-details
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+
+            const parent =
+              context.payload?.repository?.parent ??
+              (await github.rest.repos.get({ owner, repo })).data?.parent ??
+              null;
+
+            if (!parent) {
+              core.setFailed("No parent repository found. Ensure this repository is a fork.");
+              return; 
+            }
+
+            console.log(`Detected URL: ${parent.html_url}`);
+            console.log(`Detected Upstream Name: ${parent.name}`);
+            console.log(`Detected Branch: ${parent.default_branch}`);
+
+            core.setOutput('html_url', parent.html_url);
+            core.setOutput('name', parent.name);
+            core.setOutput('default_branch', parent.default_branch);
+
       - name: Create/Update Pull Request to develop
         uses: actions/github-script@v8
         env:
+          UPSTREAM_URL: ${{ steps.upstream-details.outputs.html_url }}
+          UPSTREAM_REPO_NAME: ${{ steps.upstream-details.outputs.name }}
+          UPSTREAM_DEFAULT_BRANCH: ${{ steps.upstream-details.outputs.default_branch }}
+          PR_WAS_UPDATED: ${{ steps.update-safety.outputs.is_update_safe }}
+          EXISTING_PR_BODY: ${{ steps.update-safety.outputs.existing_pr_body }}
           BRANCH_NAME: ${{ steps.create-branch.outputs.branch_name }}
           LATEST_COMMIT: ${{ steps.commit-info.outputs.latest_commit }}
           SYNC_DATE: ${{ steps.commit-info.outputs.sync_date }}
@@ -128,6 +196,11 @@ jobs:
           EXISTING_PR_NUMBER: ${{ steps.check-pr.outputs.existing_pr_number }}
         with:
           script: |
+            const upstreamUrl = process.env.UPSTREAM_URL;
+            const upstreamRepositoryName = process.env.UPSTREAM_REPO_NAME;
+            const upstreamDefaultBranch = process.env.UPSTREAM_DEFAULT_BRANCH;
+            const prBranchWasUpdated = process.env.PR_WAS_UPDATED;
+            const existingPrBody = process.env.EXISTING_PR_BODY;
             const branchName = process.env.BRANCH_NAME;
             const baseBranch = 'develop';
             const latestCommit = process.env.LATEST_COMMIT;
@@ -135,55 +208,81 @@ jobs:
             const prExists = process.env.PR_EXISTS;
             const existingPrNumber = process.env.EXISTING_PR_NUMBER;
             
+            const MSG_UPDATED = ':recycle: This pr has been updated with latest from upstream commits.';
+            const MSG_NOT_UPDATED = ':information_source: This pr has not been updated as fast forward update was not possible.';
+            
+            // Helper to construct status messages
+            const getStatusMessage = (wasUpdated) => {
+              if (wasUpdated === 'true') {
+                return MSG_UPDATED;
+              }
+              return MSG_NOT_UPDATED;
+            };
+            
+            // Create base content
+            const basePrBody = [
+              `This PR syncs the latest changes from the upstream ${upstreamRepositoryName} repository (${upstreamUrl}) ${upstreamDefaultBranch} branch.\n`,
+              `**Automated sync performed on:** ${syncDate}`,
+              '**Latest upstream commit:**\n',
+              '```',
+              latestCommit,
+              '```\n',
+              'Please review the changes before merging into develop.'
+            ].join('\n');
+            
+            const prTitle = `Sync upstream ${upstreamRepositoryName} changes - ${new Date().toISOString().split('T')[0]}`;
+            
+            const requestOptions = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            }
+            
             try {
-              // Create PR body
-              const prBody = [
-                'This PR syncs the latest changes from the upstream DataHub repository (https://github.com/datahub-project/datahub) master branch.',
-                '',
-                `**Automated sync performed on:** ${syncDate}`,
-                '',
-                '**Latest upstream commit:**',
-                '```',
-                latestCommit,
-                '```',
-                '',
-                'Please review the changes before merging into develop.'
-              ].join('\n');
-
-              if(prExists === 'false') {
+              if (prExists === 'true') {
+                // Determine the new body for the existing PR
+                // We clean previous status messages first to avoid duplicates if re-running
+                let cleanBody = existingPrBody
+                  .replace(MSG_UPDATED, '')
+                  .replace(MSG_NOT_UPDATED, '')
+                  .trim();
+            
+                // If the PR body was completely overwritten by the sync, use the fresh base body
+                if (prBranchWasUpdated === 'true') {
+                  cleanBody = basePrBody;
+                }
+            
+                const updateParams = {
+                  ...requestOptions,
+                  pull_number: parseInt(existingPrNumber, 10),
+                  body: `${cleanBody}\n${getStatusMessage(prBranchWasUpdated)}`
+                };
+            
+                // Only update the title if the branch content actually changed
+                if (prBranchWasUpdated === 'true') {
+                  updateParams.title = prTitle;
+                }
+            
+                const { data: pr } = await github.rest.pulls.update(updateParams);
+            
+                core.notice(`Pull request #${existingPrNumber} updated successfully: ${pr.html_url}`);
+              } else {
                 // Create new PR
                 const { data: pr } = await github.rest.pulls.create({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  title: `Sync upstream DataHub changes - ${new Date().toISOString().split('T')[0]}`,
+                  ...requestOptions,
+                  title: prTitle,
                   head: branchName,
                   base: baseBranch,
-                  body: prBody
+                  body: basePrBody
                 });
-              
+            
                 core.notice(`Pull request created successfully: ${pr.html_url}`);
-
-                // Add upstream-sync label
+            
                 await github.rest.issues.addLabels({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
+                  ...requestOptions,
                   issue_number: pr.number,
                   labels: ['upstream-sync']
                 });
-
-              } else {
-                // Update existing PR
-                const { data: pr } = await github.rest.pulls.update({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: parseInt(existingPrNumber, 10),
-                  title: `Sync upstream DataHub changes - ${new Date().toISOString().split('T')[0]}`,
-                  body: prBody
-                });
-
-                core.notice(`Pull request #${existingPrNumber} updated successfully: ${pr.html_url}`);
               }
-              
             } catch (error) {
               core.setFailed(`Failed to create/update PR: ${error.message}`);
               core.info('This might be because:');
@@ -197,6 +296,7 @@ jobs:
         uses: actions/github-script@v8
         env:
           PR_EXISTS: ${{ steps.check-pr.outputs.pr_exists }}
+          PR_WAS_UPDATED: ${{ steps.update-safety.outputs.is_update_safe }}
           PR_NUMBER: ${{ steps.check-pr.outputs.existing_pr_number }}
           PR_URL: ${{ steps.check-pr.outputs.existing_pr_url }}
           BRANCH_NAME: ${{ steps.create-branch.outputs.branch_name }}
@@ -205,16 +305,22 @@ jobs:
         with:
           script: |
             const prExists = process.env.PR_EXISTS;
+            const prBranchWasUpdated = process.env.PR_WAS_UPDATED;
             const prNumber = process.env.PR_NUMBER;
             const prUrl = process.env.PR_URL;
             const branchName = process.env.BRANCH_NAME;
             const latestCommit = process.env.LATEST_COMMIT;
             const syncDate = process.env.SYNC_DATE;
-            
+
+            const updateMsg =
+              prBranchWasUpdated === 'true' ?
+              ' The PR branch has been updated with the latest changes from upstream-mirror.' : 
+              ' The PR branch was not updated as fast forward update was not possible.';
+
             if (prExists === 'true') {
               await core.summary
                 .addRaw('## ℹ️ PR Already Exists - Updated\n\n')
-                .addRaw('An upstream sync PR was already open. The PR branch has been updated with the latest changes from upstream-mirror.\n\n')
+                .addRaw(`An upstream sync PR was already open.${prBranchWasUpdated}\n\n`);
                 .addRaw(`**Existing PR:** [#${prNumber}](${prUrl})\n\n`)
                 .addRaw('**Action:** Please review the updated changes.\n')
                 .write();
