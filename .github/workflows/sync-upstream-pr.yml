@@ -1,27 +1,26 @@
 # SPDX-License-Identifier: Apache-2.0
 # © Crown Copyright 2026. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
 
-
 name: Create Upstream Sync PR
 
 on:
   schedule:
     # Create PR weekly on Monday at 12:30 AM UTC
-    - cron: '30 0 * * 1'
-  workflow_dispatch:  # Allow manual trigger
+    - cron: "30 0 * * 1"
+  workflow_dispatch: # Allow manual trigger
 
 jobs:
   create-pr:
     name: Create PR from sync branch
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           ref: upstream-mirror
-          fetch-depth: 0  # Fetch full history
-      
+          fetch-depth: 0 # Fetch full history
+
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
@@ -52,7 +51,7 @@ jobs:
               core.setOutput('pr_exists', 'error');
               core.setFailed(`Failed to check for existing PRs: ${error.message}`);
             }
-      
+
       - name: Check update safety
         if: steps.check-pr.outputs.pr_exists == 'true'
         id: update-safety
@@ -62,7 +61,7 @@ jobs:
         with:
           script: |
             const prNumber = parseInt(process.env.PR_NUMBER, 10);
-            
+
             try {
               // Get the PR details to find the branch name
               const { data: pr } = await github.rest.pulls.get({
@@ -109,7 +108,7 @@ jobs:
           script: |
             const prNumber = parseInt(process.env.PR_NUMBER, 10);
             const branchName = process.env.BRANCH_NAME;
-            
+
             try {
               core.info(`Updating existing PR branch: ${branchName}`);
               
@@ -121,20 +120,20 @@ jobs:
             } catch (error) {
               core.setFailed(`Failed to update PR branch: ${error.message}`);
             }
-      
+
       - name: Create new PR branch
         if: steps.check-pr.outputs.pr_exists == 'false'
         id: create-branch
         run: |
           BRANCH_NAME="sync/upstream-mirror-pr-${{ github.run_id }}"
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
-          
+
           # Create new branch from upstream-mirror
           git switch -c "$BRANCH_NAME"
           git push origin "$BRANCH_NAME"
-          
+
           echo "Created and pushed branch: ${BRANCH_NAME}"
-      
+
       - name: Get commit information
         id: commit-info
         uses: actions/github-script@v8
@@ -207,10 +206,10 @@ jobs:
             const syncDate = process.env.SYNC_DATE;
             const prExists = process.env.PR_EXISTS;
             const existingPrNumber = process.env.EXISTING_PR_NUMBER;
-            
+
             const MSG_UPDATED = ':recycle: This pr has been updated with latest from upstream commits.';
             const MSG_NOT_UPDATED = ':information_source: This pr has not been updated as fast forward update was not possible.';
-            
+
             // Helper to construct status messages
             const getStatusMessage = (wasUpdated) => {
               if (wasUpdated === 'true') {
@@ -218,7 +217,7 @@ jobs:
               }
               return MSG_NOT_UPDATED;
             };
-            
+
             // Create base content
             const basePrBody = [
               `This PR syncs the latest changes from the upstream ${upstreamRepositoryName} repository (${upstreamUrl}) ${upstreamDefaultBranch} branch.\n`,
@@ -229,14 +228,14 @@ jobs:
               '```\n',
               'Please review the changes before merging into develop.'
             ].join('\n');
-            
+
             const prTitle = `Sync upstream ${upstreamRepositoryName} changes - ${new Date().toISOString().split('T')[0]}`;
-            
+
             const requestOptions = {
               owner: context.repo.owner,
               repo: context.repo.repo,
             }
-            
+
             try {
               if (prExists === 'true') {
                 // Determine the new body for the existing PR
@@ -245,25 +244,25 @@ jobs:
                   .replace(MSG_UPDATED, '')
                   .replace(MSG_NOT_UPDATED, '')
                   .trim();
-            
+
                 // If the PR body was completely overwritten by the sync, use the fresh base body
                 if (prBranchWasUpdated === 'true') {
                   cleanBody = basePrBody;
                 }
-            
+
                 const updateParams = {
                   ...requestOptions,
                   pull_number: parseInt(existingPrNumber, 10),
                   body: `${cleanBody}\n${getStatusMessage(prBranchWasUpdated)}`
                 };
-            
+
                 // Only update the title if the branch content actually changed
                 if (prBranchWasUpdated === 'true') {
                   updateParams.title = prTitle;
                 }
-            
+
                 const { data: pr } = await github.rest.pulls.update(updateParams);
-            
+
                 core.notice(`Pull request #${existingPrNumber} updated successfully: ${pr.html_url}`);
               } else {
                 // Create new PR
@@ -274,9 +273,9 @@ jobs:
                   base: baseBranch,
                   body: basePrBody
                 });
-            
+
                 core.notice(`Pull request created successfully: ${pr.html_url}`);
-            
+
                 await github.rest.issues.addLabels({
                   ...requestOptions,
                   issue_number: pr.number,
@@ -290,7 +289,7 @@ jobs:
               core.info('  - There are no differences between the branches');
               core.info('  - The label upstream-sync does not exist');
             }
-      
+
       - name: Summary
         if: always()
         uses: actions/github-script@v8
