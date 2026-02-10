@@ -254,15 +254,19 @@ def test_tracking_api_kafka(auth_session):
         if msg is None:
             time.sleep(0.1)  # Small delay between polls
             continue
-        if msg.error():
-            if msg.error().code() == KafkaError._PARTITION_EOF:
+        error = msg.error()
+        if error is not None:
+            if error.code() == KafkaError._PARTITION_EOF:
                 continue
             else:
-                print(f"Consumer error: {msg.error()}")
+                print(f"Consumer error: {error}")
                 break
 
         try:
-            message = json.loads(msg.value().decode("utf-8"))
+            value = msg.value()
+            if value is None:
+                continue
+            message = json.loads(value.decode("utf-8"))
             print(f"Found message: {message}")
             messages.append(message)
 
