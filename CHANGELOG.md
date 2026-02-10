@@ -18,7 +18,7 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ---
 
-## [0.90.2]
+## [0.90.3]
 
 ### Initial Reskin of the UI
 
@@ -34,6 +34,16 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 - Applied the new Digital Twin theme to the UI
 - Changed some of the side nav icons to the new DT versions
 - Removed the search bar from the home page and displayed it in the top nav instead
+
+---
+
+## [0.90.2]
+
+### Fixing Sync Workflow Permissions
+
+### Fixed
+
+- Update sync workflows to use GitHub apps with appropriate permissions
 
 ---
 

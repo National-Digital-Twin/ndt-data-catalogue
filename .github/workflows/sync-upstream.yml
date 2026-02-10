@@ -11,6 +11,7 @@ on:
 
 jobs:
   sync-upstream:
+    if: github.event.repository.fork == true
     name: Sync to upstream-mirror branch
     runs-on: ubuntu-latest
 
@@ -18,15 +19,28 @@ jobs:
       contents: write # Required to push changes
 
     steps:
+      - name: Generate Sync Token
+        id: sync-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.NDTP_REPOSITORY_WRITER_APP_CLIENT_ID }}
+          private-key: ${{ secrets.NDTP_REPOSITORY_WRITER_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-workflows: write
+
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Fetch full history
+          token: ${{ steps.sync-token.outputs.token }}
 
       - name: Configure Git
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "ndtp-repository-writer[bot]"
+          git config user.email "260632477+ndtp-repository-writer[bot]@users.noreply.github.com"
 
       - name: Determine upstream details
         id: upstream-details
@@ -137,10 +151,11 @@ jobs:
           script: |
             const branchName = 'upstream-mirror';
             const upstreamDefaultBranch = process.env.UPSTREAM_DEFAULT_BRANCH;
+            const gitHubRepository = process.env.GITHUB_REPOSITORY;
 
             // Get latest commit info
             let latestCommit = '';
-            await exec.exec('git', ['log', '-1', '--oneline', branchName], {
+            await exec.exec('git', ['log', '-1', branchName], {
               listeners: {
                 stdout: (data) => {
                   latestCommit += data.toString();
@@ -158,7 +173,7 @@ jobs:
               .addRaw('```\n')
               .addRaw(`${latestCommit.trim()}\n`)
               .addRaw('```\n\n')
-              .addRaw(`**Branch:** [${branchName}](/$GITHUB_REPOSITORY/tree/${branchName})\n`)
+              .addRaw(`**Branch:** [${branchName}](/${gitHubRepository}/tree/${branchName})\n`)
               .write();
 
             core.info(`Successfully synced upstream/${upstreamDefaultBranch} to ${branchName} branch`);
