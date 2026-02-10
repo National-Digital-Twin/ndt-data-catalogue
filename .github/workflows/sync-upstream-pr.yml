@@ -11,20 +11,37 @@ on:
 
 jobs:
   create-pr:
+    if: github.event.repository.fork == true
     name: Create PR from sync branch
     runs-on: ubuntu-latest
 
+    permissions:
+      pull-requests: read
+
     steps:
+      - name: Generate Sync Token
+        id: sync-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.NDTP_REPOSITORY_WRITER_APP_CLIENT_ID }}
+          private-key: ${{ secrets.NDTP_REPOSITORY_WRITER_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-workflows: write
+
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           ref: upstream-mirror
           fetch-depth: 0 # Fetch full history
+          token: ${{ steps.sync-token.outputs.token }}
 
       - name: Configure Git
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "ndtp-repository-writer[bot]"
+          git config user.email "260632477+ndtp-repository-writer[bot]@users.noreply.github.com"
 
       - name: Check for existing upstream-sync PR
         id: check-pr
@@ -69,21 +86,21 @@ jobs:
                 repo: context.repo.repo,
                 pull_number: prNumber
               });
-              
+
               const branchName = pr.head.ref;
               core.setOutput('branch_name', branchName);
               core.setOutput('existing_pr_body', pr.body ?? '')
-              
+
               // Fetch the PR branch
               await exec.exec('git', ['fetch', 'origin', branchName, '--no-tags']);
-              
+
               // Check if the PR branch is strictly behind upstream-mirror (no extra commits)
               // We compare origin/<branch> because we haven't checked it out locally yet
               const exitCode = await exec.exec(
                 'git',
                 ['merge-base', '--is-ancestor', `origin/${branchName}`, 'upstream-mirror'],
                 { ignoreReturnCode: true });
-              
+
               if (exitCode === 0) {
                 core.info(`Branch '${branchName}' has not diverged and is strictly behind upstream-mirror. Safe to update.`);
                 core.setOutput('is_update_safe', 'true');
@@ -105,6 +122,7 @@ jobs:
           PR_NUMBER: ${{ steps.check-pr.outputs.existing_pr_number }}
           BRANCH_NAME: ${{ steps.update-safety.outputs.branch_name }}
         with:
+          github-token: ${{ steps.sync-token.outputs.token }}
           script: |
             const prNumber = parseInt(process.env.PR_NUMBER, 10);
             const branchName = process.env.BRANCH_NAME;
@@ -142,13 +160,13 @@ jobs:
             try {
               // Ensure we're on upstream-mirror to get the correct commit info
               await exec.exec('git', ['switch', 'upstream-mirror']);
-              
+
               const { stdout: latestCommit } = await exec.getExecOutput('git', ['log', '-1']);
-              
+
               // Format date as YYYY-MM-DD HH:MM:SS UTC to match previous bash output
               const now = new Date();
               const syncDate = now.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
-              
+
               core.setOutput('latest_commit', latestCommit.trim());
               core.setOutput('sync_date', syncDate);
             } catch (error) {
@@ -180,8 +198,20 @@ jobs:
             core.setOutput('name', parent.name);
             core.setOutput('default_branch', parent.default_branch);
 
+      - name: Generate PR Token
+        id: pr-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.NDTP_PULL_REQUEST_CONTROLLER_APP_CLIENT_ID }}
+          private-key: ${{ secrets.NDTP_PULL_REQUEST_CONTROLLER_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            ${{ github.event.repository.name }}
+          permission-pull-requests: write
+
       - name: Create/Update Pull Request to develop
         uses: actions/github-script@v8
+        id: create-update-pr
         env:
           UPSTREAM_URL: ${{ steps.upstream-details.outputs.html_url }}
           UPSTREAM_REPO_NAME: ${{ steps.upstream-details.outputs.name }}
@@ -194,6 +224,7 @@ jobs:
           PR_EXISTS: ${{ steps.check-pr.outputs.pr_exists }}
           EXISTING_PR_NUMBER: ${{ steps.check-pr.outputs.existing_pr_number }}
         with:
+          github-token: ${{ steps.pr-token.outputs.token }}
           script: |
             const upstreamUrl = process.env.UPSTREAM_URL;
             const upstreamRepositoryName = process.env.UPSTREAM_REPO_NAME;
@@ -253,7 +284,7 @@ jobs:
                 const updateParams = {
                   ...requestOptions,
                   pull_number: parseInt(existingPrNumber, 10),
-                  body: `${cleanBody}\n${getStatusMessage(prBranchWasUpdated)}`
+                  body: `${cleanBody}\n\n${getStatusMessage(prBranchWasUpdated)}`
                 };
 
                 // Only update the title if the branch content actually changed
@@ -275,6 +306,8 @@ jobs:
                 });
 
                 core.notice(`Pull request created successfully: ${pr.html_url}`);
+                core.setOutput('new_pr_number', pr.number);
+                core.setOutput('new_pr_url', pr.html_url);
 
                 await github.rest.issues.addLabels({
                   ...requestOptions,
@@ -296,8 +329,8 @@ jobs:
         env:
           PR_EXISTS: ${{ steps.check-pr.outputs.pr_exists }}
           PR_WAS_UPDATED: ${{ steps.update-safety.outputs.is_update_safe }}
-          PR_NUMBER: ${{ steps.check-pr.outputs.existing_pr_number }}
-          PR_URL: ${{ steps.check-pr.outputs.existing_pr_url }}
+          PR_NUMBER: ${{ steps.check-pr.outputs.existing_pr_number || steps.create-update-pr.outputs.new_pr_number }}
+          PR_URL: ${{ steps.check-pr.outputs.existing_pr_url || steps.create-update-pr.outputs.new_pr_url }}
           BRANCH_NAME: ${{ steps.create-branch.outputs.branch_name }}
           LATEST_COMMIT: ${{ steps.commit-info.outputs.latest_commit }}
           SYNC_DATE: ${{ steps.commit-info.outputs.sync_date }}
@@ -319,17 +352,17 @@ jobs:
             if (prExists === 'true') {
               await core.summary
                 .addRaw('## ℹ️ PR Already Exists - Updated\n\n')
-                .addRaw(`An upstream sync PR was already open.${prBranchWasUpdated}\n\n`);
+                .addRaw(`An upstream sync PR was already open.${prBranchWasUpdated}\n\n`)
                 .addRaw(`**Existing PR:** [#${prNumber}](${prUrl})\n\n`)
                 .addRaw('**Action:** Please review the updated changes.\n')
                 .write();
-              
+
               core.info(`Updated existing PR #${prNumber}`);
               core.info(`URL: ${prUrl}`);
-            } else {
+            } else if (prExists === 'false') {
               await core.summary
                 .addRaw('## ✅ PR Created Successfully\n\n')
-                .addRaw('A new pull request has been created to sync upstream changes.\n\n')
+                .addRaw(`A new pull request [#${prNumber}](${prUrl}) has been created to sync upstream changes.\n\n`)
                 .addRaw(`**Branch:** \`${branchName}\`\n\n`)
                 .addRaw('**Latest Commit:**\n')
                 .addRaw('```\n')
@@ -337,7 +370,7 @@ jobs:
                 .addRaw('```\n\n')
                 .addRaw(`**Sync Date:** ${syncDate}\n`)
                 .write();
-              
+
               core.info(`Created PR branch: ${branchName}`);
               core.info(`Latest commit: ${latestCommit}`);
             } else {
@@ -346,6 +379,6 @@ jobs:
                 .addRaw('The workflow encountered an error while checking for existing PRs or creating a new one.\n\n')
                 .addRaw('Please check the workflow logs for details.\n')
                 .write();
-              
+
               core.error('Workflow did not complete successfully');
             }
