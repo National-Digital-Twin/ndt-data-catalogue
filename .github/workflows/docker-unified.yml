@@ -35,6 +35,7 @@ concurrency:
 env:
   DOCKER_REGISTRY: ${{ vars.DOCKER_REGISTRY }}
   PROFILE_NAME: "${{ github.event.inputs.profileName || 'quickstart-consumers' }}"
+  DATAHUB_ACTIONS_REPO: ${{ vars.DATAHUB_ACTIONS_REPO || format('{0}/datahub-actions', github.repository_owner) }}
 
   DOCKER_CACHE: "GITHUB"
   IS_FORK: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
@@ -55,6 +56,7 @@ jobs:
       python_release_version: ${{ steps.tag.outputs.python_release_version }}
       frontend_change: ${{ steps.ci-optimize.outputs.frontend-change == 'true' || github.event_name != 'pull_request' }}
       backend_change: ${{ steps.ci-optimize.outputs.backend-change == 'true' || github.event_name != 'pull_request' }}
+      java_client_change: ${{ steps.ci-optimize.outputs.java-client-change == 'true' || github.event_name != 'pull_request' }}
       frontend_only: ${{ steps.ci-optimize.outputs.frontend-only == 'true' }}
       ingestion_only: ${{ steps.ci-optimize.outputs.ingestion-only == 'true' }}
       smoke_test_change: ${{ steps.ci-optimize.outputs.smoke-test-change == 'true' }}
@@ -64,7 +66,7 @@ jobs:
       yarn_cache_key_prefix: ${{ steps.yarn-cache-key.outputs.yarn_cache_key_prefix }}
     steps:
       - name: Check out the repo
-        uses: acryldata/sane-checkout-action@v4
+        uses: actions/checkout@v4
       - name: Compute Tag
         id: tag
         env:
@@ -119,7 +121,7 @@ jobs:
     if: ${{ needs.setup.outputs.smoke_test_change == 'true' }}
     steps:
       - name: Check out the repo
-        uses: acryldata/sane-checkout-action@v4
+        uses: actions/checkout@v4
 
       - uses: actions/setup-python@v6
         with:
@@ -187,9 +189,9 @@ jobs:
             gradle-plugins-cache
 
       - name: Check out the repo
-        uses: acryldata/sane-checkout-action@v4
+        uses: actions/checkout@v4
         with:
-          checkout-head-only: false
+          fetch-depth: 0
 
       - uses: actions/setup-python@v6
         with:
@@ -205,6 +207,16 @@ jobs:
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+
+      - name: Pre-build cleanup
+        run: |
+          docker system prune -a -f --volumes || true
+          docker buildx prune -f --all || true
 
       - name: Build all Images (For Smoke tests)
         if: ${{ needs.setup.outputs.publish != 'true' && needs.setup.outputs.pr-publish != 'true' }}
@@ -225,7 +237,33 @@ jobs:
         # since this is for publishing, we will build all images, not just those for smoke tests. But will publish only if tests pass for publish (head images, releases).
         # for pr-publish, publish images without waiting for tests to pass.
         run: |
-          ./gradlew :docker:buildImagesAll -PmatrixBuild=true  -Ptag=${{ needs.setup.outputs.tag }} -PshaTag=${{ needs.setup.outputs.short_sha }} -PpythonDockerVersion=${{ needs.setup.outputs.python_release_version }} -PdockerRegistry=${{ env.DOCKER_REGISTRY }} -PdockerPush=${{ needs.setup.outputs.pr-publish }} -PincludeAlpineVariants=${{ env.INCLUDE_ALPINE_VARIANTS }}
+          echo "=== Aggressive Cleanup (Before Publish Build) ==="
+          sudo apt-get remove 'dotnet-*' azure-cli || true
+          sudo rm -rf /usr/local/.ghcup || true
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /usr/share/swift || true
+          sudo rm -rf /usr/local/julia* || true
+          sudo rm -rf /usr/local/share/powershell || true
+          sudo rm -rf /usr/share/miniconda || true
+          sudo rm -rf /usr/local/lib/android/ || true
+          echo "=== Disk Usage (Before Publish Build) ==="
+          df -h
+          echo "=== Docker Disk Usage (Before Publish Build) ==="
+          docker system df -v
+          docker system prune -a -f --volumes || true
+          docker builder prune -a -f || true
+          if [[ "${{ needs.setup.outputs.publish }}" == "true" ]]; then
+            MATRIX_BUILD=true
+          else
+            MATRIX_BUILD=false
+          fi
+          ./gradlew :docker:buildImagesAll -PmatrixBuild=${MATRIX_BUILD} -Ptag=${{ needs.setup.outputs.tag }} -PshaTag=${{ needs.setup.outputs.short_sha }} -PpythonDockerVersion=${{ needs.setup.outputs.python_release_version }} -PdockerRegistry=${{ env.DOCKER_REGISTRY }} -PdockerPush=${{ needs.setup.outputs.pr-publish }} -PincludeAlpineVariants=${{ env.INCLUDE_ALPINE_VARIANTS }}
+          echo "=== Disk Usage (After Publish Build) ==="
+          df -h
+          echo "=== Docker Disk Usage (After Publish Build) ==="
+          docker system df -v
+        env:
+          DOCKER_DEFAULT_PLATFORM: linux/amd64
 
       - name: Scan images with Trivy
         if: ${{ needs.setup.outputs.publish == 'true' }}
@@ -338,6 +376,9 @@ jobs:
           elif [[ "${{ needs.setup.outputs.ingestion_only }}" == 'true' ]]; then
             includes="$python_matrix"
           fi
+          if [[ -z "$includes" ]]; then
+            includes='{"test_strategy":"skip","batch":"0","batch_count":"1"}'
+          fi
           echo "matrix={\"include\":[$includes] }" >> "$GITHUB_OUTPUT"
 
   smoke_test:
@@ -346,8 +387,8 @@ jobs:
     needs: [setup, smoke_test_matrix, base_build]
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.smoke_test_matrix.outputs.matrix || '{"include":[]}') }}
-    if: ${{ always() && !failure() && !cancelled() && needs.smoke_test_matrix.outputs.matrix != '' && needs.smoke_test_matrix.outputs.matrix != '{"include":[]}' }}
+      matrix: ${{ fromJson(needs.smoke_test_matrix.outputs.matrix) }}
+    if: ${{ always() && !failure() && !cancelled() && !contains(needs.smoke_test_matrix.outputs.matrix, '"test_strategy":"skip"') }}
     env:
       # TODO Chakru: Review if required
       MIXPANEL_API_SECRET: ${{ secrets.MIXPANEL_API_SECRET }}
@@ -363,7 +404,8 @@ jobs:
           sudo rm -rf /usr/local/share/powershell || true
           sudo rm -rf /usr/share/miniconda || true
           sudo rm -rf /usr/local/lib/android/ || true
-          sudo docker system prune -a -f || true
+          sudo docker system prune -a -f --volumes || true
+          sudo docker buildx prune -f --all || true
           df -h
 
       - uses: actions/cache/restore@v4
@@ -383,9 +425,9 @@ jobs:
             ${{ needs.setup.outputs.yarn_cache_key_prefix }}
 
       - name: Check out the repo
-        uses: acryldata/sane-checkout-action@v4
+        uses: actions/checkout@v4
         with:
-          checkout-head-only: false
+          fetch-depth: 0
 
       - uses: actions/setup-python@v6
         with:
@@ -394,11 +436,13 @@ jobs:
 
       - name: Detect workflow retry
         id: retry-detection
+        env:
+          RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
-          if [[ "${{ github.run_attempt }}" -gt 1 ]]; then
-            echo "This is retry attempt ${{ github.run_attempt }}"
+          if [[ "$RUN_ATTEMPT" -gt 1 ]]; then
+            echo "This is retry attempt $RUN_ATTEMPT"
             echo "is_retry=true" >> "$GITHUB_OUTPUT"
-            PREVIOUS_ATTEMPT=$(($(echo "${{ github.run_attempt }}") - 1))
+            PREVIOUS_ATTEMPT=$((RUN_ATTEMPT - 1))
             echo "previous_attempt=${PREVIOUS_ATTEMPT}" >> "$GITHUB_OUTPUT"
           else
             echo "This is the first attempt"
@@ -572,6 +616,8 @@ jobs:
 
       - name: build images
         run: |
+          docker system prune -a -f --volumes || true
+          docker buildx prune -f --all || true
           ./gradlew :docker:buildImagesQuickstartDebugConsumers -Ptag=${{ needs.setup.outputs.tag }} -PpythonDockerVersion=${{ needs.setup.outputs.python_release_version }} -PdockerRegistry=${{ env.DOCKER_REGISTRY }} -PincludeAlpineVariants=${{ env.INCLUDE_ALPINE_VARIANTS }}
           docker images
         env:
@@ -587,12 +633,18 @@ jobs:
       - name: run quickstart
         env:
           DATAHUB_TELEMETRY_ENABLED: false
+          DATAHUB_REPO: ${{ env.DOCKER_REGISTRY }}
           DATAHUB_VERSION: ${{ needs.setup.outputs.tag }}
           ACTIONS_EXTRA_PACKAGES: "acryl-datahub-actions[executor] acryl-datahub-actions"
-          ACTIONS_CONFIG: "https://raw.githubusercontent.com/acryldata/datahub-actions/main/docker/config/executor.yaml"
+          ACTIONS_CONFIG: "https://raw.githubusercontent.com/${{ env.DATAHUB_ACTIONS_REPO }}/main/docker/config/executor.yaml"
         run: |
           # Quickstart uses PROFILE_NAME env if defined to start the profile specified. Defaults to quickstart-consumers
           ./smoke-test/run-quickstart.sh
+
+      - name: Post-quickstart cleanup
+        run: |
+          docker system prune -a -f --volumes || true
+          docker buildx prune -f --all || true
 
       - name: Disk Check
         run: df -h . && docker images
@@ -649,6 +701,12 @@ jobs:
           echo "$DATAHUB_VERSION"
           ./gradlew --stop
           ./smoke-test/smoke.sh
+
+      - name: Post-test cleanup
+        if: ${{ always() }}
+        run: |
+          docker system prune -a -f --volumes || true
+          docker buildx prune -f --all || true
 
       - name: Java SDK V2 Integration Tests
         if: ${{ (needs.setup.outputs.backend_change == 'true' || needs.setup.outputs.java_client_change == 'true') && matrix.batch == '0' }}
@@ -710,6 +768,7 @@ jobs:
         env:
           POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
           POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         run: |
           if [ -z "$POSTHOG_API_KEY" ]; then
             echo "⚠️ POSTHOG_API_KEY not configured, skipping test failure metrics"
@@ -728,7 +787,7 @@ jobs:
             --posthog-host "${POSTHOG_HOST:-https://app.posthog.com}" \
             --repository "${{ github.repository }}" \
             --workflow-name "${{ github.workflow }}" \
-            --branch "${{ github.head_ref || github.ref_name }}" \
+            --branch "$BRANCH_NAME" \
             --run-id "${{ github.run_id }}" \
             --run-attempt "${{ github.run_attempt }}" \
             --batch "${{ matrix.batch }}" \
@@ -803,7 +862,7 @@ jobs:
 
       - name: Check out the repo
         if: ${{ needs.setup.outputs.publish == 'true' }}
-        uses: acryldata/sane-checkout-action@v4
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
         if: ${{ needs.setup.outputs.publish == 'true' }}
