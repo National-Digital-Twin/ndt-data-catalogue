@@ -186,13 +186,15 @@ RUN --mount=type=bind,source=./python-build/version_updater.py,target=/version_u
 FROM add-code-slim AS final-slim
 
 RUN --mount=type=cache,target=$HOME/.cache/uv,uid=1000,gid=1000,sharing=private \
-    UV_LINK_MODE=copy uv pip install -e "/metadata-ingestion/[base,datahub-rest,datahub-kafka,snowflake,bigquery,redshift,mysql,postgres,s3-slim,gcs-slim,abs-slim,clickhouse,glue,dbt,looker,lookml,tableau,powerbi,superset,datahub-business-glossary]" && \
+    UV_LINK_MODE=copy uv pip install --no-build-isolation 'setuptools<81' Cython && \
+    UV_LINK_MODE=copy uv pip install --no-build-isolation -e "/metadata-ingestion/[base,datahub-rest,datahub-kafka,snowflake,bigquery,redshift,mysql,postgres,s3-slim,gcs-slim,abs-slim,clickhouse,glue,dbt,looker,lookml,tableau,powerbi,superset,datahub-business-glossary]" && \
     datahub --version
 
 FROM add-code-full AS final-full
 
 RUN --mount=type=cache,target=$HOME/.cache/uv,uid=1000,gid=1000,sharing=private \
-    UV_LINK_MODE=copy uv pip install \
+    UV_LINK_MODE=copy uv pip install --no-build-isolation 'setuptools<81' Cython && \
+    UV_LINK_MODE=copy uv pip install --no-build-isolation \
         -e "/metadata-ingestion/[all]" \
     && datahub --version
 
@@ -200,7 +202,8 @@ FROM add-code-locked AS final-locked
 
 # Locked variant: minimal install with s3-slim, network will be blocked
 RUN --mount=type=cache,target=$HOME/.cache/uv,uid=1000,gid=1000,sharing=private \
-    UV_LINK_MODE=copy uv pip install -e "/metadata-ingestion/[base,datahub-rest,datahub-kafka,s3-slim,gcs-slim,abs-slim]" && \
+    UV_LINK_MODE=copy uv pip install --no-build-isolation 'setuptools<81' Cython && \
+    UV_LINK_MODE=copy uv pip install --no-build-isolation -e "/metadata-ingestion/[base,datahub-rest,datahub-kafka,s3-slim,gcs-slim,abs-slim]" && \
     datahub --version
 
 # Block network access to PyPI in locked variant

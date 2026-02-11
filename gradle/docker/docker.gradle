@@ -264,7 +264,7 @@ project.afterEvaluate {
 
       doLast {
         // if matrixBuild is true, this is to publish images, so all variants must be built.
-        def matrixBuild = project.getProperties().getOrDefault("matrixBuild", false)
+        def matrixBuild = project.getProperties().getOrDefault("matrixBuild", "false").toBoolean()
 
         def bake_spec_target = [
           context: "${buildContext}",
