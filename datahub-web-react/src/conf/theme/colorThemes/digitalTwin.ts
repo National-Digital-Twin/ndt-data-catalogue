@@ -9,6 +9,8 @@ import colors from '@conf/theme/colorThemes/color';
 import ColorTheme from '@conf/theme/colorThemes/types';
 
 const digitalTwinColours: ColorTheme = {
+    primary: colors.eerieBlack,
+    accentPrimary: colors.steelBlue,
     bg: colors.ghostWhite,
     bgSurface: colors.gray400,
     bgSurfaceNewNav: colors.gray200,
@@ -50,6 +52,8 @@ const digitalTwinColours: ColorTheme = {
     buttonFillFocus: colors.violet600,
     buttonSurfaceBrandFocus: colors.violet200,
     buttonSurfaceSecondaryHover: colors.violet100,
+    tabControl: colors.delftBlue200,
+    tabControlSelected: colors.steelBlue,
     radioButtonBorder: colors.gray600,
     radioButtonDotFill: colors.gray0,
     radioButtonDotDisabled: colors.gray500,
@@ -59,7 +63,7 @@ const digitalTwinColours: ColorTheme = {
     borderBrand: colors.violet600,
     borderBrandFocused: colors.violet400,
     borderBrandInverse: colors.violet0,
-    borderDisabled: colors.gray600,
+    borderDisabled: colors.antiFlashWhite,
     borderInformation: colors.blue700,
     borderInformationInverse: colors.blue0,
     borderError: colors.red300,

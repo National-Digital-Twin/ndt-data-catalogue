@@ -25,6 +25,7 @@ export type Theme = {
         'body-background': string;
         'content-background'?: string;
         'border-color-base': string;
+        'border-button-disabled'?: string;
         'homepage-background-upper-fade': string;
         'homepage-background-lower-fade': string;
         'homepage-text-color': string;
@@ -48,6 +49,9 @@ export type Theme = {
         'nav-item-text'?: string;
         'nav-item-hover'?: string;
         'icon-selected'?: string;
+        'accent-primary'?: string;
+        'tab-control'?: string;
+        'tab-control-selected'?: string;
     };
     assets: {
         logoUrl: string;

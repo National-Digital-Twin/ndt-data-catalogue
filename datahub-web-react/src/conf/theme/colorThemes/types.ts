@@ -11,6 +11,8 @@
  */
 
 export default interface ColorTheme {
+    primary: string;
+    accentPrimary: string;
     bg: string;
     bgSurface: string;
     bgSurfaceNewNav: string;
@@ -48,6 +50,8 @@ export default interface ColorTheme {
     iconSuccess: string;
     iconWarning: string;
     iconSelected: string;
+    tabControl: string;
+    tabControlSelected: string;
     buttonFillBrand: string;
     buttonFillFocus: string;
     buttonSurfaceBrandFocus: string;

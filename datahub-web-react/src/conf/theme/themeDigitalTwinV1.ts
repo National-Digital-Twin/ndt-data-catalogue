@@ -32,6 +32,10 @@ const themeDigitalTwinV1: Theme = {
         'nav-item-hover': digitalTwinColours.navItemHover,
         'icon-selected': digitalTwinColours.iconSelected,
         'logo-text-size': '24px',
+        'accent-primary': digitalTwinColours.accentPrimary,
+        'tab-control': digitalTwinColours.tabControl,
+        'tab-control-selected': digitalTwinColours.tabControlSelected,
+        "border-button-disabled": digitalTwinColours.borderDisabled,
     },
     assets: {
         logoUrl: 'assets/logos/data-catalogue-logo.svg',

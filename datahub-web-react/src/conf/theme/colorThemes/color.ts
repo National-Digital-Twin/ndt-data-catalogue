@@ -148,6 +148,7 @@ export default {
     dtAccentYellow: '#FFCF06',
     dtOffWhite: '#F0F2F2',
     delftBlue: '#2D365A',
+    delftBlue200: '#6C728C',
     eerieBlack: '#1B1E22',
     steelBlue: '#4379BF',
     utOrange: '#E4751B',
