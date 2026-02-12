@@ -20,7 +20,7 @@ const config: any = {
     // },
     // logging: true,
     datahub: {
-        enabled: true,
+        enabled: false,
     },
 };
 
