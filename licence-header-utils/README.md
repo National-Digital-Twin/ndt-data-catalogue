@@ -8,7 +8,7 @@ Licensed under the Open Government Licence v3.0.
 
 # License Header Migration Tool
 
-A Python tool for managing license headers in National Digital Twin Programme (NDT) projects.
+A Python tool designed to help apply license headers across this National Digital Twin open source project. It handles multiple scenarios to ensure the correct files receive the correct licenses. First, run SkyWalking Eyes to generate a list of files that need to be changed. Save that output to a text file, then run this tool as described below.
 
 ## Overview
 
@@ -25,14 +25,15 @@ It uses the same language and comment style definitions as [Apache SkyWalking Ey
 
 - ✅ Detects existing license headers in source files
 - ✅ Wraps Acryl headers with NDT preamble and footer
-- ✅ **NEW: Adds NDT-only header to code files without existing headers**
-- ✅ **NEW: Adds Crown Copyright header to markdown files (.md, .mdx)**
-- ✅ **NEW: Batch processing from file lists with summary statistics**
+- ✅ Adds NDT-only header to code files without existing headers
+- ✅ Adds Crown Copyright header to markdown files (.md, .mdx, .MD)
+- ✅ Batch processing from file lists with summary statistics
+- ✅ Config-based file filtering using `.licenserc-markdown.yaml` and `.licenserc.yaml`
 - ✅ Supports multiple programming languages (Python, Java, TypeScript, JavaScript, Go, etc.)
 - ✅ Uses proper comment styles for each language
-- ✅ Automatically excludes standard markdown files (README.md, LICENSE.md, etc.)
+- ✅ Automatically excludes files based on repository config (with fallback exclusions)
 - ✅ Dry-run mode for testing
-- ✅ Comprehensive test suite (37 tests)
+- ✅ Comprehensive test suite (42 tests)
 
 ## Installation
 
@@ -54,7 +55,21 @@ pip install .
 
 ## Usage
 
-### Command Line
+### Quick Start (From Repository Root)
+
+Most common usage - running from `ndt-data-catalogue/` repository root:
+
+```bash
+# Dry run (preview changes)
+python licence-header-utils/src/license_header_migration/migrate.py --file-list skywalkingeyes-output.txt --dry-run
+
+# Apply changes
+python licence-header-utils/src/license_header_migration/migrate.py --file-list skywalkingeyes-output.txt
+```
+
+### Command Line (From Package Directory)
+
+**Note:** These commands assume you're in the `licence-header-utils` directory. If you're in the repository root, see [Quick Start](#quick-start-from-repository-root) above.
 
 Process all files in current directory:
 
@@ -80,6 +95,12 @@ Dry run (preview changes without modifying files):
 python -m license_header_migration.migrate --file-list files.txt --dry-run
 ```
 
+Specify repository root (for finding `.licenserc` config files):
+
+```bash
+python -m license_header_migration.migrate --file-list files.txt --repo-root /path/to/repo
+```
+
 #### File List Format
 
 Create a text file with one file path per line. Lines starting with `#` are treated as comments and empty lines are ignored:
@@ -97,17 +118,38 @@ frontend/components/Button.tsx
 docs/guide.md
 ```
 
-The tool will process each file and display a summary:
+The tool will process each file and display output like:
 
 ```
-Migrated: src/main.py
-Migrated: src/utils/helper.py
+======================================================================
+DOWNLOADING RUNTIME ASSETS
+======================================================================
+Source: apache/skywalking-eyes
+✓ Downloaded: languages.yaml
+✓ Downloaded: styles.yaml
+Cache directory: /tmp/licence-header-utils-assets
+======================================================================
+
+======================================================================
+LOADING LICENSE CONFIGURATIONS
+======================================================================
+Repository root: /home/user/ndt-data-catalogue
+✓ Loaded markdown config: .licenserc-markdown.yaml
+✓ Loaded general config: .licenserc.yaml
+======================================================================
+
+Would migrate: src/main.py
+Would migrate: src/utils/helper.py
 ...
-===== Summary =====
+
+============================================================
+SUMMARY
+============================================================
 Added headers to 5 file(s)
 Wrapped headers in 3 file(s)
-Skipped 2 file(s) (already processed)
-Encountered errors in 0 file(s)
+Skipped 2 file(s)
+Total processed: 8 file(s)
+============================================================
 ```
 
 ### As a Module
@@ -120,14 +162,64 @@ main(root_dir="./src", dry_run=False)
 
 # Process single file
 from license_header_migration.migrate import load_yaml, build_extension_style_map
+from license_header_migration.migrate import resolve_asset_paths, load_styles_with_additions
 
-assets_dir = "./assets"
-languages = load_yaml(f"{assets_dir}/languages.yaml")
-styles = load_yaml(f"{assets_dir}/styles.yaml")
+languages_path, styles_path = resolve_asset_paths(assets_dir=None)
+languages = load_yaml(languages_path)
+styles = load_styles_with_additions(styles_path)
 style_map = build_extension_style_map(languages, styles)
 
 process_file("example.py", style_map[".py"], dry_run=False)
 ```
+
+### Running from Repository Root (Detailed)
+
+If you're in the repository root (`ndt-data-catalogue/`) instead of the `licence-header-utils/` directory:
+
+**Option 1: Run the Python file directly (Recommended)**
+
+This is the simplest approach and doesn't require package installation:
+
+```bash
+# Preview changes (dry run)
+python licence-header-utils/src/license_header_migration/migrate.py \
+  --file-list skywalkingeyes-output.txt \
+  --dry-run
+
+# Apply changes
+python licence-header-utils/src/license_header_migration/migrate.py \
+  --file-list skywalkingeyes-output.txt
+
+# Specify custom repo root for .licenserc files
+python licence-header-utils/src/license_header_migration/migrate.py \
+  --file-list skywalkingeyes-output.txt \
+  --repo-root /path/to/repo \
+  --dry-run
+```
+
+**Option 2: Change directory first**
+
+```bash
+cd licence-header-utils
+source venv/bin/activate  # if using virtual environment
+python -m license_header_migration.migrate --file-list ../skywalkingeyes-output.txt --dry-run
+```
+
+**Option 3: Install the package (for frequent use)**
+
+```bash
+cd licence-header-utils
+pip install -e .  # Install in editable mode
+cd ..  # Back to repo root
+python -m license_header_migration.migrate --file-list skywalkingeyes-output.txt --dry-run
+```
+
+**Important Notes:**
+
+- The `-m` flag requires the package to be installed via pip
+- Don't use slashes (`/`) with `-m`, use dots (`.`) for module paths
+- Running the Python file directly (Option 1) works without installation
+- The `--repo-root` defaults to the parent of `licence-header-utils/` (i.e., the repository root)
 
 ## What It Does
 
@@ -197,28 +289,28 @@ def calculate_sum(a, b):
 ```markdown
 # My Documentation
 
-This is a guide about something.
+This is a guide about the migration tool.
 ```
 
 #### Output (Crown Copyright Added)
 
 ```markdown
-**SPDX-License-Identifier:** OGL-UK-3.0
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
 
-**Copyright Owner:** © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
+Copyright Owner: © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
 
 © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
 
 Licensed under the Open Government Licence v3.0.
-
----
+-->
 
 # My Documentation
 
-This is a guide about something.
+This is a guide about the migration tool.
 ```
 
-**Note:** The following markdown files are automatically excluded from processing:
+**Note:** Markdown file exclusions are controlled by `.licenserc-markdown.yaml` in the repository root. When the config is not found, the tool falls back to excluding these standard files:
 
 - LICENSE.md, NOTICE.md, ACKNOWLEDGEMENTS.md, CHANGELOG.md
 - CODE_OF_CONDUCT.md, CONTRIBUTING.md, MAINTAINERS.md
@@ -232,9 +324,14 @@ Run all tests:
 pytest
 ```
 
+If your system Python is externally managed (PEP 668), plain tests still work without `pip install -e`.
+
 Run with coverage:
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
 pytest --cov=src/license_header_migration --cov-report=html
 ```
 
@@ -246,7 +343,7 @@ pytest tests/test_migrate.py::TestAcrylHeaderMigration::test_python_acryl_header
 
 ## Test Cases
 
-The test suite includes 34 tests covering:
+The test suite includes 42 tests covering:
 
 1. **No Header Test**: Files without headers get NDT-only header added
 2. **Acryl Header Test**: Files with Acryl headers are properly wrapped with NDT preamble and footer
@@ -264,9 +361,7 @@ The test suite includes 34 tests covering:
 licence-header-utils/
 ├── pyproject.toml              # Project configuration
 ├── README.md                   # This file
-├── assets/                     # Language and style definitions
-│   ├── languages.yaml          # From skywalking-eyes (modified)
-│   ├── styles.yaml             # From skywalking-eyes (upstream-safe)
+├── assets/                     # Local style additions only
 │   └── styles-additions.yaml   # NDT-specific styles
 ├── src/
 │   └── license_header_migration/
@@ -287,22 +382,64 @@ licence-header-utils/
 
 ## Configuration Files
 
+### License Configuration (Repository Root)
+
+The tool reads exclusion patterns from `.licenserc` configuration files in your repository root:
+
+- **`.licenserc-markdown.yaml`**: Controls markdown file processing
+
+  - `paths`: Glob patterns to identify markdown files (e.g., `**/*.md`, `**/*.mdx`)
+  - `paths-ignore`: Markdown files to exclude (e.g., `README.md`, `LICENSE.md`)
+  - Example:
+    ```yaml
+    header:
+      paths:
+        - "**/*.md"
+        - "**/*.mdx"
+      paths-ignore:
+        - "README.md"
+        - "LICENSE.md"
+        - "NOTICE.md"
+    ```
+
+- **`.licenserc.yaml`**: Controls general file exclusions
+  - `paths-ignore`: Files/patterns to exclude from processing (e.g., `**/*.json`, `**/*.txt`)
+  - Example:
+    ```yaml
+    header:
+      paths-ignore:
+        - "**/*.md"
+        - "**/*.json"
+        - "**/*.txt"
+        - "**/build/**"
+    ```
+
+**Exclusion Logic**:
+
+1. Check if file matches markdown patterns → if yes, check markdown exclusions
+2. If not excluded by markdown config, check general config exclusions
+3. Only process files that pass both filter checks
+
+**Fallback Behavior**: When config files are not found, the tool uses hardcoded exclusions for standard markdown files and processes all other files based on their extension.
+
+### Language & Style Configuration (Runtime Assets)
+
 The tool uses configuration files from [Apache SkyWalking Eyes](https://github.com/apache/skywalking-eyes):
 
 - **languages.yaml**: Defines programming languages and their file extensions
 
   - Source: https://github.com/apache/skywalking-eyes/blob/main/assets/languages.yaml
   - Originally from GitHub Linguist (MIT license)
-  - **Note:** Modified to set Markdown's `comment_style_id` to `PlainText` (line 3269)
+  - Downloaded at runtime from GitHub (or provided via `--assets-dir`)
 
 - **styles.yaml**: Defines comment styles for different languages
 
   - Source: https://github.com/apache/skywalking-eyes/blob/main/assets/styles.yaml
-  - **Can be safely re-downloaded** from upstream without losing functionality
+  - Downloaded at runtime from GitHub (or provided via `--assets-dir`)
 
 - **styles-additions.yaml**: NDT-specific style additions
-  - Contains the `PlainText` style for markdown files
-  - Automatically merged with `styles.yaml` at load time
+  - Contains local style additions (including `PlainText`)
+  - Automatically merged with downloaded/local `styles.yaml` at load time
   - Ensures upstream `styles.yaml` can be updated without conflicts
 
 ## Supported File Types

@@ -33,7 +33,7 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --cov=src/license_header_migration --cov-report=term-missing"
+addopts = "-v"
 
 [tool.setuptools.packages.find]
 where = ["src"]
