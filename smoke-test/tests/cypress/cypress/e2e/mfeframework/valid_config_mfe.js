@@ -31,14 +31,14 @@ microFrontends:
     cy.setIsThemeV2Enabled(true);
     cy.skipIntroducePage();
     cy.on("uncaught:exception", (err, runnable) => false);
-    cy.loginWithCredentials("datahub", "datahub");
-    cy.visit("/");
+    cy.visitWithLogin("/");
     cy.wait("@mfeConfig");
     // Example of taking screenshots of key moments, for debugging or documentation:
     // cy.screenshot("after-visit");
   });
 
   it("shows all MFE items from YAML in the sidebar", () => {
+    cy.clickOptionWithTestId("nav-bar-item-home");
     cy.contains("HelloWorld Cypress").should("exist");
   });
 
@@ -46,6 +46,7 @@ microFrontends:
     cy.intercept("GET", "http://localhost-cypress:3002/remoteEntry.js", {
       statusCode: 503,
     }).as("remoteEntry");
+    cy.clickOptionWithTestId("nav-bar-item-home");
     cy.contains("HelloWorld Cypress").should("exist");
     cy.contains("HelloWorld Cypress").click();
     cy.url().should("include", "/helloworld-mfe");
@@ -92,6 +93,7 @@ microFrontends:
     `,
       headers: { "content-type": "application/javascript" },
     }).as("remoteEntry");
+    cy.clickOptionWithTestId("nav-bar-item-home");
     cy.contains("HelloWorld Cypress").should("exist");
     cy.contains("HelloWorld Cypress").click();
     cy.url().should("include", "/helloworld-mfe");
