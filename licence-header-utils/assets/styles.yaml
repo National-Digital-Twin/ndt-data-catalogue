@@ -1,0 +1,119 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# original https://github.com/apache/skywalking-eyes/blob/main/assets/styles.yaml
+
+- id: DoubleSlash
+  start: '//'
+  middle: '//'
+  end: '//'
+
+- id: Hashtag
+  after: '(?m)^*#!.+$'
+  start: '#'
+  middle: '#'
+  end: '#'
+
+- id: AngleBracket
+  after: '(?ms)^<\?.+?\?>$'
+  start: '<!--'
+  middle: '  ~'
+  end: '-->'
+
+# tag::SlashAsterisk[]
+- id: SlashAsterisk
+  start: '/*'           # <1>
+  middle: ' *'          # <2>
+  end: ' */'            # <3>
+# end::SlashAsterisk[]
+
+- id: RoundBracketAsterisk
+  start: '(*'
+  middle: '(*'
+  end: '(*'
+
+- id: CurlyBracketDash
+  start: '{-'
+  middle: ~
+  end: '-}'
+
+- id: DoubleDash
+  start: '--'
+  middle: '--'
+  end: '--'
+
+- id: Quotes
+  start: '"'
+  middle: '"'
+  end: '"'
+
+- id: Semicolon
+  start: ';'
+  middle: ';'
+  end: ';'
+
+- id: DoubleDot
+  start: '..'
+  middle: '..'
+  end: '..'
+
+- id: Remark
+  start: 'rem'
+  middle: 'rem'
+  end: 'rem'
+
+- id: Percent
+  start: '%'
+  middle: '%'
+  end: '%'
+
+- id: CurlyBracketHashtag
+  start: '{#'
+  middle: ~
+  end: '#}'
+
+- id: CurlyBracketAsterisk
+  start: '{*'
+  middle: ~
+  end: '*}'
+
+- id: PhpTag
+  after: '(?mi)^<\?(php)?(\s+declare\s*\(\s*strict_types\s*=\s*[01]{1}\s*\)\s*;)?$'
+  start: '/*'
+  middle: ' *'
+  end: ' */'
+  ensure_after: '<?php'
+  ensure_before: '?>'
+
+- id: Apostrophe
+  start: "'"
+  middle: "'"
+  end: "'"
+
+- id: PythonStyle
+  # (interpreter binary and encoding comment) | (only interpreter binary) | (only encoding comment)
+  after: '(?m)(^*#!.+$\n^[ \t\f]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+).*$)|(^*#!.+$)|(^[ \t\f]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+).*$)'
+  start: '#'
+  middle: '#'
+  end: '#'
+
+- id: PythonDocStringStyle
+  # (interpreter binary and encoding comment) | (only interpreter binary) | (only encoding comment)
+  after: '(?m)(^*#!.+$\n^[ \t\f]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+).*$)|(^*#!.+$)|(^[ \t\f]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+).*$)'
+  start: '"""'
+  middle: ~
+  end: '"""'

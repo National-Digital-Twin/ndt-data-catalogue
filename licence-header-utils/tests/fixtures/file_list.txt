@@ -1,0 +1,9 @@
+# Test file list for batch processing
+# Lines starting with # are comments
+
+tests/fixtures/acryl_header.py
+tests/fixtures/no_header.py
+
+# Empty lines are ignored
+
+tests/fixtures/simple.md
