@@ -1,3 +1,11 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
+ */
+
 /**
  * Dropdown placement threshold in pixels.
  * If less than this much space is available below the cursor, the dropdown will appear above.
