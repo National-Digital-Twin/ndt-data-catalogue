@@ -5,7 +5,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { buildFilters, extractUserRole, getUserStatusText } from '@app/identity/user/UserListV2.utils';
 
 import { CorpUser, CorpUserStatus, EntityType } from '@types';

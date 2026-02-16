@@ -5,7 +5,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { FieldType, RecipeField, setListValuesOnRecipe } from '@app/ingest/source/builder/RecipeForm/common';
 
 const urlFieldPath = 'source.config.url';

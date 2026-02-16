@@ -40,7 +40,7 @@ def style_map():
     languages_yaml = {
         "Python": {"extensions": [".py"], "comment_style_id": "Hashtag", "ace_mode": "python"},
         "Java": {"extensions": [".java"], "comment_style_id": "SlashAsterisk", "ace_mode": "java"},
-        "TypeScript": {"extensions": [".ts"], "comment_style_id": "SlashAsterisk", "ace_mode": "typescript"},
+        "TypeScript": {"extensions": [".ts", ".tsx"], "comment_style_id": "SlashAsterisk", "ace_mode": "typescript"},
                 "JavaScript": {"extensions": [".js"], "comment_style_id": "SlashAsterisk", "ace_mode": "javascript"},
                 "Go": {"extensions": [".go"], "comment_style_id": "SlashAsterisk", "ace_mode": "go"},
         "Gradle": {"extensions": [".gradle"], "comment_style_id": "SlashAsterisk", "ace_mode": "text"},
@@ -387,6 +387,69 @@ class TestProcessFile:
         assert "National Digital Twin Programme" in content
         assert "SPDX-License-Identifier: Apache-2.0" in content
         assert "def hello_world():" in content
+
+    def test_process_file_adds_trailing_newline(self, style_map, tmp_path):
+        """Test processing ensures output file has a trailing newline."""
+        dest = tmp_path / "no_newline.py"
+        with open(dest, "w", encoding="utf-8") as f:
+            f.write('def hello_world():\n    return "Hello"')
+
+        style = style_map[".py"]
+        result = process_file(str(dest), style, dry_run=False)
+
+        assert result == "added"
+
+        with open(dest, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        assert content.endswith("\n")
+
+    def test_process_tsx_no_blank_line_after_header(self, style_map, tmp_path):
+        """Test TSX migration does not insert an extra blank line before first import."""
+        dest = tmp_path / "IdentitiesContent.tsx"
+        with open(dest, "w", encoding="utf-8") as f:
+            f.write("import React from 'react';\n\nexport const X = () => null;\n")
+
+        style = style_map[".tsx"]
+        result = process_file(str(dest), style, dry_run=False)
+
+        assert result == "added"
+
+        with open(dest, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        assert "*/\nimport React from 'react';" in content
+        assert "*/\n\nimport React from 'react';" not in content
+
+    def test_wrap_tsx_no_blank_line_after_wrapped_header(self, style_map, tmp_path):
+        """Test wrapped TSX Acryl header does not leave an extra blank line before first import."""
+        dest = tmp_path / "WrappedIdentitiesContent.tsx"
+        with open(dest, "w", encoding="utf-8") as f:
+            f.write(
+                "/**\n"
+                " * Copyright 2025 Acryl Data, Inc.\n"
+                " *\n"
+                " * Licensed under the Apache License, Version 2.0 (the \"License\");\n"
+                " * you may not use this file except in compliance with the License.\n"
+                " * You may obtain a copy of the License at\n"
+                " *\n"
+                " *    http://www.apache.org/licenses/LICENSE-2.0\n"
+                " */\n"
+                "import React from 'react';\n\n"
+                "export const X = () => null;\n"
+            )
+
+        style = style_map[".tsx"]
+        result = process_file(str(dest), style, dry_run=False)
+
+        assert result == "wrapped"
+
+        with open(dest, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # Footer block should be immediately followed by import (no extra blank line)
+        assert "National Digital Twin Programme.\n */\nimport React from 'react';" in content
+        assert "National Digital Twin Programme.\n */\n\nimport React from 'react';" not in content
     
     def test_process_file_dry_run(self, fixtures_dir, style_map, tmp_path):
         """Test dry run doesn't modify files."""

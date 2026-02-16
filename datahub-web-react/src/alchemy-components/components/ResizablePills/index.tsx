@@ -5,7 +5,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { Pill, Tooltip } from '@components';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';

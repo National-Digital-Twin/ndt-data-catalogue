@@ -5,7 +5,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { Empty } from 'antd';
 import React, { useState } from 'react';
 import { useDebounce } from 'react-use';

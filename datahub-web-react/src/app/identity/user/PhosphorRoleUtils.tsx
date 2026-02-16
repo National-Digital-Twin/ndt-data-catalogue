@@ -5,7 +5,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { Icon } from '@components';
 import React from 'react';
 

@@ -5,7 +5,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { ColorValues } from '@components/theme/config';
 
 import { CorpUser, CorpUserStatus, FacetFilterInput } from '@types';

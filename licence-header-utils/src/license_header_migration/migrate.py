@@ -64,6 +64,13 @@ RUNTIME_ASSET_URLS = {
 }
 
 
+def ensure_trailing_newline(content: str) -> str:
+    """Ensure file content ends with a single trailing newline."""
+    if not content.endswith("\n"):
+        return content + "\n"
+    return content
+
+
 def resolve_asset_paths(assets_dir: Optional[str]) -> Optional[Tuple[str, str]]:
     """Resolve paths for languages.yaml and styles.yaml.
 
@@ -423,10 +430,13 @@ def add_ndt_header_to_file(content: str, style: dict) -> Optional[str]:
     pre_header = content[:insert_at]
     post_header = content[insert_at:]
     
+    has_block_comment_style = style.get("end") and style.get("end") != style.get("start")
+    header_separator = "\n" if has_block_comment_style else "\n\n"
+
     final_content = pre_header
     if insert_after_block:
         final_content += insert_after_block + "\n"
-    final_content += formatted_header + "\n\n" + post_header
+    final_content += formatted_header + header_separator + post_header
     
     return final_content
 
@@ -605,6 +615,8 @@ def process_file(file_path: str, style: dict, dry_run: bool = False, md_config: 
     
     if migrated_content is None:
         return "already_migrated"
+
+    migrated_content = ensure_trailing_newline(migrated_content)
     
     if not dry_run:
         with open(file_path, "w", encoding="utf-8") as f:

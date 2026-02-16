@@ -5,7 +5,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-
 import { useApolloClient } from '@apollo/client';
 import { message } from 'antd';
 import React, { useState } from 'react';
