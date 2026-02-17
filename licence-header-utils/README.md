@@ -1,10 +1,10 @@
-**SPDX-License-Identifier:** OGL-UK-3.0
+<!--
+SPDX-License-Identifier: Apache-2.0
 
-**Copyright Owner:** © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
-
-© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
-
-Licensed under the Open Government Licence v3.0.
+© Crown Copyright 2025. This work has been developed by the National Digital Twin
+Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
+entity
+-->
 
 # License Header Migration Tool
 
@@ -59,12 +59,22 @@ pip install .
 
 Most common usage - running from `ndt-data-catalogue/` repository root:
 
+Generate file lists with SkyWalking Eyes first:
+
+```bash
+# Main config (.licenserc.yaml)
+docker run --rm -v "$PWD":/work -w /work apache/skywalking-eyes:latest header check -c .licenserc.yaml | tee /tmp/skywalkingeyes-output.txt
+
+# Markdown config (.licenserc-markdown.yaml)
+docker run --rm -v "$PWD":/work -w /work apache/skywalking-eyes:latest header check -c .licenserc-markdown.yaml | tee /tmp/skywalkingeyes-markdown-output.txt
+```
+
 ```bash
 # Dry run (preview changes)
-python licence-header-utils/src/license_header_migration/migrate.py --file-list skywalkingeyes-output.txt --dry-run
+python licence-header-utils/src/license_header_migration/migrate.py --file-list /tmp/skywalkingeyes-output.txt --dry-run
 
 # Apply changes
-python licence-header-utils/src/license_header_migration/migrate.py --file-list skywalkingeyes-output.txt
+python licence-header-utils/src/license_header_migration/migrate.py --file-list /tmp/skywalkingeyes-output.txt
 ```
 
 ### Command Line (From Package Directory)
@@ -183,16 +193,16 @@ This is the simplest approach and doesn't require package installation:
 ```bash
 # Preview changes (dry run)
 python licence-header-utils/src/license_header_migration/migrate.py \
-  --file-list skywalkingeyes-output.txt \
+  --file-list /tmp/skywalkingeyes-output.txt \
   --dry-run
 
 # Apply changes
 python licence-header-utils/src/license_header_migration/migrate.py \
-  --file-list skywalkingeyes-output.txt
+  --file-list /tmp/skywalkingeyes-output.txt
 
 # Specify custom repo root for .licenserc files
 python licence-header-utils/src/license_header_migration/migrate.py \
-  --file-list skywalkingeyes-output.txt \
+  --file-list /tmp/skywalkingeyes-output.txt \
   --repo-root /path/to/repo \
   --dry-run
 ```
@@ -202,7 +212,7 @@ python licence-header-utils/src/license_header_migration/migrate.py \
 ```bash
 cd licence-header-utils
 source venv/bin/activate  # if using virtual environment
-python -m license_header_migration.migrate --file-list ../skywalkingeyes-output.txt --dry-run
+python -m license_header_migration.migrate --file-list /tmp/skywalkingeyes-output.txt --dry-run
 ```
 
 **Option 3: Install the package (for frequent use)**
@@ -211,7 +221,7 @@ python -m license_header_migration.migrate --file-list ../skywalkingeyes-output.
 cd licence-header-utils
 pip install -e .  # Install in editable mode
 cd ..  # Back to repo root
-python -m license_header_migration.migrate --file-list skywalkingeyes-output.txt --dry-run
+python -m license_header_migration.migrate --file-list /tmp/skywalkingeyes-output.txt --dry-run
 ```
 
 **Important Notes:**

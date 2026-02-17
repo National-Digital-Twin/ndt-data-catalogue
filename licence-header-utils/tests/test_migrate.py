@@ -1,8 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
+# Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by the National Digital Twin Programme.
+#
+# SPDX-License-Identifier: Apache-2.0
 #
 # © Crown Copyright 2025. This work has been developed by the National Digital Twin
 # Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
 # entity
+
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
 
 """Tests for license header migration."""
 import tempfile
@@ -31,7 +39,7 @@ def fixtures_dir():
 def style_map():
     """Build extension to style map from minimal in-memory test assets."""
     styles_yaml = [
-        {"id": "Hashtag", "start": "#", "middle": "#", "end": "#"},
+        {"id": "Hashtag", "start": "#", "middle": "#", "end": "#", "after": "(?m)^#!.*$"},
         {"id": "SlashAsterisk", "start": "/*", "middle": " *", "end": " */"},
         {"id": "DoubleSlash", "start": "//", "middle": "//", "end": "//"},
         {"id": "PlainText", "start": "", "middle": "", "end": ""},
@@ -43,6 +51,7 @@ def style_map():
         "TypeScript": {"extensions": [".ts", ".tsx"], "comment_style_id": "SlashAsterisk", "ace_mode": "typescript"},
                 "JavaScript": {"extensions": [".js"], "comment_style_id": "SlashAsterisk", "ace_mode": "javascript"},
                 "Go": {"extensions": [".go"], "comment_style_id": "SlashAsterisk", "ace_mode": "go"},
+                "Shell": {"extensions": [".sh"], "comment_style_id": "Hashtag", "ace_mode": "sh"},
         "Gradle": {"extensions": [".gradle"], "comment_style_id": "SlashAsterisk", "ace_mode": "text"},
         "Markdown": {"extensions": [".md", ".mdx"], "comment_style_id": "PlainText", "ace_mode": "markdown"},
     }
@@ -62,6 +71,11 @@ def local_assets_dir(tmp_path):
                 "    - '.py'\n"
                 "  comment_style_id: Hashtag\n"
                 "  ace_mode: python\n"
+                "Shell:\n"
+                "  extensions:\n"
+                "    - '.sh'\n"
+                "  comment_style_id: Hashtag\n"
+                "  ace_mode: sh\n"
                 "Markdown:\n"
                 "  extensions:\n"
                 "    - '.md'\n"
@@ -75,6 +89,7 @@ def local_assets_dir(tmp_path):
                 "  start: '#'\n"
                 "  middle: '#'\n"
                 "  end: '#'\n"
+                "  after: '(?m)^#!.*$'\n"
                 "- id: PlainText\n"
                 "  start: ''\n"
                 "  middle: ''\n"
@@ -903,3 +918,50 @@ class TestFileListProcessing:
         # Check output contains file not found message
         captured = capsys.readouterr()
         assert "file not found" in captured.out.lower()
+
+    def test_process_file_list_ignores_skywalking_log_lines(self, fixtures_dir, tmp_path, capsys, local_assets_dir):
+        """Test SkyWalking INFO/ERROR lines (with ANSI escapes) are ignored as file-list entries."""
+        from license_header_migration.migrate import process_file_list
+
+        test_file = tmp_path / "no_header.py"
+        shutil.copy(fixtures_dir / "no_header.py", test_file)
+
+        file_list = tmp_path / "skywalking-output.txt"
+        file_list.write_text(
+            "\x1b[36mINFO\x1b[0m Loading configuration from file: .licenserc.yaml\n"
+            "\x1b[36mINFO\x1b[0m Totally checked 14596 files, valid: 11371, invalid: 45, ignored: 3180, fixed: 0\n"
+            "\x1b[36mINFO\x1b[0m GITHUB_TOKEN is not set, license-eye won't comment on the pull request\n"
+            "\x1b[31mERROR\x1b[0m the following files don't have a valid license header:\n"
+            f"{test_file}\n"
+            "\x1b[31mERROR\x1b[0m one or more files does not have a valid license header\n",
+            encoding="utf-8",
+        )
+
+        process_file_list(str(file_list), assets_dir=local_assets_dir, dry_run=False)
+
+        captured = capsys.readouterr()
+        assert "Added headers to 1 file(s)" in captured.out
+        assert "file not found" not in captured.out.lower()
+
+    def test_process_file_list_extensionless_shell_script(self, tmp_path, capsys, local_assets_dir):
+        """Test extensionless shell script is processed via shebang detection."""
+        from license_header_migration.migrate import process_file_list
+
+        script_path = tmp_path / "control"
+        script_path.write_text(
+            "#!/bin/bash\nset -e\necho 'hello'\n",
+            encoding="utf-8",
+        )
+
+        file_list = tmp_path / "files.txt"
+        file_list.write_text(f"{script_path}\n", encoding="utf-8")
+
+        process_file_list(str(file_list), assets_dir=local_assets_dir, dry_run=False)
+
+        captured = capsys.readouterr()
+        assert "Added headers to 1 file(s)" in captured.out
+
+        content = script_path.read_text(encoding="utf-8")
+        assert content.startswith("#!/bin/bash\n")
+        assert "SPDX-License-Identifier: Apache-2.0" in content
+        assert "National Digital Twin Programme" in content

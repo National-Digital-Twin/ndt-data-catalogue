@@ -1,8 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
+# Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by the National Digital Twin Programme.
+#
+# SPDX-License-Identifier: Apache-2.0
 #
 # © Crown Copyright 2025. This work has been developed by the National Digital Twin
 # Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
 # entity
+
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
 
 """License header migration tool for NDT.
 
@@ -63,12 +71,38 @@ RUNTIME_ASSET_URLS = {
     "styles.yaml": "https://raw.githubusercontent.com/apache/skywalking-eyes/main/assets/styles.yaml",
 }
 
+ANSI_ESCAPE_RE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
+
 
 def ensure_trailing_newline(content: str) -> str:
     """Ensure file content ends with a single trailing newline."""
     if not content.endswith("\n"):
         return content + "\n"
     return content
+
+
+def strip_ansi(text: str) -> str:
+    """Remove ANSI escape sequences from terminal-captured text."""
+    return ANSI_ESCAPE_RE.sub("", text)
+
+
+def is_skippable_file_list_line(line: str) -> bool:
+    """Return True when a file-list line is metadata/logging, not a path."""
+    cleaned = strip_ansi(line).strip()
+    if not cleaned:
+        return True
+    if cleaned.startswith("#"):
+        return True
+
+    upper = cleaned.upper()
+    if upper.startswith(("INFO ", "ERROR ", "WARN ", "WARNING ")):
+        return True
+    if "don't have a valid license header" in cleaned:
+        return True
+    if "one or more files does not have a valid license header" in cleaned:
+        return True
+
+    return False
 
 
 def resolve_asset_paths(assets_dir: Optional[str]) -> Optional[Tuple[str, str]]:
@@ -434,8 +468,8 @@ def add_ndt_header_to_file(content: str, style: dict) -> Optional[str]:
     header_separator = "\n" if has_block_comment_style else "\n\n"
 
     final_content = pre_header
-    if insert_after_block:
-        final_content += insert_after_block + "\n"
+    if insert_after_block and not final_content.endswith("\n"):
+        final_content += "\n"
     final_content += formatted_header + header_separator + post_header
     
     return final_content
@@ -562,8 +596,6 @@ def migrate_file_content(content: str, style: dict) -> Optional[str]:
     new_header_section = f"{formatted_spdx}\n{formatted_preamble}\n{blank_comment}\n"
 
     final_content = pre_header
-    if insert_after_block:
-        final_content += insert_after_block + "\n"
     final_content += after_header + new_header_section + license_block + "\n" + formatted_footer + post_header
 
     return final_content
@@ -628,6 +660,33 @@ def process_file(file_path: str, style: dict, dry_run: bool = False, md_config: 
     return action_type
 
 
+def resolve_style_for_file(file_path: str, ext_to_style: Dict[str, dict]) -> Optional[dict]:
+    """Resolve comment style for a file using extension, then shebang fallback."""
+    _, ext = os.path.splitext(file_path)
+    style = ext_to_style.get(ext) or ext_to_style.get(ext.lower())
+    if style:
+        return style
+
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            first_line = f.readline().strip()
+    except (OSError, UnicodeDecodeError):
+        return None
+
+    if first_line.startswith("#!"):
+        shebang = first_line.lower()
+        if any(shell in shebang for shell in ("bash", "sh", "zsh", "ksh", "dash", "ash")):
+            return ext_to_style.get(".sh") or {
+                "id": "Hashtag",
+                "start": "#",
+                "middle": "#",
+                "end": "#",
+                "after": "(?m)^#!.*$",
+            }
+
+    return None
+
+
 def process_file_list(file_list_path: str, assets_dir: Optional[str] = None, dry_run: bool = False, repo_root: Optional[str] = None):
     """Process files listed in a text file.
     
@@ -657,7 +716,11 @@ def process_file_list(file_list_path: str, assets_dir: Optional[str] = None, dry
     
     # Read file list
     with open(file_list_path, 'r', encoding='utf-8') as f:
-        file_paths = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+        file_paths = []
+        for line in f:
+            if is_skippable_file_list_line(line):
+                continue
+            file_paths.append(strip_ansi(line).strip())
     
     stats = {
         'added': 0,
@@ -676,8 +739,7 @@ def process_file_list(file_list_path: str, assets_dir: Optional[str] = None, dry
             stats['file_not_found'] += 1
             continue
         
-        _, ext = os.path.splitext(file_path)
-        style = ext_to_style.get(ext) or ext_to_style.get(ext.lower())
+        style = resolve_style_for_file(file_path, ext_to_style)
         
         if not style:
             stats['no_style'] += 1
@@ -758,10 +820,10 @@ def main(root_dir: str = "./", assets_dir: Optional[str] = None, dry_run: bool =
         dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ("node_modules", "build")]
         
         for file in files:
-            _, ext = os.path.splitext(file)
-            style = ext_to_style.get(ext) or ext_to_style.get(ext.lower())
+            full_path = os.path.join(root, file)
+            style = resolve_style_for_file(full_path, ext_to_style)
             if style:
-                result = process_file(os.path.join(root, file), style, dry_run, md_config, general_config)
+                result = process_file(full_path, style, dry_run, md_config, general_config)
                 if result in stats:
                     stats[result] += 1
     
