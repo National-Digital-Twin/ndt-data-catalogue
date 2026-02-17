@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
+
 name: check python dependencies
 
 on:
@@ -96,7 +103,7 @@ jobs:
             if [ -n "$project" ]; then
               # Sanitize project name for filename
               safe_name=$(echo "$project" | sed 's/[\/.]/-/g; s/^-//; s/-$//')
-              echo "  Analyzing: $project -> /tmp/master-${safe_name}.json"
+              echo "  Analyzing: $project -> /tmp/main-${safe_name}.json"
 
               python .github/scripts/dep-analyzer.py --exec --json "$project" > "/tmp/master-${safe_name}.json" 2>&1 || {
                 echo "Warning: Failed to analyze $project on base branch"
@@ -112,7 +119,7 @@ jobs:
       - name: Compare dependencies and collect results
         id: compare
         run: |
-          echo "Comparing dependencies between master and PR..."
+          echo "Comparing dependencies between main and PR..."
           mkdir -p /tmp/comparison-results
 
           has_violations=false
@@ -127,7 +134,7 @@ jobs:
               # Disable exit-on-error to capture exit code without failing
               set +e
               python .github/scripts/check_python_deps.py \
-                --baseline-file "/tmp/master-${safe_name}.json" \
+                --baseline-file "/tmp/main-${safe_name}.json" \
                 --pr-file "/tmp/pr-${safe_name}.json" \
                 --project-name "$project" \
                 --exclusions-file ".github/python-deps-exclusions.txt" \

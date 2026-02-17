@@ -1,3 +1,14 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
+ *
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
+ */
 import { Tooltip } from '@components';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -46,7 +57,7 @@ const LinkWrapper = styled.span`
 
     &:hover {
         cursor: pointer;
-        background-color: #4b39bc;
+        background-color: #ffffffff;
         box-shadow: 0px 0px 8px 4px rgba(0, 0, 0, 0.15);
     }
 

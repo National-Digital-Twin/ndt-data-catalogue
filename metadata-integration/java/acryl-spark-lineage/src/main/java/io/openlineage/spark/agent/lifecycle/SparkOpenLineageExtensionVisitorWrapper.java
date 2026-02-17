@@ -1,7 +1,15 @@
 /*
-/* Copyright 2018-2025 contributors to the OpenLineage project
-/* SPDX-License-Identifier: Apache-2.0
-*/
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
+ *
+ *
+ *
+ * Copyright 2018-2025 contributors to the OpenLineage project
+ */
 package io.openlineage.spark.agent.lifecycle;
 
 import io.openlineage.client.OpenLineage;
@@ -39,6 +47,12 @@ import org.apache.commons.io.IOUtils;
  * A helper class that uses reflection to call all methods of SparkOpenLineageExtensionVisitor,
  * which are exposed by the extensions implementing interfaces from `spark-extension-interfaces`
  * package.
+ */
+/*
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
  */
 @Slf4j
 public final class SparkOpenLineageExtensionVisitorWrapper {

@@ -1,7 +1,14 @@
 /*
-/* Copyright 2018-2025 contributors to the OpenLineage project
-/* SPDX-License-Identifier: Apache-2.0
-*/
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
+ *
+ *
+ * Copyright 2018-2025 contributors to the OpenLineage project
+ */
 
 package io.openlineage.spark.agent.lifecycle.plan;
 
@@ -19,6 +26,12 @@ import org.apache.spark.sql.execution.datasources.v2.StreamingDataSourceV2Relati
 /**
  * Strategy for handling file-based streaming sources (CSV, Parquet, JSON, etc.) in micro-batch
  * streaming operations.
+ */
+/*
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
  */
 @Slf4j
 public class FileStreamMicroBatchStreamStrategy extends StreamStrategy {

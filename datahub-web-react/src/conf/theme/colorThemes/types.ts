@@ -1,3 +1,15 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
+ *
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
+ */
+
 export default interface ColorTheme {
     bg: string;
     bgSurface: string;
@@ -15,6 +27,8 @@ export default interface ColorTheme {
     bgSurfaceSuccessHover: string;
     bgSurfaceWarning: string;
     bgSurfaceWarningHover: string;
+    bgGradientTop: string;
+    bgGradientBottom: string;
     bgHover: string;
     text: string;
     textSecondary: string;
@@ -33,6 +47,7 @@ export default interface ColorTheme {
     iconInformation: string;
     iconSuccess: string;
     iconWarning: string;
+    iconSelected: string;
     buttonFillBrand: string;
     buttonFillFocus: string;
     buttonSurfaceBrandFocus: string;
@@ -96,6 +111,8 @@ export default interface ColorTheme {
     chartsInformationHigh: string;
     navBgGradientTop: string;
     navBgGradientBottom: string;
+    navItemText: string;
+    navItemHover: string;
     chartsInformationMedium: string;
     chartsInformationLow: string;
     chartsInformationBase: string;

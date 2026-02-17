@@ -1,3 +1,15 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
+ *
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
+ */
+
 const typography = {
     letterSpacings: {
         tighter: '-2px',
@@ -29,19 +41,17 @@ const typography = {
     },
 
     fonts: {
-        heading: `'Mulish', -apple-system, BlinkMacSystemFont,
-		'Segoe UI', Helvetica, Arial, sans-serif`,
-        body: `'Mulish', -apple-system, BlinkMacSystemFont,
-		'Segoe UI', Helvetica, Arial, sans-serif`,
+        heading: `'Inter'`,
+        body: `'Inter'`,
         mono: `SFMono-Regular, Menlo, Monaco, Consolas,
 		'Liberation Mono', 'Courier New', monospace`,
     },
 
     fontSizes: {
-        xs: '10px',
-        sm: '12px',
-        md: '14px', // default body text size
-        lg: '16px',
+        xs: '12.64px',
+        sm: '14.2px',
+        md: '16px', // default body text size
+        lg: '18px',
         xl: '18px',
         '2xl': '20px',
         '3xl': '22px',

@@ -1,7 +1,15 @@
 /*
-/* Copyright 2018-2025 contributors to the OpenLineage project
-/* SPDX-License-Identifier: Apache-2.0
-*/
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
+ *
+ *
+ *
+ * Copyright 2018-2025 contributors to the OpenLineage project
+ */
 
 package io.openlineage.spark3.agent.lifecycle.plan;
 
@@ -64,6 +72,12 @@ public class MergeIntoCommandEdgeInputDatasetBuilder
    * Extracts input datasets from complex source plans like subqueries with DISTINCT, PROJECT, etc.
    * This handles cases where the standard delegation doesn't work due to missing builders for
    * intermediate logical plan nodes.
+   */
+  /*
+   * This file is unmodified from its original version developed by Acryl Data, Inc.,
+   * and is now included as part of a repository maintained by the National Digital Twin Programme.
+   * All support, maintenance and further development of this code is now the responsibility
+   * of the National Digital Twin Programme.
    */
   private List<InputDataset> extractInputDatasetsFromComplexSource(
       LogicalPlan source, SparkListenerEvent event) {

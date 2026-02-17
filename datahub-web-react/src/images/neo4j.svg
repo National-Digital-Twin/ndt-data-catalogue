@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ SPDX-License-Identifier: Apache-2.0
+  ~
+  ~ This file is unmodified from its original version developed by Acryl Data, Inc.,
+  ~ and is now included as part of a repository maintained by the National Digital Twin Programme.
+  ~ All support, maintenance and further development of this code is now the responsibility
+  ~ of the National Digital Twin Programme.
+-->
+
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="Layer_1" x="0px"
      y="0px" viewBox="14 17 649 211" style="enable-background:new 0 0 677.5 242.4;" xml:space="preserve"> <style
     type="text/css"> .st0{fill:#231F20;} .st1{fill:#014063;} </style>

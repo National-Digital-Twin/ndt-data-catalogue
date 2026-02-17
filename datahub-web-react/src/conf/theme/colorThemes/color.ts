@@ -1,3 +1,15 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
+ *
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
+ */
+
 // Should not be imported directly
 export default {
     gray0: '#FFFFFF',
@@ -129,4 +141,17 @@ export default {
     pink200: '#F8BBD0',
     pink300: '#EA5791',
     pink400: '#C2185B',
+    // Digital Twin specific colors
+    dtNavy: '#002244',
+    dtDeepNavy: '#0E142B',
+    beisBlue: '#3670B3',
+    dtAccentYellow: '#FFCF06',
+    dtOffWhite: '#F0F2F2',
+    delftBlue: '#2D365A',
+    eerieBlack: '#1B1E22',
+    steelBlue: '#4379BF',
+    utOrange: '#E4751B',
+    ghostWhite: '#F3F5FA',
+    antiFlashWhite: '#E9EAEE',
+    mint: '#48A478',
 };
