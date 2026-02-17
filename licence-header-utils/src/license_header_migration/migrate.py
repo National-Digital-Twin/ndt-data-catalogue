@@ -1,16 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
-# Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by the National Digital Twin Programme.
-#
-# SPDX-License-Identifier: Apache-2.0
 #
 # © Crown Copyright 2025. This work has been developed by the National Digital Twin
 # Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
 # entity
-
-# This file is unmodified from its original version developed by Acryl Data, Inc.,
-# and is now included as part of a repository maintained by the National Digital Twin Programme.
-# All support, maintenance and further development of this code is now the responsibility
-# of the National Digital Twin Programme.
 
 """License header migration tool for NDT.
 
@@ -51,15 +43,14 @@ and is now included as part of a repository maintained by the National Digital T
 All support, maintenance and further development of this code is now the responsibility
 of the National Digital Twin Programme."""
 
-# Crown Copyright header for markdown files (HTML comment style)
+# OGL header for markdown/doc files (HTML comment style)
 CROWN_COPYRIGHT_HEADER = """<!--
 SPDX-License-Identifier: OGL-UK-3.0
 
-Copyright Owner: © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
-
-© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
-
-Licensed under the Open Government Licence v3.0.
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
 -->
 
 """
@@ -484,11 +475,11 @@ def add_crown_copyright_to_markdown(content: str) -> Optional[str]:
     Returns:
         Content with Crown Copyright header added, or None if already present
     """
-    # Skip files already processed
-    if "Crown Copyright 2025" in content[:500]:
+    # Skip files that already have the markdown/doc OGL header
+    if "SPDX-License-Identifier: OGL-UK-3.0" in content[:500] and "National Digital Twin Programme" in content[:800]:
         return None
     
-    # Skip files that already have OGL license
+    # Skip files that already have older OGL license wording
     if "Open Government Licence" in content[:500]:
         return None
     

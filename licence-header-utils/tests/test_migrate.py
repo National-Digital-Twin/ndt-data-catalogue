@@ -1,18 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
-# Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by the National Digital Twin Programme.
-#
-# SPDX-License-Identifier: Apache-2.0
 #
 # © Crown Copyright 2025. This work has been developed by the National Digital Twin
 # Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
 # entity
 
-# This file is unmodified from its original version developed by Acryl Data, Inc.,
-# and is now included as part of a repository maintained by the National Digital Twin Programme.
-# All support, maintenance and further development of this code is now the responsibility
-# of the National Digital Twin Programme.
-
 """Tests for license header migration."""
+import re
 import tempfile
 import shutil
 from pathlib import Path
@@ -25,6 +18,7 @@ from license_header_migration.migrate import (
     migrate_file_content,
     add_ndt_header_to_file,
     add_crown_copyright_to_markdown,
+    load_yaml,
     process_file,
 )
 
@@ -163,13 +157,78 @@ class TestLicenseHeaderDetection:
         assert is_valid_license_header(text) is False
 
 
+class TestMarkdownConfigPattern:
+    """Tests for markdown SkyWalking config regex coverage."""
+
+    def test_pattern_accepts_acryl_derived_ogl_header(self):
+        """Pattern should accept OGL markdown header for Acryl-derived untouched files."""
+        repo_root = Path(__file__).resolve().parents[2]
+        markdown_config = load_yaml(str(repo_root / ".licenserc-markdown.yaml"))
+        pattern = markdown_config["header"]["license"]["pattern"]
+
+        content = """<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
+# Example
+"""
+
+        assert re.search(pattern, content, re.MULTILINE) is not None
+
+    def test_pattern_accepts_clean_crown_ogl_header(self):
+        """Pattern should accept OGL markdown header for clean Crown-only new files."""
+        repo_root = Path(__file__).resolve().parents[2]
+        markdown_config = load_yaml(str(repo_root / ".licenserc-markdown.yaml"))
+        pattern = markdown_config["header"]["license"]["pattern"]
+
+        content = """<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
+
+Licensed under the Open Government Licence v3.0.
+-->
+
+# Example
+"""
+
+        assert re.search(pattern, content, re.MULTILINE) is not None
+
+    def test_pattern_rejects_incomplete_ogl_header(self):
+        """Pattern should reject incomplete markdown OGL headers."""
+        repo_root = Path(__file__).resolve().parents[2]
+        markdown_config = load_yaml(str(repo_root / ".licenserc-markdown.yaml"))
+        pattern = markdown_config["header"]["license"]["pattern"]
+
+        content = """<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+Licensed under the Open Government Licence v3.0.
+-->
+
+# Example
+"""
+
+        assert re.search(pattern, content, re.MULTILINE) is None
+
+
 class TestFileNoHeader:
     """Tests for files with no existing license header."""
     
     def test_no_header_file_gets_ndt_header(self, fixtures_dir, style_map):
         """Test that files with no header get NDT-only header added."""
-        with open(fixtures_dir / "no_header.py", "r") as f:
-            content = f.read()
+        content = """\"\"\"Simple test fixture with no header.\"\"\"
+
+
+def hello_world():
+    \"\"\"Simple hello world function.\"\"\"
+    return \"Hello, World!\"
+"""
         
         style = style_map[".py"]
         result = migrate_file_content(content, style)
@@ -286,8 +345,14 @@ class TestAcrylHeaderMigration:
     
     def test_python_acryl_header_migration(self, fixtures_dir, style_map):
         """Test migration of Python file with Acryl header."""
-        with open(fixtures_dir / "acryl_header.py", "r") as f:
-            content = f.read()
+        content = """# Copyright 2024 Acryl Data, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the \"License\");
+
+def process_data(data):
+    \"\"\"Process some data.\"\"\"
+    return data.upper()
+"""
         
         style = style_map[".py"]
         result = migrate_file_content(content, style)
@@ -312,8 +377,20 @@ class TestAcrylHeaderMigration:
     
     def test_java_acryl_header_migration(self, fixtures_dir, style_map):
         """Test migration of Java file with Acryl header."""
-        with open(fixtures_dir / "acryl_header.java", "r") as f:
-            content = f.read()
+        content = """/*
+ * Copyright 2024 Acryl Data, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the \"License\");
+ */
+
+package com.example.test;
+
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println(\"Hello, World!\");
+    }
+}
+"""
         
         style = style_map[".java"]
         result = migrate_file_content(content, style)
@@ -335,8 +412,16 @@ class TestAcrylHeaderMigration:
     
     def test_typescript_acryl_header_migration(self, fixtures_dir, style_map):
         """Test migration of TypeScript file with Acryl header."""
-        with open(fixtures_dir / "acryl_header.ts", "r") as f:
-            content = f.read()
+        content = """/*
+ * Copyright 2024 Acryl Data, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the \"License\");
+ */
+
+export function greet(name: string): string {
+    return `Hello, ${name}!`;
+}
+"""
         
         style = style_map[".ts"]
         result = migrate_file_content(content, style)
@@ -383,10 +468,16 @@ class TestProcessFile:
     
     def test_process_file_with_no_header(self, fixtures_dir, style_map, tmp_path):
         """Test processing a file without existing header."""
-        # Copy fixture to temp location
-        source = fixtures_dir / "no_header.py"
         dest = tmp_path / "test_no_header.py"
-        shutil.copy(source, dest)
+        dest.write_text(
+            """\"\"\"Simple test fixture with no header.\"\"\"
+
+
+def hello_world():
+    return \"Hello, World!\"
+""",
+            encoding="utf-8",
+        )
         
         # Process the file
         style = style_map[".py"]
@@ -514,10 +605,20 @@ def test():
     
     def test_acryl_header_2026_gets_wrapped(self, style_map, fixtures_dir, tmp_path):
         """Test that Acryl header with 2026 copyright is recognized and wrapped correctly."""
-        # Copy the fixture to tmp_path so we don't modify the original
-        source = fixtures_dir / "acryl_header_2026.ts"
         dest = tmp_path / "acryl_header_2026.ts"
-        shutil.copy(source, dest)
+        dest.write_text(
+            """/*
+ * Copyright 2026 Acryl Data, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the \"License\");
+ */
+
+export function greet(name: string): string {
+    return `Hello, ${name}!`;
+}
+""",
+            encoding="utf-8",
+        )
         
         style = style_map[".ts"]
         result = process_file(str(dest), style, dry_run=False)
@@ -537,10 +638,20 @@ def test():
     
     def test_acryl_header_2021_gets_wrapped(self, style_map, fixtures_dir, tmp_path):
         """Test that Acryl header with 2021 copyright is recognized and wrapped correctly."""
-        # Copy the fixture to tmp_path so we don't modify the original
-        source = fixtures_dir / "acryl_header_2021.ts"
         dest = tmp_path / "acryl_header_2021.ts"
-        shutil.copy(source, dest)
+        dest.write_text(
+            """/*
+ * Copyright 2021 Acryl Data, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the \"License\");
+ */
+
+export function greet(name: string): string {
+    return `Hello, ${name}!`;
+}
+""",
+            encoding="utf-8",
+        )
         
         style = style_map[".ts"]
         result = process_file(str(dest), style, dry_run=False)
@@ -560,10 +671,22 @@ def test():
     
     def test_acryl_header_javadoc_style_gets_wrapped(self, style_map, fixtures_dir, tmp_path):
         """Test that Acryl header with javadoc-style (/**) comment is recognized and wrapped correctly."""
-        # Copy the fixture to tmp_path so we don't modify the original
-        source = fixtures_dir / "acryl_header_javadoc_style.java"
         dest = tmp_path / "acryl_header_javadoc_style.java"
-        shutil.copy(source, dest)
+        dest.write_text(
+            """/**
+ * Copyright 2025 Acryl Data, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the \"License\");
+ */
+
+public class Example {
+    public static void main(String[] args) {
+        System.out.println(\"Hello World\");
+    }
+}
+""",
+            encoding="utf-8",
+        )
         
         style = style_map[".java"]
         result = process_file(str(dest), style, dry_run=False)
@@ -583,10 +706,19 @@ def test():
     
     def test_acryl_header_gradle_gets_wrapped(self, style_map, fixtures_dir, tmp_path):
         """Test that Acryl header from gradle file (/** with no space after asterisk) is recognized and wrapped correctly."""
-        # Copy the fixture to tmp_path so we don't modify the original
-        source = fixtures_dir / "acryl_header_gradle.gradle"
         dest = tmp_path / "acryl_header_gradle.gradle"
-        shutil.copy(source, dest)
+        dest.write_text(
+            """/**
+* Copyright 2025 Acryl Data, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the \"License\");
+*/
+plugins {
+  id 'scala'
+}
+""",
+            encoding="utf-8",
+        )
         
         style = style_map[".gradle"]
         result = process_file(str(dest), style, dry_run=False)
@@ -699,22 +831,24 @@ This is a test markdown file.
         result = add_crown_copyright_to_markdown(content)
         
         assert result is not None
-        assert "<!--" in result
+        assert result.lstrip().startswith("<!--")
         assert "SPDX-License-Identifier: OGL-UK-3.0" in result
         assert "-->" in result
-        assert "Crown Copyright 2025" in result
         assert "National Digital Twin Programme" in result
-        assert "Open Government Licence v3.0" in result
+        assert "This file is unmodified from its original version developed by Acryl Data, Inc.," in result
         assert "# Example Documentation" in result
         # Check header comes before the original content
-        assert result.index("Crown Copyright") < result.index("# Example Documentation")
+        assert result.index("SPDX-License-Identifier") < result.index("# Example Documentation")
     
     def test_add_crown_copyright_skip_already_processed(self):
         """Test that files with Crown Copyright are skipped."""
         content = """<!--
     SPDX-License-Identifier: OGL-UK-3.0
 
-© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme.
+    This file is unmodified from its original version developed by Acryl Data, Inc.,
+    and is now included as part of a repository maintained by the National Digital Twin Programme.
+    All support, maintenance and further development of this code is now the responsibility
+    of the National Digital Twin Programme.
     -->
 
 # Documentation
@@ -733,10 +867,11 @@ This is a test markdown file.
     
     def test_process_markdown_file(self, style_map, tmp_path, fixtures_dir):
         """Test processing a markdown file."""
-        # Copy fixture to temp location
-        source = fixtures_dir / "no_header.md"
         dest = tmp_path / "test_doc.md"
-        shutil.copy(source, dest)
+        dest.write_text("""# Example Documentation
+
+This is a test markdown file.
+""", encoding="utf-8")
         
         style = style_map[".md"]
         result = process_file(str(dest), style, dry_run=False)
@@ -746,17 +881,19 @@ This is a test markdown file.
         with open(dest, "r") as f:
             content = f.read()
         
-        assert "<!--" in content
+        assert content.lstrip().startswith("<!--")
         assert "-->" in content
-        assert "Crown Copyright 2025" in content
         assert "OGL-UK-3.0" in content
+        assert "National Digital Twin Programme" in content
         assert "# Example Documentation" in content
 
     def test_process_uppercase_md_file_has_html_header(self, style_map, tmp_path, fixtures_dir):
         """Test processing an .MD file adds HTML comment style markdown header."""
-        source = fixtures_dir / "no_header.md"
         dest = tmp_path / "UPPERCASE.MD"
-        shutil.copy(source, dest)
+        dest.write_text("""# Example Documentation
+
+This is a test markdown file.
+""", encoding="utf-8")
 
         style = style_map[".md"]
         result = process_file(str(dest), style, dry_run=False)
@@ -768,14 +905,23 @@ This is a test markdown file.
 
         assert content.lstrip().startswith("<!--")
         assert "SPDX-License-Identifier: OGL-UK-3.0" in content
-        assert "Open Government Licence v3.0" in content
+        assert "National Digital Twin Programme" in content
         assert "-->" in content
     
     def test_process_markdown_already_has_header(self, style_map, tmp_path, fixtures_dir):
         """Test that markdown files with Crown Copyright are skipped."""
-        source = fixtures_dir / "with_crown_copyright.md"
         dest = tmp_path / "already_processed.md"
-        shutil.copy(source, dest)
+        dest.write_text("""<!--
+    SPDX-License-Identifier: OGL-UK-3.0
+
+    This file is unmodified from its original version developed by Acryl Data, Inc.,
+    and is now included as part of a repository maintained by the National Digital Twin Programme.
+    All support, maintenance and further development of this code is now the responsibility
+    of the National Digital Twin Programme.
+    -->
+
+# Documentation
+""", encoding="utf-8")
         
         # Read original content
         with open(dest, "r") as f:
@@ -813,7 +959,7 @@ This is a test markdown file.
             after = f.read()
         
         assert original == after
-        assert "Crown Copyright" not in after
+        assert "SPDX-License-Identifier" in after
 
 
 class TestFileListProcessing:
@@ -841,7 +987,10 @@ class TestFileListProcessing:
         
         shutil.copy(fixtures_dir / "acryl_header.py", test_acryl)
         shutil.copy(fixtures_dir / "no_header.py", test_no_header)
-        shutil.copy(fixtures_dir / "no_header.md", test_md)
+        test_md.write_text("""# Example Documentation
+
+    This is a test markdown file.
+    """, encoding="utf-8")
         
         # Update file list with temp paths
         with open(file_list, "w") as f:
@@ -869,7 +1018,7 @@ class TestFileListProcessing:
         
         with open(test_md, "r") as f:
             content = f.read()
-            assert "Crown Copyright" in content
+            assert "SPDX-License-Identifier: OGL-UK-3.0" in content
     
     def test_process_file_list_dry_run(self, fixtures_dir, tmp_path, capsys, local_assets_dir):
         """Test dry run mode for file list processing."""
@@ -924,7 +1073,11 @@ class TestFileListProcessing:
         from license_header_migration.migrate import process_file_list
 
         test_file = tmp_path / "no_header.py"
-        shutil.copy(fixtures_dir / "no_header.py", test_file)
+        test_file.write_text(
+            """def hello_world():
+        return \"Hello, World!\"\n""",
+            encoding="utf-8",
+        )
 
         file_list = tmp_path / "skywalking-output.txt"
         file_list.write_text(
@@ -940,7 +1093,7 @@ class TestFileListProcessing:
         process_file_list(str(file_list), assets_dir=local_assets_dir, dry_run=False)
 
         captured = capsys.readouterr()
-        assert "Added headers to 1 file(s)" in captured.out
+        assert "Total processed: 1 file(s)" in captured.out
         assert "file not found" not in captured.out.lower()
 
     def test_process_file_list_extensionless_shell_script(self, tmp_path, capsys, local_assets_dir):

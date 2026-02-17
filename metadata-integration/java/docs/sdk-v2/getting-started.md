@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Getting Started with Java SDK V2
 
 This guide walks you through setting up and using the DataHub Java SDK V2 to interact with DataHub's metadata platform.
