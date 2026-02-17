@@ -1,10 +1,13 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
 import { Tooltip } from '@components';
 import { Switch } from 'antd';
@@ -41,7 +44,13 @@ const PopoverWrapper = styled.div`
     max-width: 200px;
 `;
 
-const StyledSwitch = styled(Switch)``;
+const StyledSwitch = styled(Switch)`
+    background-color: ${props => props.theme.styles['toggle-off-bg-color']};
+
+    &.ant-switch-checked {
+        background-color: ${props => props.theme.styles['toggle-on-bg-color']};
+    }
+`;
 
 export default function LineageSearchFilters() {
     const {

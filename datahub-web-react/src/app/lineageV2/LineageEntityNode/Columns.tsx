@@ -25,6 +25,8 @@ import { LineageNodesContext, TRANSITION_DURATION_MS, onClickPreventSelect } fro
 import { NUM_COLUMNS_PER_PAGE } from '@app/lineageV2/constants';
 import { LineageAssetType } from '@app/lineageV2/types';
 
+import NetworkIcon from '@images/dt-network-right.svg?react';
+
 const MainColumnsWrapper = styled.div<{ isGhost: boolean }>`
     align-items: center;
     display: flex;
@@ -46,11 +48,17 @@ const SearchBarWrapper = styled.div`
 `;
 
 const FilterLineageIcon = styled(PartitionOutlined)<{ count: number; selected: boolean }>`
-    ${({ selected }) => (selected ? `color: ${LINEAGE_COLORS.BLUE_1};` : '')};
-    padding-right: 4px;
+    border: 1px solid ${({ selected, theme }) => (selected ? theme.styles['action-button-focus-border-color'] : theme.styles['action-button-border-color'])};
+    border-radius: 4px;
+    min-height: 32px;
+    min-width: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6C728C;
 
     :hover {
-        color: ${REDESIGN_COLORS.BLUE};
+        background-color: ${props => props.theme.styles['action-button-hover-color']};
     }
 
     ::after {
@@ -58,6 +66,8 @@ const FilterLineageIcon = styled(PartitionOutlined)<{ count: number; selected: b
         font-size: 6px;
         margin-left: 2px;
         position: absolute;
+        right: 17px;
+        top: 114px;
     }
 `;
 
@@ -70,6 +80,51 @@ const ColumnPagination = styled(Pagination)`
     margin-top: 8px;
     overflow: hidden;
     width: 100%;
+    
+    .ant-pagination-item:hover a {
+        background-color: ${({ theme }) => theme.styles['pagination-hover-bg-color']};
+        color: ${({ theme }) => theme.styles['pagination-text-color']};
+        border-radius: 4px;
+        border: none;
+    }
+
+    a {
+        color: ${({ theme }) => theme.styles['pagination-text-color']};
+    }
+
+    & .ant-pagination-item-active {
+        background-color: ${({ theme }) => theme.styles['pagination-selected-bg-color']};
+        border-radius: 4px;
+        border: none;
+        color: ${({ theme }) => theme.styles['pagination-selected-text-color']} !important;
+
+        &:hover {
+            border-radius: 4px;
+        }
+    }
+
+    & .ant-pagination-item-active a {
+        color: ${({ theme }) => theme.styles['pagination-selected-text-color']} !important;
+    }
+
+    & .ant-pagination-disabled button{
+        color: ${({ theme }) => theme.styles['pagination-disabled-text-color']} !important;
+    }
+
+    .ant-pagination-prev button,
+    .ant-pagination-next button {
+        color: ${({ theme }) => theme.styles['pagination-text-color']};
+    }
+
+    .ant-pagination-prev:hover button,
+    .ant-pagination-next:hover button {
+        color: ${({ theme }) => theme.styles['pagination-text-color']};
+        background-color: ${({ theme }) => theme.styles['pagination-hover-bg-color']} !important;
+    }
+
+    .ant-pagination-disabled:hover button {
+        background-color: transparent !important;;
+    }
 `;
 
 const HorizontalDivider = styled.hr<{ margin: number }>`
@@ -210,7 +265,6 @@ function Columns(props: Props) {
                         total={numFiltered}
                         pageSize={NUM_COLUMNS_PER_PAGE}
                         size="small"
-                        simple
                         showLessItems
                         showSizeChanger={false}
                     />

@@ -31,17 +31,17 @@ export const ActionMenuItem = styled(Button)<{ disabled?: boolean; fontSize?: nu
     overflow: hidden;
     border: none;
     background-color: 'white';
-    border: 1px solid ${(props) => props.theme.styles['tab-control']};
-    color: ${(props) => props.theme.styles['tab-control']};
+    border: 1px solid ${(props) => props.theme.styles['action-button-border-color']};
+    color: ${(props) => props.theme.styles['action-button-text-color']};
     box-shadow: none;
     &&:hover {
         background-color: ${ANTD_GRAY[3]};
-        color: ${(props) => props.theme.styles['accent-primary']};
-        border-color: ${(props) => props.theme.styles['accent-primary']};
+        color: ${(props) => props.theme.styles['action-button-focus-text-color']};
+        border-color: ${(props) => props.theme.styles['action-button-focus-border-color']};
     }
     &&:focus {
-        color: ${(props) => props.theme.styles['accent-primary']};
-        border-color: ${(props) => props.theme.styles['accent-primary']};
+        color: ${(props) => props.theme.styles['action-button-focus-text-color']};
+        border-color: ${(props) => props.theme.styles['action-button-focus-border-color']};
     }
     ${(props) =>
         props.disabled

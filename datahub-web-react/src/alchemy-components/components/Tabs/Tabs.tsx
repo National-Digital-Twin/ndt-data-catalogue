@@ -49,11 +49,11 @@ const StyledTabsPrimary = styled(AntTabs)<{
     .ant-tabs-tab {
         padding: 8px 0;
         font-size: 14px;
-        color: ${(props) => props.theme.styles['tab-control']};
+        color: ${(props) => props.theme.styles['tab-text-color'] || colors.gray[600]};
         font-weight: 300;
 
         & :focus {
-            color: ${(props) => props.theme.styles['tab-control-selected']};
+            color: ${(props) => props.theme.styles['tab-selected-text-color']};
         }
     }
 
@@ -87,11 +87,11 @@ const StyledTabsPrimary = styled(AntTabs)<{
             }
         `}
     .ant-tabs-tab-active .ant-tabs-tab-btn {
-        color: ${(props) => props.theme.styles['tab-control-selected']};
+        color: ${(props) => props.theme.styles['tab-selected-text-color']};
     }
 
     .ant-tabs-ink-bar {
-        background-color: ${(props) => props.theme.styles['tab-control-selected']};
+        background-color: ${(props) => props.theme.styles['tab-selected-text-color']};
     }
 
     .ant-tabs-content-holder {

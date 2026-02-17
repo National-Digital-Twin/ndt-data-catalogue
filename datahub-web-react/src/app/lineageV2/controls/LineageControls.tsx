@@ -1,25 +1,19 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
-import {
-    ArrowsAltOutlined,
-    CalendarOutlined,
-    FilterOutlined,
-    HomeOutlined,
-    ShrinkOutlined,
-    VerticalLeftOutlined,
-} from '@ant-design/icons';
 import { Button, Divider } from 'antd';
 import React, { useContext, useEffect, useState } from 'react';
 import { Panel, useReactFlow } from 'reactflow';
 import styled from 'styled-components';
 
-import { REDESIGN_COLORS } from '@app/entityV2/shared/constants';
 import { useGetLineageTimeParams } from '@app/lineage/utils/useGetLineageTimeParams';
 import { LineageNodesContext, TRANSITION_DURATION_MS } from '@app/lineageV2/common';
 import DownloadLineageScreenshotButton from '@app/lineageV2/controls/DownloadLineageScreenshotButton';
@@ -28,6 +22,15 @@ import LineageTimeRangeControls from '@app/lineageV2/controls/LineageTimeRangeCo
 import { StyledPanelButton } from '@app/lineageV2/controls/StyledPanelButton';
 import { ControlPanel } from '@app/lineageV2/controls/common';
 import TabFullsizedContext from '@app/shared/TabFullsizedContext';
+
+import EnlargeIcon from '@images/dt-enlarge.svg?react';
+import ReduceIcon from '@images/dt-reduce.svg?react';
+import CalendarIcon from '@images/dt-calendar.svg?react';
+import FilterIcon from '@images/dt-filter.svg?react';
+import HomeIcon from '@images/dt-home.svg?react';
+import ExpandRightIcon from '@images/dt-expand-right.svg?react';
+import CollapseLeftIcon from '@images/dt-collapse-left.svg?react';
+
 
 const StyledPanel = styled(Panel)`
     margin-top: 80px;
@@ -38,25 +41,38 @@ const StyledPanel = styled(Panel)`
 `;
 
 const StyledControlsPanel = styled(ControlPanel)<{ isExpanded: boolean }>`
-    padding: 2px;
-    width: ${({ isExpanded }) => (isExpanded ? '150px' : '50px')};
+    padding: 0;
+    width: ${({ isExpanded }) => (isExpanded ? '150px' : '48px')};
     transition: width ${TRANSITION_DURATION_MS}ms ease-in-out;
+    border-color: ${(props) => props.theme.styles['action-button-border-color']} !important;
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.16);
+    border-radius: 4px;
+
+    && .ant-btn > svg {
+        flex-shrink: 0;
+    }
 `;
 
 const StyledExpandContractButton = styled(Button)`
-    border-radius: 8px;
-    height: 56px;
-    width: 56px;
+    border-radius: 4px;
+    height: 48px;
+    width: 48px;
     margin-top: 8px;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     display: flex;
+    border-color: ${(props) => props.theme.styles['action-button-border-color']} !important;
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.16);
+
+    &:hover {
+        background-color: ${(props) => props.theme.styles['action-button-hover-color']};
+    }
 `;
 
 const StyledDivider = styled(Divider)`
-    margin-top: 1px;
-    margin-bottom: 1px;
+    margin-top: -2px;
+    margin-bottom: -2px;
 `;
 
 const ControlsColumn = styled.div``;
@@ -91,7 +107,7 @@ export default function LineageControls() {
             <ControlsColumn>
                 <StyledControlsPanel isExpanded={isExpanded}>
                     <StyledPanelButton type="text" onClick={() => setIsExpanded(!isExpanded)}>
-                        <VerticalLeftOutlined rotate={isExpanded ? 180 : 0} />
+                        {showExpandedText ? <CollapseLeftIcon /> : <ExpandRightIcon />}
                         {showExpandedText ? 'Hide Menu' : null}
                     </StyledPanelButton>
                     <StyledDivider />
@@ -101,7 +117,7 @@ export default function LineageControls() {
                             fitView({ duration: 1000, nodes: [{ id: rootUrn }], maxZoom: 1 });
                         }}
                     >
-                        <HomeOutlined />
+                        <HomeIcon />
                         {showExpandedText ? 'Focus on Home' : null}
                     </StyledPanelButton>
                     <StyledDivider />
@@ -111,25 +127,17 @@ export default function LineageControls() {
                             visiblePanel === 'filters' ? setVisiblePanel(null) : setVisiblePanel('filters')
                         }
                     >
-                        <FilterOutlined
-                            style={{
-                                color:
-                                    hideTransformations || !showDataProcessInstances || showGhostEntities
-                                        ? REDESIGN_COLORS.BLUE
-                                        : undefined,
-                            }}
-                        />
+                        <FilterIcon />
                         {showExpandedText ? 'Filter' : null}
                     </StyledPanelButton>
+                    <StyledDivider />
                     <StyledPanelButton
                         type="text"
                         onClick={() =>
                             visiblePanel === 'timeRange' ? setVisiblePanel(null) : setVisiblePanel('timeRange')
                         }
                     >
-                        <CalendarOutlined
-                            style={{ color: isLineageTimeUnchanged ? undefined : REDESIGN_COLORS.BLUE }}
-                        />
+                        <CalendarIcon />
                         {showExpandedText ? 'Time Range' : null}
                     </StyledPanelButton>
                     <StyledDivider />
@@ -138,9 +146,9 @@ export default function LineageControls() {
                 {setTabFullsize && (
                     <StyledExpandContractButton onClick={() => setTabFullsize((v) => !v)}>
                         {isTabFullsize ? (
-                            <ShrinkOutlined style={{ fontSize: '150%' }} />
+                            <ReduceIcon />
                         ) : (
-                            <ArrowsAltOutlined style={{ fontSize: '150%' }} />
+                            <EnlargeIcon />
                         )}
                     </StyledExpandContractButton>
                 )}

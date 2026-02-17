@@ -54,8 +54,8 @@ import DomainsIconSelected from '@images/dt-domains-selected.svg?react';
 import DomainsIcon from '@images/dt-domains.svg?react';
 import GlossaryIconSelected from '@images/dt-glossary-selected.svg?react';
 import GlossaryIcon from '@images/dt-glossary.svg?react';
-import HomeIconSelected from '@images/dt-home-selected.svg?react';
-import HomeIcon from '@images/dt-home.svg?react';
+import DashboardIconSelected from '@images/dt-dashboard-selected.svg?react';
+import DashboardIcon from '@images/dt-dashboard.svg?react';
 import StructuredPropertiesIconSelected from '@images/dt-structured-properties-selected.svg?react';
 import StructuredPropertiesIcon from '@images/dt-structured-properties.svg?react';
 import TagsIconSelected from '@images/dt-tags-selected.svg?react';
@@ -178,8 +178,8 @@ export const NavSidebar = () => {
             {
                 type: NavBarMenuItemTypes.Item,
                 title: 'Dashboard',
-                icon: <HomeIcon />,
-                selectedIcon: <HomeIconSelected />,
+                icon: <DashboardIcon />,
+                selectedIcon: <DashboardIconSelected />,
                 key: 'home',
                 link: PageRoutes.ROOT,
                 onlyExactPathMapping: true,

@@ -10,7 +10,6 @@ import ColorTheme from '@conf/theme/colorThemes/types';
 
 const digitalTwinColours: ColorTheme = {
     primary: colors.eerieBlack,
-    accentPrimary: colors.steelBlue,
     bg: colors.ghostWhite,
     bgSurface: colors.gray400,
     bgSurfaceNewNav: colors.gray200,
@@ -28,7 +27,7 @@ const digitalTwinColours: ColorTheme = {
     bgSurfaceWarning: colors.yellow0,
     bgSurfaceWarningHover: colors.yellow200,
     bgHover: colors.gray400,
-    bgGradientTop: colors.delftBlue,
+    bgGradientTop: colors.delftBlue500,
     bgGradientBottom: colors.eerieBlack,
     text: colors.gray800,
     textSecondary: colors.gray700,
@@ -52,8 +51,6 @@ const digitalTwinColours: ColorTheme = {
     buttonFillFocus: colors.violet600,
     buttonSurfaceBrandFocus: colors.violet200,
     buttonSurfaceSecondaryHover: colors.violet100,
-    tabControl: colors.delftBlue200,
-    tabControlSelected: colors.steelBlue,
     radioButtonBorder: colors.gray600,
     radioButtonDotFill: colors.gray0,
     radioButtonDotDisabled: colors.gray500,
@@ -114,7 +111,7 @@ const digitalTwinColours: ColorTheme = {
     navBgGradientTop: '#705EE40A',
     navBgGradientBottom: '#533FD100',
     navItemText: colors.gray0,
-    navItemHover: colors.delftBlue,
+    navItemHover: colors.delftBlue500,
     chartsInformationMedium: colors.blue600,
     chartsInformationLow: colors.blue400,
     chartsInformationBase: colors.blue300,
@@ -158,6 +155,82 @@ const digitalTwinColours: ColorTheme = {
     tagsTrueYellowBorder: colors.trueyellow100,
     tagsTrueYellowIcon: colors.trueyellow200,
     tagsTrueYellowText: colors.trueyellow300,
+
+     // Solid Button
+    solidButtonBgColor: `linear-gradient(90deg,${colors.delftBlue500} 0% ${colors.steelBlue}} 100%)`,
+    solidButtonTextColor: colors.gray0,
+    solidButtonHoverColor: `linear-gradient(90deg,${colors.eerieBlack} 0% ${colors.delftBlue500}} 100%)`,
+    
+    // Outline/No Outline Buttons
+    outlineButtonTextColor: colors.delftBlue300,
+    outlineButtonBorderColor: colors.delftBlue300,
+    outlineButtonHoverTextColor: colors.delftBlue500,
+    outlineButtonHoverBorderColor: colors.delftBlue500,
+
+    // Segmented Button
+    segmentedButtonTextColor: colors.delftBlue200,
+    segmentedButtonBorderColor: colors.antiFlashWhite,
+    segmentedButtonHoverColor: colors.ghostWhite,
+    segmentedButtonFocusBorderColor: colors.steelBlue,
+    segmentedButtonSelectedBgColor: colors.steelBlue,
+    segmentedButtonSelectedTextColor: colors.gray0,
+
+    // Action Button
+    actionButtonTextColor: colors.delftBlue300,
+    actionButtonBorderColor: colors.antiFlashWhite,
+    actionButtonHoverColor: colors.ghostWhite,
+    actionButtonFocusBorderColor: colors.steelBlue,
+    actionButtonFocusTextColor: colors.steelBlue,
+
+    // Toggle
+    toggleOffBgColor: colors.antiFlashWhite,
+    toggleOffDotColor: colors.gray0,
+    toggleOnBgColor: colors.steelBlue,
+    toggleOnDotColor: colors.gray0,
+    toggleLabelColor: colors.delftBlue500,
+
+    // Tabs
+    tabTextColor: colors.delftBlue200,
+    tabHoverBgColor: colors.ghostWhite,
+    tabSelectedTextColor: colors.steelBlue,
+    tabHoverUnderlineColor: colors.delftBlue200,
+    tabSelectedUnderlineColor: colors.steelBlue,
+
+    // Lineage
+    lineageArrowIconColor: colors.steelBlue,
+    lineageArrowHoverBgColor: colors.ghostWhite,
+    lineageArrowBorderColor: colors.ghostWhite,
+    lineageNodeBorderColor: colors.antiFlashWhite,
+    lineageNodeTitleColor: colors.delftBlue500,
+    lineageNodeSelectedBorderColor: colors.steelBlue,
+    columnsButtonTextColor: colors.steelBlue,
+    columnsButtonHoverColor: colors.ghostWhite,
+    lineageHomeBadgeBgColor: colors.steelBlue,
+    lineageHomeBadgeTextColor: colors.gray0,
+
+    // Dropdown
+    dropdownMenuItemTextColor: colors.delftBlue500,
+    dropdownMenuItemHoverColor: colors.ghostWhite,
+
+    // Search
+    searchBarBorderColor: colors.antiFlashWhite,
+    searchBarHoverBorderColor: colors.delftBlue200,
+    searchBarFocusBorderColor: colors.defaultBlue,
+
+    // Pagination
+    paginationTextColor: colors.delftBlue500,
+    paginationHoverBgColor: colors.ghostWhite,
+    paginationSelectedBgColor: colors.ghostWhite,
+    paginationSelectedTextColor: colors.steelBlue,
+    paginationDisabledTextColor: colors.delftBlue200,
+
+    // Chips
+    actionChipBorderColor: colors.antiFlashWhite,
+    actionChipHoverBorderColor: colors.ghostWhite,
+    actionChipHoverBgColor: colors.antiFlashWhite,
+    actionChipTextColor: colors.delftBlue500,
+    filterChipBgColor: colors.steelBlue,
+    filterChipTextColor: colors.gray0,
 };
 
 export default digitalTwinColours;

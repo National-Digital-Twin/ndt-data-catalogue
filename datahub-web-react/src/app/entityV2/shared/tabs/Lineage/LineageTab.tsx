@@ -33,7 +33,7 @@ const LineageTabWrapper = styled.div`
 `;
 
 const LineageSwitchWrapper = styled.div`
-    border: 1px solid ${(props) => props.theme.styles['border-button-disabled']};
+    border: 1px solid ${(props) => props.theme.styles['segmented-button-border-color']};
     border-radius: 8px;
     display: flex;
     margin: 13px 11px;
@@ -41,8 +41,8 @@ const LineageSwitchWrapper = styled.div`
 `;
 
 const LineageViewSwitch = styled.div<{ selected: boolean, left: boolean }>`
-    background: ${({ selected, theme }) => (selected ? `${theme.styles['tab-control-selected']}` : '#fff')};
-    color: ${({ selected, theme }) => (selected ? '#fff' : `${theme.styles['tab-control']}`)};
+    background: ${({ selected, theme }) => (selected ? `${theme.styles['segmented-button-selected-bg-color']}` : '#fff')};
+    color: ${({ selected, theme }) => (selected ? `${theme.styles['segmented-button-selected-text-color']}` : `${theme.styles['segmented-button-text-color']}`)};
     cursor: pointer;
     border-radius: ${({ left }) => (left ? '8px 0 0 8px' : '0 8px 8px 0')};
     display: flex;
@@ -61,7 +61,7 @@ const VisualizationWrapper = styled.div`
 const LineageTabHeader = styled.div`
     display: flex;
     justify-content: space-between;
-    border-bottom: 1px solid ${(props) => props.theme.styles['border-button-disabled']};
+    border-bottom: 1px solid ${(props) => props.theme.styles['segmented-button-border-color']};
 `;
 
 interface Props {

@@ -18,10 +18,10 @@ import styled from 'styled-components';
 const StyledButton = styled(Button)`
     height: 25px;
     width: 25px;
-    color: ${(props) => props.theme.styles['tab-control']};
+    color: ${(props) => props.theme.styles['action-button-text-color']};
     padding: 0px;
     border-radius: 20px;
-    border: 1px solid ${(props) => props.theme.styles['tab-control']};
+    border: 1px solid ${(props) => props.theme.styles['action-button-border-color']};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -30,8 +30,9 @@ const StyledButton = styled(Button)`
     margin-top: 2px;
 
     &:hover {
-        color: ${(p) => p.theme.styles['accent-primary']};
-        border-color: ${(p) => p.theme.styles['accent-primary']};
+        background-color: ${(p) => p.theme.styles['action-button-hover-color']};
+        color: ${(props) => props.theme.styles['action-button-focus-text-color']};
+        border-color: ${(props) => props.theme.styles['action-button-focus-border-color']};
     }
 `;
 

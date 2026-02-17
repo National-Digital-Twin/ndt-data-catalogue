@@ -11,7 +11,7 @@ import { Tooltip } from '@components';
 import { Button, DatePicker, Space, Typography } from 'antd';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 
 import { REDESIGN_COLORS } from '@app/entityV2/shared/constants';
 
@@ -27,8 +27,9 @@ const ConfirmButtonWrapper = styled.div`
 `;
 
 const ConfirmButton = styled(Button)`
-    border-radius: 15px;
-    border: 1px solid ${REDESIGN_COLORS.BLACK};
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.styles['outline-button-border-color']};
+    color: ${props => props.theme.styles['outline-button-text-color']};
 
     position: absolute;
     right: 10px;
@@ -40,6 +41,51 @@ const ConfirmButton = styled(Button)`
         color: ${REDESIGN_COLORS.BLUE};
     }
 `;
+
+const StyledRangePicker = styled(RangePicker)`
+`
+
+const GlobalStyle = createGlobalStyle`
+    .lineage-time-picker-popup {
+        .ant-tag {
+            border-color: ${props => props.theme.styles['action-chip-border-color']} !important;
+            background-color: #ffffff !important;
+            color: ${props => props.theme.styles['action-chip-text-color']} !important;
+            border-radius: 8px !important;
+
+            &:hover {
+                border-color: ${props => props.theme.styles['action-chip-hover-border-color']} !important;
+                background-color: ${props => props.theme.styles['action-chip-hover-bg-color']} !important;
+            }
+        }
+
+        .ant-picker-cell::before {
+            margin: 0 4px;
+        }
+
+        .ant-picker-cell-in-range > .ant-picker-cell-inner {
+            background-color: ${props => props.theme.styles['action-chip-hover-bg-color']} !important;
+        }
+
+        .ant-picker-cell-range-end > .ant-picker-cell-inner,
+        .ant-picker-cell-range-start > .ant-picker-cell-inner {
+            background-color: ${props => props.theme.styles['filter-chip-bg-color']} !important;
+            color: ${props => props.theme.styles['filter-chip-text-color']} !important;
+        }
+
+        .ant-picker-cell-today > .ant-picker-cell-inner::before {
+            border-color: ${props => props.theme.styles['filter-chip-bg-color']} !important;
+            border-radius: 50%;
+        }
+
+        .ant-picker-cell-range-hover-end,
+        .ant-picker-cell-range-hover,
+        .ant-picker-cell-range-hover-start {
+            border-color: ${props => props.theme.styles['filter-chip-bg-color']} !important;
+        }
+    }
+`;
+
 
 export type Props = {
     onChange: (start: Datetime, end: Datetime) => void;
@@ -93,6 +139,7 @@ export default function LineageTimeSelector({ onChange, startTimeMillis, endTime
 
     return (
         <>
+            <GlobalStyle />
             {showText ? ( // Conditionally render All Time selection
                 <Tooltip title="Filter lineage edges by observed date" placement="topLeft" showArrow={false}>
                     <Button type="text" onClick={() => handleOpenChange(true)}>
@@ -105,7 +152,7 @@ export default function LineageTimeSelector({ onChange, startTimeMillis, endTime
                 </Tooltip>
             ) : (
                 <Space direction="vertical" size={12}>
-                    <RangePicker
+                    <StyledRangePicker
                         ref={ref}
                         open={isOpen}
                         allowClear
@@ -129,6 +176,7 @@ export default function LineageTimeSelector({ onChange, startTimeMillis, endTime
                         onChange={handleRangeChange}
                         onOpenChange={handleOpenChange}
                         onCalendarChange={() => handleOpenChange(true)}
+                        dropdownClassName='lineage-time-picker-popup'
                     />
                 </Space>
             )}
