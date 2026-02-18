@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # © Crown Copyright 2026. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
 
-name: Sync Upstream
+name: Fork - Sync Upstream
 
 on:
   schedule:
@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Generate Sync Token
         id: sync-token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         with:
           app-id: ${{ secrets.NDTP_REPOSITORY_WRITER_APP_CLIENT_ID }}
           private-key: ${{ secrets.NDTP_REPOSITORY_WRITER_APP_PRIVATE_KEY }}
@@ -32,19 +32,22 @@ jobs:
           permission-workflows: write
 
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0 # Fetch full history
           token: ${{ steps.sync-token.outputs.token }}
 
       - name: Configure Git
+        env:
+          GITHUB_APP_USERNAME: '${{ steps.sync-token.outputs.app-slug }}[bot]'
+          GITHUB_APP_EMAIL: '${{ steps.sync-token.outputs.user-id }}+${{ steps.sync-token.outputs.app-slug }}[bot]@users.noreply.github.com'
         run: |
-          git config user.name "ndtp-repository-writer[bot]"
-          git config user.email "260632477+ndtp-repository-writer[bot]@users.noreply.github.com"
+          git config user.name "$GITHUB_APP_USERNAME"
+          git config user.email "$GITHUB_APP_EMAIL"
 
       - name: Determine upstream details
         id: upstream-details
-        uses: actions/github-script@v8
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -85,66 +88,25 @@ jobs:
 
           git remote -v
 
-      - name: Check upstream-mirror branch exists
-        uses: actions/github-script@v8
-        env:
-          UPSTREAM_DEFAULT_BRANCH: ${{ steps.upstream-details.outputs.default_branch }}
-        with:
-          script: |
-            const branchName = 'upstream-mirror';
-
-            // Check if branch exists remotely
-            try {
-              await github.rest.repos.getBranch({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                branch: branchName
-              });
-              core.info(`✓ Branch ${branchName} exists remotely`);
-            } catch (error) {
-              if (error.status === 404) {
-                await core.summary
-                  .addRaw('## ❌ Sync Failed\n\n')
-                  .addRaw(`The \`${branchName}\` branch does not exist in this repository.\n\n`)
-                  .addRaw('Please create it first by running:\n\n')
-                  .addRaw(`\`\`\`bash\n`)
-                  .addRaw(`git checkout -b ${branchName} upstream/${process.env.UPSTREAM_DEFAULT_BRANCH}\n`)
-                  .addRaw(`git push origin ${branchName}\n`)
-                  .addRaw(`\`\`\`\n`)
-                  .write();
-                core.setFailed(`Branch ${branchName} does not exist. Please create it first.`);
-                return;
-              } else {
-                await core.summary
-                  .addRaw('## ❌ Sync Failed\n\n')
-                  .addRaw(`Failed to check if branch exists: ${error.message}\n`)
-                  .write();
-                core.setFailed(`Failed to get branch: ${error.message}`);
-                return;
-              }
-            }
-
       - name: Fetch upstream
         env:
           UPSTREAM_DEFAULT_BRANCH: ${{ steps.upstream-details.outputs.default_branch }}
         run: |
           git fetch upstream $UPSTREAM_DEFAULT_BRANCH -f --no-tags
 
-      - name: Sync with upstream
+      - name: Sync upstream-mirror
         env:
           UPSTREAM_DEFAULT_BRANCH: ${{ steps.upstream-details.outputs.default_branch }}
         run: |
-          git checkout upstream-mirror
-          # Reset to upstream default branch to get exact copy with full history
-          git reset --hard upstream/$UPSTREAM_DEFAULT_BRANCH
+          # Checkout (and create if needed) upstream-mirror based on upstream default branch
+          git checkout -B upstream-mirror upstream/$UPSTREAM_DEFAULT_BRANCH
 
-      - name: Push to upstream-mirror
-        run: |
+          # Force push to origin
           git push origin upstream-mirror --force
 
       - name: Summary
         if: success()
-        uses: actions/github-script@v8
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           UPSTREAM_DEFAULT_BRANCH: ${{ steps.upstream-details.outputs.default_branch }}
         with:
