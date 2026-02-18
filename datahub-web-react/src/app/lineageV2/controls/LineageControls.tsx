@@ -14,7 +14,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Panel, useReactFlow } from 'reactflow';
 import styled from 'styled-components';
 
-import { useGetLineageTimeParams } from '@app/lineage/utils/useGetLineageTimeParams';
 import { LineageNodesContext, TRANSITION_DURATION_MS } from '@app/lineageV2/common';
 import DownloadLineageScreenshotButton from '@app/lineageV2/controls/DownloadLineageScreenshotButton';
 import LineageSearchFilters from '@app/lineageV2/controls/LineageSearchFilters';
@@ -80,10 +79,9 @@ const ControlsColumn = styled.div``;
 type PanelType = 'filters' | 'timeRange';
 
 export default function LineageControls() {
-    const { rootUrn, hideTransformations, showDataProcessInstances, showGhostEntities } =
+    const { rootUrn } =
         useContext(LineageNodesContext);
     const { isTabFullsize, setTabFullsize } = useContext(TabFullsizedContext);
-    const { isDefault: isLineageTimeUnchanged } = useGetLineageTimeParams();
     const { fitView } = useReactFlow();
 
     const [isExpanded, setIsExpanded] = useState(false);

@@ -12,7 +12,7 @@
 import { Button } from 'antd';
 import styled from 'styled-components';
 
-import { ANTD_GRAY, REDESIGN_COLORS } from '@app/entityV2/shared/constants';
+import { ANTD_GRAY } from '@app/entityV2/shared/constants';
 
 const MenuItem = styled.div`
     font-size: 12px;

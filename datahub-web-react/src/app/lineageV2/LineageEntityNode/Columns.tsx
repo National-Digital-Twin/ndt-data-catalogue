@@ -16,7 +16,6 @@ import styled from 'styled-components';
 
 import { EventType } from '@app/analytics';
 import analytics from '@app/analytics/analytics';
-import { LINEAGE_COLORS, REDESIGN_COLORS } from '@app/entityV2/shared/constants';
 import { FetchedEntity } from '@app/lineage/types';
 import Column from '@app/lineageV2/LineageEntityNode/Column';
 import ColumnSearch from '@app/lineageV2/LineageEntityNode/ColumnSearch';
@@ -24,8 +23,6 @@ import { LineageDisplayColumn } from '@app/lineageV2/LineageEntityNode/useDispla
 import { LineageNodesContext, TRANSITION_DURATION_MS, onClickPreventSelect } from '@app/lineageV2/common';
 import { NUM_COLUMNS_PER_PAGE } from '@app/lineageV2/constants';
 import { LineageAssetType } from '@app/lineageV2/types';
-
-import NetworkIcon from '@images/dt-network-right.svg?react';
 
 const MainColumnsWrapper = styled.div<{ isGhost: boolean }>`
     align-items: center;

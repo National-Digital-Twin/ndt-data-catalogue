@@ -9,14 +9,13 @@
  * and is legally attributed to the Department for Business and Trade (UK) as the governing
  * entity.
  */
-import { ConsoleSqlOutlined, HomeOutlined, LoadingOutlined } from '@ant-design/icons';
+import { ConsoleSqlOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Tooltip } from '@components';
 import { Skeleton, Spin } from 'antd';
 import React, { useContext } from 'react';
 import { Handle, NodeProps, Position } from 'reactflow';
 import styled from 'styled-components';
 
-import { LINEAGE_COLORS } from '@app/entityV2/shared/constants';
 import { LoadingWrapper } from '@app/lineageV2/LineageEntityNode/NodeContents';
 import LineageVisualizationContext from '@app/lineageV2/LineageVisualizationContext';
 import {
@@ -147,7 +146,7 @@ export default function LineageTransformationNode(props: NodeProps<LineageEntity
         >
             {urn === rootUrn && (
                 <HomeNodeBubble>
-                    <HomeIcon height={'15px'}/>
+                    <HomeIcon height='15px'/>
                     Home
                 </HomeNodeBubble>
             )}

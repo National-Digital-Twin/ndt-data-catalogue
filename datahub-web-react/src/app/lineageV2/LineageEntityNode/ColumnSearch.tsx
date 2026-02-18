@@ -60,7 +60,7 @@ export default function ColumnSearch({ searchText, setSearchText }: Props) {
                 placeholder="Find column"
                 onChange={(e) => setSearchText(e.target.value.trim())}
                 onClick={onClickPreventSelect}
-                prefix={<SearchIcon height={'16px'} width={'16px'} />}
+                prefix={<SearchIcon height='16px' width='16px' />}
             />
         </>
     );

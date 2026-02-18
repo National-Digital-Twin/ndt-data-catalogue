@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { HomeOutlined } from '@ant-design/icons';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { NodeProps } from 'reactflow';
 import styled from 'styled-components';
@@ -82,7 +81,7 @@ export default function LineageEntityNode(props: NodeProps<LineageEntity>) {
         <>
             {urn === rootUrn && (
                 <HomeNodeBubble>
-                    <HomeIcon height={'15px'} />
+                    <HomeIcon height='15px' />
                     Home
                 </HomeNodeBubble>
             )}
