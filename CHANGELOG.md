@@ -18,6 +18,16 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ---
 
+## [0.90.3]
+
+### Enhancing Sync Workflows
+
+### Added
+
+- Add GitHub Actions for intermediate merge, sync, and upstream PR creation
+
+---
+
 ## [0.90.2]
 
 ### Fixing Sync Workflow Permissions
