@@ -45,17 +45,19 @@ const SearchBarWrapper = styled.div`
 `;
 
 const FilterLineageIcon = styled(PartitionOutlined)<{ count: number; selected: boolean }>`
-    border: 1px solid ${({ selected, theme }) => (selected ? theme.styles['action-button-focus-border-color'] : theme.styles['action-button-border-color'])};
+    border: 1px solid
+        ${({ selected, theme }) =>
+            selected ? theme.styles['action-button-focus-border-color'] : theme.styles['action-button-border-color']};
     border-radius: 4px;
     min-height: 32px;
     min-width: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #6C728C;
+    color: #6c728c;
 
     :hover {
-        background-color: ${props => props.theme.styles['action-button-hover-color']};
+        background-color: ${(props) => props.theme.styles['action-button-hover-color']};
     }
 
     ::after {
@@ -77,7 +79,7 @@ const ColumnPagination = styled(Pagination)`
     margin-top: 8px;
     overflow: hidden;
     width: 100%;
-    
+
     .ant-pagination-item:hover a {
         background-color: ${({ theme }) => theme.styles['pagination-hover-bg-color']};
         color: ${({ theme }) => theme.styles['pagination-text-color']};
@@ -104,7 +106,7 @@ const ColumnPagination = styled(Pagination)`
         color: ${({ theme }) => theme.styles['pagination-selected-text-color']} !important;
     }
 
-    & .ant-pagination-disabled button{
+    & .ant-pagination-disabled button {
         color: ${({ theme }) => theme.styles['pagination-disabled-text-color']} !important;
     }
 
@@ -120,7 +122,7 @@ const ColumnPagination = styled(Pagination)`
     }
 
     .ant-pagination-disabled:hover button {
-        background-color: transparent !important;;
+        background-color: transparent !important;
     }
 `;
 

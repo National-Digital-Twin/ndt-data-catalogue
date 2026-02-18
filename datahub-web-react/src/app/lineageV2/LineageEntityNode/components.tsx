@@ -13,9 +13,9 @@ import styled from 'styled-components';
 
 export const ExpandContractButton = styled.div<{ expandOnHover?: boolean }>`
     background-color: white;
-    border: 1px solid ${props => props.theme.styles['lineage-arrow-border-color']};
+    border: 1px solid ${(props) => props.theme.styles['lineage-arrow-border-color']};
     border-radius: 50%;
-    color: ${props => props.theme.styles['lineage-arrow-icon-color']};
+    color: ${(props) => props.theme.styles['lineage-arrow-icon-color']};
     cursor: pointer;
     padding: 3px;
     display: flex;
@@ -47,6 +47,6 @@ export const Button = styled.span`
     line-height: 0;
 
     :hover {
-        background-color: ${props => props.theme.styles['lineage-arrow-hover-bg-color']};
+        background-color: ${(props) => props.theme.styles['lineage-arrow-hover-bg-color']};
     }
 `;

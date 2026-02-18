@@ -62,7 +62,7 @@ const NodeWrapper = styled.div<{
         ${({ color, selected, isGhost }) => {
             if (selected) return color;
             if (isGhost) return `${LINEAGE_COLORS.NODE_BORDER}50`;
-            return props => props.theme.styles['lineage-node-border-color'];
+            return (props) => props.theme.styles['lineage-node-border-color'];
         }};
     box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.16);
     outline: ${({ color, selected }) => (selected ? `1px solid ${color}` : 'none')};
@@ -124,7 +124,7 @@ export const LoadingWrapper = styled.div`
 const CardDivider = styled.hr`
     position: absolute;
     border: 0;
-    border-top: 1px solid ${props => props.theme.styles['lineage-node-border-color']};
+    border-top: 1px solid ${(props) => props.theme.styles['lineage-node-border-color']};
     bottom: 38px;
     left: 2.5%;
     margin: 4px 0;
@@ -174,7 +174,7 @@ const SiblingPlatformIcon = styled.img`
 
 const HorizontalDivider = styled.hr<{ margin: number }>`
     border: 0;
-    border-top: 1px solid ${props => props.theme.styles['lineage-node-border-color']};
+    border-top: 1px solid ${(props) => props.theme.styles['lineage-node-border-color']};
     margin: ${({ margin }) => margin}px 0;
     width: 95%;
 `;
@@ -207,12 +207,12 @@ const TitleLine = styled.span`
     align-items: center;
     height: min-content;
     gap: 4px;
-    color: ${props => props.theme.styles['lineage-node-title-color']};
+    color: ${(props) => props.theme.styles['lineage-node-title-color']};
 `;
 
 const ExpandColumnsWrapper = styled(MatchTextSizeWrapper)`
     align-items: center;
-    color: ${props => props.theme.styles['columns-button-text-color']};
+    color: ${(props) => props.theme.styles['columns-button-text-color']};
     display: flex;
     justify-content: center;
     width: 100%;
@@ -224,7 +224,7 @@ const ExpandColumnsWrapper = styled(MatchTextSizeWrapper)`
     font-size: 14px;
 
     :hover {
-        background-color: ${props => props.theme.styles['columns-button-hover-color']};
+        background-color: ${(props) => props.theme.styles['columns-button-hover-color']};
         cursor: pointer;
     }
 `;
@@ -427,7 +427,7 @@ function NodeContents(props: Props & LineageEntity & DisplayedColumns) {
                 )}
             </FakeCard>
             <CardWrapper>
-                <CardContentContainer 
+                <CardContentContainer
                     isGhost={isGhost}
                     onMouseEnter={() => setHoveredNode(urn)}
                     onMouseLeave={() => setHoveredNode(null)}

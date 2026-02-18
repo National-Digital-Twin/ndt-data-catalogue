@@ -45,10 +45,10 @@ const PopoverWrapper = styled.div`
 `;
 
 const StyledSwitch = styled(Switch)`
-    background-color: ${props => props.theme.styles['toggle-off-bg-color']};
+    background-color: ${(props) => props.theme.styles['toggle-off-bg-color']};
 
     &.ant-switch-checked {
-        background-color: ${props => props.theme.styles['toggle-on-bg-color']};
+        background-color: ${(props) => props.theme.styles['toggle-on-bg-color']};
     }
 `;
 

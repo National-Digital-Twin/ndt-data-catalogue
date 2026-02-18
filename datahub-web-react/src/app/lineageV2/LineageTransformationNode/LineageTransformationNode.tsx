@@ -39,9 +39,9 @@ export const TRANSFORMATION_NODE_SIZE = 48;
 // TODO: Share with LineageEntityNode
 const HomeNodeBubble = styled.div`
     align-items: center;
-    background-color: ${props => props.theme.styles['lineage-home-badge-bg-color']};
+    background-color: ${(props) => props.theme.styles['lineage-home-badge-bg-color']};
     border-radius: 12px;
-    color: ${props => props.theme.styles['lineage-home-badge-text-color']};
+    color: ${(props) => props.theme.styles['lineage-home-badge-text-color']};
     display: flex;
     font-size: 13.33px;
     font-weight: 400;
@@ -64,7 +64,8 @@ const NodeWrapper = styled.div<{
 }>`
     background-color: white;
     border: 1px solid;
-    border-color: ${({ selected, theme }) => (selected ? theme.styles['lineage-node-selected-border-color'] : theme.styles['lineage-node-border-color'])};
+    border-color: ${({ selected, theme }) =>
+        selected ? theme.styles['lineage-node-selected-border-color'] : theme.styles['lineage-node-border-color']};
     border-radius: 4px;
     box-shadow: ${({ isSearchedEntity, theme }) =>
         isSearchedEntity ? `0 0 3px 3px ${theme.styles['primary-color']}95` : 'none'};
@@ -146,7 +147,7 @@ export default function LineageTransformationNode(props: NodeProps<LineageEntity
         >
             {urn === rootUrn && (
                 <HomeNodeBubble>
-                    <HomeIcon height='15px'/>
+                    <HomeIcon height="15px" />
                     Home
                 </HomeNodeBubble>
             )}

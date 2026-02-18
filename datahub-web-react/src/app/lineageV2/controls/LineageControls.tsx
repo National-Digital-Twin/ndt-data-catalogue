@@ -22,14 +22,13 @@ import { StyledPanelButton } from '@app/lineageV2/controls/StyledPanelButton';
 import { ControlPanel } from '@app/lineageV2/controls/common';
 import TabFullsizedContext from '@app/shared/TabFullsizedContext';
 
-import EnlargeIcon from '@images/dt-enlarge.svg?react';
-import ReduceIcon from '@images/dt-reduce.svg?react';
 import CalendarIcon from '@images/dt-calendar.svg?react';
+import CollapseLeftIcon from '@images/dt-collapse-left.svg?react';
+import EnlargeIcon from '@images/dt-enlarge.svg?react';
+import ExpandRightIcon from '@images/dt-expand-right.svg?react';
 import FilterIcon from '@images/dt-filter.svg?react';
 import HomeIcon from '@images/dt-home.svg?react';
-import ExpandRightIcon from '@images/dt-expand-right.svg?react';
-import CollapseLeftIcon from '@images/dt-collapse-left.svg?react';
-
+import ReduceIcon from '@images/dt-reduce.svg?react';
 
 const StyledPanel = styled(Panel)`
     margin-top: 80px;
@@ -79,8 +78,7 @@ const ControlsColumn = styled.div``;
 type PanelType = 'filters' | 'timeRange';
 
 export default function LineageControls() {
-    const { rootUrn } =
-        useContext(LineageNodesContext);
+    const { rootUrn } = useContext(LineageNodesContext);
     const { isTabFullsize, setTabFullsize } = useContext(TabFullsizedContext);
     const { fitView } = useReactFlow();
 
@@ -143,11 +141,7 @@ export default function LineageControls() {
                 </StyledControlsPanel>
                 {setTabFullsize && (
                     <StyledExpandContractButton onClick={() => setTabFullsize((v) => !v)}>
-                        {isTabFullsize ? (
-                            <ReduceIcon />
-                        ) : (
-                            <EnlargeIcon />
-                        )}
+                        {isTabFullsize ? <ReduceIcon /> : <EnlargeIcon />}
                     </StyledExpandContractButton>
                 )}
             </ControlsColumn>

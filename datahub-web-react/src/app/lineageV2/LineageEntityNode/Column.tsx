@@ -61,7 +61,7 @@ const ColumnWrapper = styled.div<{
                 return `background-color: ${theme.styles['dropdown-menu-item-hover-color']};`;
             }
             return `background-color: ${theme.styles['dropdown-menu-item-hover-color']};`;
-        }   
+        }
         return 'background-color: white;';
     }}
 

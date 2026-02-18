@@ -28,8 +28,8 @@ const ConfirmButtonWrapper = styled.div`
 
 const ConfirmButton = styled(Button)`
     border-radius: 6px;
-    border: 1px solid ${props => props.theme.styles['outline-button-border-color']};
-    color: ${props => props.theme.styles['outline-button-text-color']};
+    border: 1px solid ${(props) => props.theme.styles['outline-button-border-color']};
+    color: ${(props) => props.theme.styles['outline-button-text-color']};
 
     position: absolute;
     right: 10px;
@@ -42,20 +42,19 @@ const ConfirmButton = styled(Button)`
     }
 `;
 
-const StyledRangePicker = styled(RangePicker)`
-`
+const StyledRangePicker = styled(RangePicker)``;
 
 const GlobalStyle = createGlobalStyle`
     .lineage-time-picker-popup {
         .ant-tag {
-            border-color: ${props => props.theme.styles['action-chip-border-color']} !important;
+            border-color: ${(props) => props.theme.styles['action-chip-border-color']} !important;
             background-color: #ffffff !important;
-            color: ${props => props.theme.styles['action-chip-text-color']} !important;
+            color: ${(props) => props.theme.styles['action-chip-text-color']} !important;
             border-radius: 8px !important;
 
             &:hover {
-                border-color: ${props => props.theme.styles['action-chip-hover-border-color']} !important;
-                background-color: ${props => props.theme.styles['action-chip-hover-bg-color']} !important;
+                border-color: ${(props) => props.theme.styles['action-chip-hover-border-color']} !important;
+                background-color: ${(props) => props.theme.styles['action-chip-hover-bg-color']} !important;
             }
         }
 
@@ -64,28 +63,27 @@ const GlobalStyle = createGlobalStyle`
         }
 
         .ant-picker-cell-in-range > .ant-picker-cell-inner {
-            background-color: ${props => props.theme.styles['action-chip-hover-bg-color']} !important;
+            background-color: ${(props) => props.theme.styles['action-chip-hover-bg-color']} !important;
         }
 
         .ant-picker-cell-range-end > .ant-picker-cell-inner,
         .ant-picker-cell-range-start > .ant-picker-cell-inner {
-            background-color: ${props => props.theme.styles['filter-chip-bg-color']} !important;
-            color: ${props => props.theme.styles['filter-chip-text-color']} !important;
+            background-color: ${(props) => props.theme.styles['filter-chip-bg-color']} !important;
+            color: ${(props) => props.theme.styles['filter-chip-text-color']} !important;
         }
 
         .ant-picker-cell-today > .ant-picker-cell-inner::before {
-            border-color: ${props => props.theme.styles['filter-chip-bg-color']} !important;
+            border-color: ${(props) => props.theme.styles['filter-chip-bg-color']} !important;
             border-radius: 50%;
         }
 
         .ant-picker-cell-range-hover-end,
         .ant-picker-cell-range-hover,
         .ant-picker-cell-range-hover-start {
-            border-color: ${props => props.theme.styles['filter-chip-bg-color']} !important;
+            border-color: ${(props) => props.theme.styles['filter-chip-bg-color']} !important;
         }
     }
 `;
-
 
 export type Props = {
     onChange: (start: Datetime, end: Datetime) => void;
@@ -176,7 +174,7 @@ export default function LineageTimeSelector({ onChange, startTimeMillis, endTime
                         onChange={handleRangeChange}
                         onOpenChange={handleOpenChange}
                         onCalendarChange={() => handleOpenChange(true)}
-                        dropdownClassName='lineage-time-picker-popup'
+                        dropdownClassName="lineage-time-picker-popup"
                     />
                 </Space>
             )}

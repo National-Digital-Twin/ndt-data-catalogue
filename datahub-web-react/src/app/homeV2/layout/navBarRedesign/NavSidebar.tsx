@@ -50,12 +50,12 @@ import { resolveRuntimePath } from '@utils/runtimeBasePath';
 
 import AnalyticsIconSelected from '@images/dt-analytics-selected.svg?react';
 import AnalyticsIcon from '@images/dt-analytics.svg?react';
+import DashboardIconSelected from '@images/dt-dashboard-selected.svg?react';
+import DashboardIcon from '@images/dt-dashboard.svg?react';
 import DomainsIconSelected from '@images/dt-domains-selected.svg?react';
 import DomainsIcon from '@images/dt-domains.svg?react';
 import GlossaryIconSelected from '@images/dt-glossary-selected.svg?react';
 import GlossaryIcon from '@images/dt-glossary.svg?react';
-import DashboardIconSelected from '@images/dt-dashboard-selected.svg?react';
-import DashboardIcon from '@images/dt-dashboard.svg?react';
 import StructuredPropertiesIconSelected from '@images/dt-structured-properties-selected.svg?react';
 import StructuredPropertiesIcon from '@images/dt-structured-properties.svg?react';
 import TagsIconSelected from '@images/dt-tags-selected.svg?react';

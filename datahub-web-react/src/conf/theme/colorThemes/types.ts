@@ -10,7 +10,6 @@
  * entity.
  */
 export default interface ColorTheme {
-    primary: string;
     bg: string;
     bgSurface: string;
     bgSurfaceNewNav: string;
@@ -158,78 +157,78 @@ export default interface ColorTheme {
     tagsTrueYellowText: string;
 
     // Solid Button
-    solidButtonBgColor: string;
-    solidButtonTextColor: string;
-    solidButtonHoverColor: string;
-    
+    solidButtonBgColor?: string;
+    solidButtonTextColor?: string;
+    solidButtonHoverColor?: string;
+
     // Outline/No Outline Buttons
-    outlineButtonTextColor: string;
-    outlineButtonBorderColor: string;
-    outlineButtonHoverTextColor: string;
-    outlineButtonHoverBorderColor: string;
+    outlineButtonTextColor?: string;
+    outlineButtonBorderColor?: string;
+    outlineButtonHoverTextColor?: string;
+    outlineButtonHoverBorderColor?: string;
 
     // Segmented Button
-    segmentedButtonTextColor: string;
-    segmentedButtonBorderColor: string;
-    segmentedButtonHoverColor: string;
-    segmentedButtonFocusBorderColor: string;
-    segmentedButtonSelectedBgColor: string;
-    segmentedButtonSelectedTextColor: string;
+    segmentedButtonTextColor?: string;
+    segmentedButtonBorderColor?: string;
+    segmentedButtonHoverColor?: string;
+    segmentedButtonFocusBorderColor?: string;
+    segmentedButtonSelectedBgColor?: string;
+    segmentedButtonSelectedTextColor?: string;
 
     // Action Button
-    actionButtonTextColor: string;
-    actionButtonBorderColor: string;
-    actionButtonHoverColor: string;
-    actionButtonFocusBorderColor: string;
-    actionButtonFocusTextColor: string;
+    actionButtonTextColor?: string;
+    actionButtonBorderColor?: string;
+    actionButtonHoverColor?: string;
+    actionButtonFocusBorderColor?: string;
+    actionButtonFocusTextColor?: string;
 
     // Toggle
-    toggleOffBgColor: string;
-    toggleOffDotColor: string;
-    toggleOnBgColor: string;
-    toggleOnDotColor: string;
-    toggleLabelColor: string;
+    toggleOffBgColor?: string;
+    toggleOffDotColor?: string;
+    toggleOnBgColor?: string;
+    toggleOnDotColor?: string;
+    toggleLabelColor?: string;
 
     // Tabs
-    tabTextColor: string;
-    tabHoverBgColor: string;
-    tabSelectedTextColor: string;
-    tabHoverUnderlineColor: string;
-    tabSelectedUnderlineColor: string;
+    tabTextColor?: string;
+    tabHoverBgColor?: string;
+    tabSelectedTextColor?: string;
+    tabHoverUnderlineColor?: string;
+    tabSelectedUnderlineColor?: string;
 
     // Lineage
-    lineageArrowIconColor: string;
-    lineageArrowHoverBgColor: string;
-    lineageArrowBorderColor: string;
-    lineageNodeBorderColor: string;
-    lineageNodeTitleColor: string;
-    lineageNodeSelectedBorderColor: string;
-    columnsButtonTextColor: string;
-    columnsButtonHoverColor: string;
-    lineageHomeBadgeBgColor: string;
-    lineageHomeBadgeTextColor: string;
+    lineageArrowIconColor?: string;
+    lineageArrowHoverBgColor?: string;
+    lineageArrowBorderColor?: string;
+    lineageNodeBorderColor?: string;
+    lineageNodeTitleColor?: string;
+    lineageNodeSelectedBorderColor?: string;
+    columnsButtonTextColor?: string;
+    columnsButtonHoverColor?: string;
+    lineageHomeBadgeBgColor?: string;
+    lineageHomeBadgeTextColor?: string;
 
     // Dropdown
-    dropdownMenuItemTextColor: string;
-    dropdownMenuItemHoverColor: string;
+    dropdownMenuItemTextColor?: string;
+    dropdownMenuItemHoverColor?: string;
 
     // Search
-    searchBarBorderColor: string;
-    searchBarHoverBorderColor: string;
-    searchBarFocusBorderColor: string;
+    searchBarBorderColor?: string;
+    searchBarHoverBorderColor?: string;
+    searchBarFocusBorderColor?: string;
 
     // Pagination
-    paginationTextColor: string;
-    paginationHoverBgColor: string;
-    paginationSelectedBgColor: string;
-    paginationSelectedTextColor: string;
-    paginationDisabledTextColor: string;
+    paginationTextColor?: string;
+    paginationHoverBgColor?: string;
+    paginationSelectedBgColor?: string;
+    paginationSelectedTextColor?: string;
+    paginationDisabledTextColor?: string;
 
     // Chips
-    actionChipBorderColor: string;
-    actionChipHoverBorderColor: string;
-    actionChipHoverBgColor: string;
-    actionChipTextColor: string;
-    filterChipBgColor: string;
-    filterChipTextColor: string;
+    actionChipBorderColor?: string;
+    actionChipHoverBorderColor?: string;
+    actionChipHoverBgColor?: string;
+    actionChipTextColor?: string;
+    filterChipBgColor?: string;
+    filterChipTextColor?: string;
 }

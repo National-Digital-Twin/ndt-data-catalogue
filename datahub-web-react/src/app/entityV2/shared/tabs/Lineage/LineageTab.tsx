@@ -40,9 +40,13 @@ const LineageSwitchWrapper = styled.div`
     width: ${LINEAGE_SWITCH_WIDTH * 2}px;
 `;
 
-const LineageViewSwitch = styled.div<{ selected: boolean, left: boolean }>`
-    background: ${({ selected, theme }) => (selected ? `${theme.styles['segmented-button-selected-bg-color']}` : '#fff')};
-    color: ${({ selected, theme }) => (selected ? `${theme.styles['segmented-button-selected-text-color']}` : `${theme.styles['segmented-button-text-color']}`)};
+const LineageViewSwitch = styled.div<{ selected: boolean; left: boolean }>`
+    background: ${({ selected, theme }) =>
+        selected ? `${theme.styles['segmented-button-selected-bg-color']}` : '#fff'};
+    color: ${({ selected, theme }) =>
+        selected
+            ? `${theme.styles['segmented-button-selected-text-color']}`
+            : `${theme.styles['segmented-button-text-color']}`};
     cursor: pointer;
     border-radius: ${({ left }) => (left ? '8px 0 0 8px' : '0 8px 8px 0')};
     display: flex;
@@ -92,7 +96,11 @@ function WideLineageTab({ defaultDirection }: { defaultDirection: LineageDirecti
                         <LineageViewSwitch selected={isVisualizeView} onClick={() => setVisualizeView(true)} left>
                             Explorer View
                         </LineageViewSwitch>
-                        <LineageViewSwitch selected={!isVisualizeView} onClick={() => setVisualizeView(false)} left={false}>
+                        <LineageViewSwitch
+                            selected={!isVisualizeView}
+                            onClick={() => setVisualizeView(false)}
+                            left={false}
+                        >
                             Impact Analysis
                         </LineageViewSwitch>
                     </LineageSwitchWrapper>

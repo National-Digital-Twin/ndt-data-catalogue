@@ -9,7 +9,6 @@ import colors from '@conf/theme/colorThemes/color';
 import ColorTheme from '@conf/theme/colorThemes/types';
 
 const digitalTwinColours: ColorTheme = {
-    primary: colors.eerieBlack,
     bg: colors.ghostWhite,
     bgSurface: colors.gray400,
     bgSurfaceNewNav: colors.gray200,
@@ -156,11 +155,11 @@ const digitalTwinColours: ColorTheme = {
     tagsTrueYellowIcon: colors.trueyellow200,
     tagsTrueYellowText: colors.trueyellow300,
 
-     // Solid Button
+    // Solid Button
     solidButtonBgColor: `linear-gradient(90deg,${colors.delftBlue500} 0% ${colors.steelBlue}} 100%)`,
     solidButtonTextColor: colors.gray0,
     solidButtonHoverColor: `linear-gradient(90deg,${colors.eerieBlack} 0% ${colors.delftBlue500}} 100%)`,
-    
+
     // Outline/No Outline Buttons
     outlineButtonTextColor: colors.delftBlue300,
     outlineButtonBorderColor: colors.delftBlue300,

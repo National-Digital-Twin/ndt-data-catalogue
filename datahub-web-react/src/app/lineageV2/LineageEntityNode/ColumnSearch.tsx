@@ -14,11 +14,12 @@ import React, { Dispatch, SetStateAction } from 'react';
 import styled from 'styled-components';
 
 import { onClickPreventSelect } from '@app/lineageV2/common';
-import SearchIcon from '@images/dt-search.svg?react'
+
+import SearchIcon from '@images/dt-search.svg?react';
 
 const SearchInput = styled(Input)`
     border-radius: 4px;
-    border: 0.5px solid ${props => props.theme.styles['search-bar-border-color']};
+    border: 0.5px solid ${(props) => props.theme.styles['search-bar-border-color']};
     cursor: text;
     font-size: 14px;
     height: 22px;
@@ -28,20 +29,20 @@ const SearchInput = styled(Input)`
 
     :focus,
     :hover {
-        border: 0.5px solid ${props => props.theme.styles['search-bar-hover-border-color']} !important;
+        border: 0.5px solid ${(props) => props.theme.styles['search-bar-hover-border-color']} !important;
         box-shadow: none;
         outline: none;
     }
 
     &.ant-input-affix-wrapper-focused {
-        border: 0.5px solid ${props => props.theme.styles['search-bar-focus-border-color']} !important;
+        border: 0.5px solid ${(props) => props.theme.styles['search-bar-focus-border-color']} !important;
         box-shadow: none;
         outline: none;
     }
 
     &.ant-input-affix-wrapper {
-       padding: 0;
-       padding-left: 4px;
+        padding: 0;
+        padding-left: 4px;
     }
 `;
 
@@ -60,7 +61,7 @@ export default function ColumnSearch({ searchText, setSearchText }: Props) {
                 placeholder="Find column"
                 onChange={(e) => setSearchText(e.target.value.trim())}
                 onClick={onClickPreventSelect}
-                prefix={<SearchIcon height='16px' width='16px' />}
+                prefix={<SearchIcon height="16px" width="16px" />}
             />
         </>
     );

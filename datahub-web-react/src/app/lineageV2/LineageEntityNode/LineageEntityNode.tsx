@@ -31,9 +31,9 @@ const MAX_NODES_FOR_TRANSITION = 50;
 
 const HomeNodeBubble = styled.div`
     align-items: center;
-    background-color: ${props => props.theme.styles['lineage-home-badge-bg-color']};
+    background-color: ${(props) => props.theme.styles['lineage-home-badge-bg-color']};
     border-radius: 12px;
-    color: ${props => props.theme.styles['lineage-home-badge-text-color']};
+    color: ${(props) => props.theme.styles['lineage-home-badge-text-color']};
     display: flex;
     font-size: 13.33px;
     font-weight: 400;
@@ -81,7 +81,7 @@ export default function LineageEntityNode(props: NodeProps<LineageEntity>) {
         <>
             {urn === rootUrn && (
                 <HomeNodeBubble>
-                    <HomeIcon height='15px' />
+                    <HomeIcon height="15px" />
                     Home
                 </HomeNodeBubble>
             )}

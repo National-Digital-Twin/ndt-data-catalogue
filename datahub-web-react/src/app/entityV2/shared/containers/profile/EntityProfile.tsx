@@ -190,7 +190,7 @@ const Wrapper = styled.div<{ showAlert: boolean }>`
     min-width: 0;
     height: 100%;
     margin-top: ${({ showAlert }) => (showAlert ? '2.5rem' : '0')};
-    background-color: ${props => props.theme.styles['content-background']};
+    background-color: ${(props) => props.theme.styles['content-background']};
     padding: 32px;
     border-top-left-radius: 16px;
 `;
