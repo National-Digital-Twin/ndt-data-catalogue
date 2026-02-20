@@ -60,6 +60,7 @@ header:
     - 'licence-header-utils/src/license_header_migration/migrate.py'
     - 'licence-header-utils/tests/test_migrate.py'
     - 'metadata-ingestion/tests/integration/s3/test_data/**'
+    - 'metadata-ingestion/tests/unit/cli/**'
     - 'metadata-ingestion/LICENSE'
     - '**/*.whatevenisthis'
     - '**/*.ge_store_backend_id'

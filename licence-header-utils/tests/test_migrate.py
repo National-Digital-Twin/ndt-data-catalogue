@@ -1118,3 +1118,175 @@ class TestFileListProcessing:
         assert content.startswith("#!/bin/bash\n")
         assert "SPDX-License-Identifier: Apache-2.0" in content
         assert "National Digital Twin Programme" in content
+
+
+class TestShebangPlacement:
+    """Tests verifying licence headers are placed *after* a shebang line.
+
+    The ``Hashtag`` style carries ``after: '(?m)^#!.*$'`` so that
+    ``find_after_block`` always returns the shebang as the insertion
+    boundary.  These tests guard against regressions where the header
+    would be prepended before the shebang, rendering the script
+    non-executable.
+    """
+
+    # ------------------------------------------------------------------
+    # add_ndt_header_to_file
+    # ------------------------------------------------------------------
+
+    def test_add_ndt_header_shebang_stays_on_line_1(self, style_map):
+        """NDT header must appear after #!/bin/bash, which stays on line 1."""
+        content = "#!/bin/bash\nset -e\necho 'hello'\n"
+        style = style_map[".sh"]
+
+        result = add_ndt_header_to_file(content, style)
+
+        assert result is not None
+        lines = result.splitlines()
+        assert lines[0] == "#!/bin/bash", (
+            f"Expected shebang on line 1, got: {lines[0]!r}"
+        )
+        assert "SPDX-License-Identifier: Apache-2.0" in result
+        assert "National Digital Twin Programme" in result
+        # Original script body must still be present
+        assert "echo 'hello'" in result
+
+    def test_add_ndt_header_shebang_not_duplicated(self, style_map):
+        """The shebang line must appear exactly once after header insertion."""
+        content = "#!/usr/bin/env bash\necho 'hello'\n"
+        style = style_map[".sh"]
+
+        result = add_ndt_header_to_file(content, style)
+
+        assert result is not None
+        shebang_count = result.count("#!/usr/bin/env bash")
+        assert shebang_count == 1, (
+            f"Shebang duplicated — found {shebang_count} occurrences"
+        )
+
+    def test_add_ndt_header_licence_comes_after_shebang(self, style_map):
+        """The SPDX identifier must appear at a later position than the shebang."""
+        content = "#!/bin/bash\nset -e\n"
+        style = style_map[".sh"]
+
+        result = add_ndt_header_to_file(content, style)
+
+        assert result is not None
+        shebang_pos = result.index("#!/bin/bash")
+        spdx_pos = result.index("SPDX-License-Identifier")
+        assert spdx_pos > shebang_pos, (
+            "SPDX header appeared before the shebang line"
+        )
+
+    def test_add_ndt_header_no_shebang_inserts_at_top(self, style_map):
+        """When there is no shebang the NDT header should be inserted at the top."""
+        content = "set -e\necho 'hello'\n"
+        style = style_map[".sh"]
+
+        result = add_ndt_header_to_file(content, style)
+
+        assert result is not None
+        assert result.lstrip().startswith("# SPDX-License-Identifier"), (
+            "Expected NDT header at the very top for a script without a shebang"
+        )
+
+    # ------------------------------------------------------------------
+    # migrate_file_content — no pre-existing header (adds NDT-only header)
+    # ------------------------------------------------------------------
+
+    def test_migrate_content_no_header_shebang_stays_first(self, style_map):
+        """migrate_file_content on a shebang-prefixed script with no header."""
+        content = "#!/bin/bash\nset -euo pipefail\necho 'deploy'\n"
+        style = style_map[".sh"]
+
+        result = migrate_file_content(content, style)
+
+        assert result is not None
+        lines = result.splitlines()
+        assert lines[0] == "#!/bin/bash", (
+            f"Shebang moved from line 1; got: {lines[0]!r}"
+        )
+        assert "SPDX-License-Identifier: Apache-2.0" in result
+        assert "National Digital Twin Programme" in result
+
+    # ------------------------------------------------------------------
+    # migrate_file_content — existing Acryl header (wraps it)
+    # ------------------------------------------------------------------
+
+    def test_migrate_content_acryl_header_after_shebang_preserved(self, style_map):
+        """Wrap an Acryl header in a shell script: shebang must remain on line 1."""
+        content = (
+            "#!/bin/bash\n"
+            "# Copyright 2024 Acryl Data, Inc.\n"
+            "#\n"
+            "# Licensed under the Apache License, Version 2.0 (the \"License\");\n"
+            "#\n"
+            "set -e\n"
+            "echo 'hello'\n"
+        )
+        style = style_map[".sh"]
+
+        result = migrate_file_content(content, style)
+
+        assert result is not None
+        lines = result.splitlines()
+        assert lines[0] == "#!/bin/bash", (
+            f"Shebang moved after Acryl-header wrap; got: {lines[0]!r}"
+        )
+        assert "SPDX-License-Identifier: Apache-2.0" in result
+        assert "National Digital Twin Programme" in result
+        # Original Acryl attribution must be preserved
+        assert "Copyright 2024 Acryl Data, Inc." in result
+
+    # ------------------------------------------------------------------
+    # process_file — end-to-end, writes to disk
+    # ------------------------------------------------------------------
+
+    def test_process_sh_file_shebang_on_line_1(self, style_map, tmp_path):
+        """process_file must leave #!/bin/bash as the very first line."""
+        dest = tmp_path / "deploy.sh"
+        dest.write_text(
+            "#!/bin/bash\nset -e\necho 'deploy'\n",
+            encoding="utf-8",
+        )
+
+        style = style_map[".sh"]
+        result = process_file(str(dest), style, dry_run=False)
+
+        assert result == "added"
+
+        content = dest.read_text(encoding="utf-8")
+        lines = content.splitlines()
+        assert lines[0] == "#!/bin/bash", (
+            f"process_file moved the shebang; line 1 is: {lines[0]!r}"
+        )
+        assert "SPDX-License-Identifier: Apache-2.0" in content
+        assert "National Digital Twin Programme" in content
+        # Script body must survive
+        assert "echo 'deploy'" in content
+
+    def test_process_sh_file_with_acryl_header_shebang_on_line_1(self, style_map, tmp_path):
+        """process_file wrapping an Acryl header must keep shebang on line 1."""
+        dest = tmp_path / "release.sh"
+        dest.write_text(
+            "#!/bin/bash\n"
+            "# Copyright 2024 Acryl Data, Inc.\n"
+            "#\n"
+            "# Licensed under the Apache License, Version 2.0 (the \"License\");\n"
+            "#\n"
+            "echo 'release'\n",
+            encoding="utf-8",
+        )
+
+        style = style_map[".sh"]
+        result = process_file(str(dest), style, dry_run=False)
+
+        assert result == "wrapped"
+
+        content = dest.read_text(encoding="utf-8")
+        lines = content.splitlines()
+        assert lines[0] == "#!/bin/bash", (
+            f"process_file (wrap) moved the shebang; line 1 is: {lines[0]!r}"
+        )
+        assert "SPDX-License-Identifier: Apache-2.0" in content
+        assert "Copyright 2024 Acryl Data, Inc." in content

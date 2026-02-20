@@ -16,7 +16,7 @@ hide_title: true
 
 import FeatureAvailability from '@site/src/components/FeatureAvailability';
 
-## SCIM Integration: MS Entra and DataHub
+# SCIM Integration: MS Entra and DataHub
 
 <FeatureAvailability saasOnly />
 

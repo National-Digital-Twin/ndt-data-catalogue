@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 import pytest
 from freezegun import freeze_time
 
+pytest.importorskip("pyspark")
+
 from datahub.ingestion.source.unity.config import UnityCatalogSourceConfig
 from datahub.ingestion.source.unity.source import UnityCatalogSource
 

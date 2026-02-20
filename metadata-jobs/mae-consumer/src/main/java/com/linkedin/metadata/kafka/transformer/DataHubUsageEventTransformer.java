@@ -113,7 +113,11 @@ public class DataHubUsageEventTransformer {
     log.debug("Event document after setting timestamps: {}", eventDocument);
 
     // Hydrate actor fields
-    setFieldsForEntity(EntityType.CORP_USER, usageEvent.get(ACTOR_URN).asText(), eventDocument);
+    if (usageEvent.has(ACTOR_URN) && usageEvent.get(ACTOR_URN) != null) {
+      setFieldsForEntity(EntityType.CORP_USER, usageEvent.get(ACTOR_URN).asText(), eventDocument);
+    } else {
+      log.warn("Event of type {} is missing actorUrn field; skipping actor hydration", eventType);
+    }
 
     // Hydrate entity fields for events with entity URN
     if (EVENTS_WITH_ENTITY_URN.contains(eventType)) {

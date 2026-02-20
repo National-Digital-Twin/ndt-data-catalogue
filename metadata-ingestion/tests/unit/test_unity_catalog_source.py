@@ -9,6 +9,8 @@ from unittest.mock import ANY, patch
 
 import pytest
 
+pytest.importorskip("pyspark")
+
 from datahub.ingestion.api.common import PipelineContext
 from datahub.ingestion.api.report import EntityFilterReport
 from datahub.ingestion.source.unity.config import UnityCatalogSourceConfig

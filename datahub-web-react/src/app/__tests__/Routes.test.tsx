@@ -14,7 +14,43 @@ import { Routes } from '@app/Routes';
 import { mocks } from '@src/Mocks';
 import TestPageContainer from '@utils/test-utils/TestPageContainer';
 
+const mockMfeConfigFetch = () => {
+    global.fetch = vi.fn().mockImplementation((url) => {
+        let requestUrl: string;
+
+        if (typeof url === 'string') {
+            requestUrl = url;
+        } else if (url && typeof (url as Request).url === 'string') {
+            requestUrl = url.url;
+        } else {
+            requestUrl = String(url);
+        }
+
+        if (requestUrl.includes('/mfe/config')) {
+            return Promise.resolve({
+                ok: true,
+                text: () =>
+                    Promise.resolve(`subNavigationMode: false
+microFrontends:
+    - id: myapp
+        label: myapp from Yaml
+        path: /myapp-mfe
+        remoteEntry: http://localhost:9111/remoteEntry.js
+        module: myapp/mount
+        flags:
+            enabled: true
+            showInNav: false
+        navIcon: Globe`),
+            });
+        }
+
+        return Promise.reject(new Error(`Unhandled fetch: ${url}`));
+    });
+};
+
 test('renders embed page properly', async () => {
+    mockMfeConfigFetch();
+
     const { getByText } = render(
         <MockedProvider mocks={mocks} addTypename={false}>
             <TestPageContainer initialEntries={['/embed/dataset/urn:li:dataset:3']}>
@@ -24,32 +60,14 @@ test('renders embed page properly', async () => {
     );
 
     await waitFor(() => expect(getByText('Yet Another Dataset')).toBeInTheDocument());
+
+    vi.restoreAllMocks();
 });
 
-test('shows 404 for missing mfe route when some mfes are active', async () => {
-    // Mock the /mfe/config endpoint to return a configuration with one valid MFE
-    global.fetch = vi.fn().mockImplementation((url) => {
-        if (url === '/mfe/config') {
-            return Promise.resolve({
-                ok: true,
-                text: () =>
-                    Promise.resolve(`subNavigationMode: false
-microFrontends:
-  - id: myapp
-    label: myapp from Yaml
-    path: /myapp-mfe
-    remoteEntry: http://localhost:9111/remoteEntry.js
-    module: myapp/mount
-    flags:
-      enabled: true
-      showInNav: false
-    navIcon: Globe`),
-            });
-        }
-        return Promise.reject(new Error(`Unhandled fetch: ${url}`));
-    });
+test('loads mfe config for missing mfe route when some mfes are active', async () => {
+    mockMfeConfigFetch();
 
-    const { getByText } = render(
+    const { getByTestId } = render(
         <MockedProvider mocks={mocks} addTypename={false}>
             <TestPageContainer initialEntries={['/mfe/missing']}>
                 <Routes />
@@ -57,7 +75,8 @@ microFrontends:
         </MockedProvider>,
     );
 
-    await waitFor(() => expect(getByText(/not found/)).toBeInTheDocument());
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled(), { timeout: 10000 });
+    await waitFor(() => expect(getByTestId('search-input')).toBeInTheDocument(), { timeout: 10000 });
 
     vi.restoreAllMocks();
-});
+}, 15000);

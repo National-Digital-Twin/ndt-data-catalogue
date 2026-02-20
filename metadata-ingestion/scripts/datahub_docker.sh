@@ -12,7 +12,7 @@
 
 set -euo pipefail
 
-DOCKER_IMAGE=acryldata/datahub-ingestion:${DATAHUB_VERSION:-head}
+DOCKER_IMAGE=${DATAHUB_INGESTION_IMAGE:-${DATAHUB_REPO:-acryldata}/datahub-ingestion}:${DATAHUB_VERSION:-head}
 
 echo "+ Pulling $DOCKER_IMAGE"
 docker pull $DOCKER_IMAGE

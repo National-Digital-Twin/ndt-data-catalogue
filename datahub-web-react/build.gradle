@@ -57,7 +57,11 @@ node {
   Wrappers around Yarn Tasks.
  */
 task yarnInstall(type: YarnTask) {
-  def argsList = ['install', '--network-timeout', '300000']
+  def argsList = [
+    'install',
+    '--network-timeout', '600000',
+    '--network-concurrency', '1',
+  ]
   if (System.getenv("CI") == "true") {
     argsList += ['--frozen-lockfile']
   }

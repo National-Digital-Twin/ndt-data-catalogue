@@ -346,7 +346,7 @@ jobs:
             echo "cypress_batch_count=5" >> "$GITHUB_OUTPUT"
             echo "python_batch_count=3" >> "$GITHUB_OUTPUT"
           else
-            echo "cypress_batch_count=8" >> "$GITHUB_OUTPUT"
+            echo "cypress_batch_count=6" >> "$GITHUB_OUTPUT"
             echo "python_batch_count=7" >> "$GITHUB_OUTPUT"
           fi
 
@@ -618,7 +618,7 @@ jobs:
         run: |
           docker system prune -a -f --volumes || true
           docker buildx prune -f --all || true
-          ./gradlew :docker:buildImagesQuickstartDebugConsumers -Ptag=${{ needs.setup.outputs.tag }} -PpythonDockerVersion=${{ needs.setup.outputs.python_release_version }} -PdockerRegistry=${{ env.DOCKER_REGISTRY }} -PincludeAlpineVariants=${{ env.INCLUDE_ALPINE_VARIANTS }}
+          ./gradlew :docker:buildImagesQuickstartDebugConsumers -Ptag=${{ needs.setup.outputs.tag }} -PpythonDockerVersion=${{ needs.setup.outputs.python_release_version }} -PdockerRegistry=${{ env.DOCKER_REGISTRY }} -PdockerLoad=true -PincludeAlpineVariants=${{ env.INCLUDE_ALPINE_VARIANTS }}
           docker images
         env:
           DOCKER_CACHE: GITHUB

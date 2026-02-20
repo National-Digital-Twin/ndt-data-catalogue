@@ -471,6 +471,7 @@ def load_fixture_from_folder(fixture_name: str) -> MockConfluenceClient:
         MockConfluenceClient configured with fixture data
     """
     import json
+    import re
     from pathlib import Path
 
     import yaml
@@ -522,16 +523,19 @@ def load_fixture_from_folder(fixture_name: str) -> MockConfluenceClient:
             with open(page_file) as f:
                 content = f.read()
 
-            # Split frontmatter and body
-            if content.startswith("---\n"):
-                parts = content.split("---\n", 2)
-                if len(parts) >= 3:
-                    frontmatter = yaml.safe_load(parts[1])
-                    body_content = parts[2].strip()
-                else:
-                    continue
-            else:
+            # Split frontmatter and body. Some fixtures include SPDX/comment blocks
+            # before the YAML frontmatter, so we match the first frontmatter block
+            # anywhere in the file.
+            frontmatter_match = re.search(
+                r"(?ms)^---\s*\n(.*?)\n---\s*\n?(.*)$", content
+            )
+            if not frontmatter_match:
                 continue
+
+            frontmatter = yaml.safe_load(frontmatter_match.group(1))
+            if not isinstance(frontmatter, dict):
+                continue
+            body_content = frontmatter_match.group(2).strip()
 
             # Build page object
             page_id = frontmatter["id"]

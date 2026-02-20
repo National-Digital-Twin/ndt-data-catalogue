@@ -19,6 +19,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+pytest.importorskip("pymetastore")
+
 from datahub.ingestion.api.common import PipelineContext
 from datahub.ingestion.source.sql.hive.hive_metastore_source import (
     HiveMetastore,

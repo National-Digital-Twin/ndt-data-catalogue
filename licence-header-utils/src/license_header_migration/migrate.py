@@ -579,6 +579,14 @@ def migrate_file_content(content: str, style: dict) -> Optional[str]:
     license_block = content[start:end]
     post_header = content[end:]
 
+    # Ensure the shebang (or any "after" block) is separated from the header
+    # by a newline.  The "after" regex uses $ which stops before \n, so
+    # insert_at points to the char just before the newline; without this
+    # guard the header is concatenated directly onto the shebang line.
+    if insert_after_block and not pre_header.endswith("\n"):
+        pre_header += "\n"
+        after_header = after_header.lstrip("\n")
+
     formatted_spdx = format_comment(SPDX_ID, style, multiline=False)
     formatted_preamble = format_comment(HEADER_PREAMBLE_TEXT, style, multiline=True)
     formatted_footer = format_comment(FOOTER_MODIFIED_TEXT, style, multiline=True)

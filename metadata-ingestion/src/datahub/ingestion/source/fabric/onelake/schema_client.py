@@ -482,11 +482,12 @@ class SqlAnalyticsEndpointClient:
             f"<I{len(token_bytes)}s", len(token_bytes), token_bytes
         )
 
-        # Create a custom connection creator that passes attrs_before to pyodbc
+        # Create a custom connection creator that passes attrs_before to pyodbc.
         # SQLAlchemy doesn't support attrs_before directly, so the code uses a custom
         # connection creator that passes the token to pyodbc before the connection is
         # established. This enables Azure AD authentication for the Fabric SQL Analytics Endpoint.
-        import pyodbc as pyodbc_module
+        # Import pyodbc lazily so engine construction and unit tests don't require
+        # native ODBC libraries until a real connection is opened.
 
         def connect_with_token():
             """Custom connection creator that injects Azure AD token via attrs_before.
@@ -496,6 +497,8 @@ class SqlAnalyticsEndpointClient:
             using the attrs_before parameter with SQL_COPT_SS_ACCESS_TOKEN (1256).
             This enables passwordless authentication with the Fabric SQL Analytics Endpoint.
             """
+            import pyodbc as pyodbc_module
+
             return pyodbc_module.connect(
                 connection_string,
                 timeout=self.config.query_timeout,

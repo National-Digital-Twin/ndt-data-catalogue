@@ -8,7 +8,10 @@
  */
 
 describe("analytics", () => {
-  it("can go to a chart and see analytics in tab views", () => {
+  // Skipped: requires the datahub analytics plugin to be enabled (src/conf/analytics.ts datahub.enabled=true)
+  // so that EntitySectionViewEvent data is stored in Elasticsearch and shown in the Analytics page.
+  // Re-enable once analytics tracking is restored.
+  it.skip("can go to a chart and see analytics in tab views", () => {
     cy.login();
 
     cy.goToChart("urn:li:chart:(looker,cypress_baz1)");

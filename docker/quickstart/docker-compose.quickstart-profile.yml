@@ -27,7 +27,7 @@ services:
       METADATA_CHANGE_LOG_VERSIONED_TOPIC_NAME: MetadataChangeLog_Versioned_v1
       SCHEMA_REGISTRY_URL: http://datahub-gms:8080/schema-registry/api/
     hostname: actions
-    image: acryldata/datahub-actions:${DATAHUB_VERSION}-slim
+    image: ${DATAHUB_REPO:-acryldata}/datahub-actions:${DATAHUB_VERSION}-slim
     networks:
       default: null
     volumes:
@@ -107,7 +107,7 @@ services:
       interval: 1s
       retries: 3
       start_period: 1m30s
-    image: acryldata/datahub-gms:${DATAHUB_VERSION}
+    image: ${DATAHUB_REPO:-acryldata}/datahub-gms:${DATAHUB_VERSION}
     labels:
       io.datahubproject.datahub.component: gms
     networks:
@@ -153,7 +153,7 @@ services:
       PLAY_HTTP_CONTEXT: /
       THEME_V2_DEFAULT: 'true'
     hostname: datahub-frontend-react
-    image: acryldata/datahub-frontend-react:${DATAHUB_VERSION}
+    image: ${DATAHUB_REPO:-acryldata}/datahub-frontend-react:${DATAHUB_VERSION}
     networks:
       default: null
     ports:
@@ -300,7 +300,7 @@ services:
       MYSQL_ROOT_PASSWORD: datahub
       MYSQL_USERNAME: datahub
     hostname: mysql-setup
-    image: acryldata/datahub-mysql-setup:${DATAHUB_VERSION}
+    image: ${DATAHUB_REPO:-acryldata}/datahub-mysql-setup:${DATAHUB_VERSION}
     labels:
       datahub_setup_job: 'true'
     networks:
@@ -384,7 +384,7 @@ services:
       ELASTICSEARCH_USE_SSL: 'false'
       USE_AWS_ELASTICSEARCH: 'true'
     hostname: opensearch-setup
-    image: acryldata/datahub-elasticsearch-setup:${DATAHUB_VERSION}
+    image: ${DATAHUB_REPO:-acryldata}/datahub-elasticsearch-setup:${DATAHUB_VERSION}
     labels:
       datahub_setup_job: 'true'
     networks:
@@ -454,7 +454,7 @@ services:
       SPRING_KAFKA_PROPERTIES_USE_LATEST_VERSION: 'true'
       USE_CONFLUENT_SCHEMA_REGISTRY: 'false'
     hostname: datahub-system-update
-    image: acryldata/datahub-upgrade:${DATAHUB_VERSION}
+    image: ${DATAHUB_REPO:-acryldata}/datahub-upgrade:${DATAHUB_VERSION}
     labels:
       datahub_setup_job: 'true'
     networks:

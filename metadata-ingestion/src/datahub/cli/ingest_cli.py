@@ -405,13 +405,9 @@ def _setup_recording(
     """Setup recording for the ingestion run."""
     from datahub.ingestion.recording.config import (
         RecordingConfig,
-        check_recording_dependencies,
         get_recording_password_from_env,
     )
     from datahub.ingestion.recording.recorder import IngestionRecorder
-
-    # Check dependencies first
-    check_recording_dependencies()
 
     # Build recording config from recipe, with CLI overrides
     recording_config_dict = pipeline_config.get("recording", {}).copy()

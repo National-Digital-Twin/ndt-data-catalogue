@@ -16,7 +16,13 @@ import { EntityCapabilityType } from '@app/entityV2/Entity';
 import { FetchedEntity } from '@app/lineage/types';
 import { DEFAULT_APP_CONFIG } from '@src/appConfigContext';
 
-import { AppConfigDocument, GetEntityCountsDocument } from '@graphql/app.generated';
+import {
+    AppConfigDocument,
+    GetEntityCountsDocument,
+    GetGlobalViewsSettingsDocument,
+    GetHomePageSettingsDocument,
+    GetLatestProductUpdateDocument,
+} from '@graphql/app.generated';
 import { GetBrowsePathsDocument, GetBrowseResultsDocument } from '@graphql/browse.generated';
 import { GetDataFlowDocument } from '@graphql/dataFlow.generated';
 import { GetDataJobDocument } from '@graphql/dataJob.generated';
@@ -4043,10 +4049,59 @@ export const mocks = [
             data: { getGrantedPrivileges: { privileges: [VIEW_ENTITY_PAGE] } },
         },
     },
+    {
+        request: {
+            query: AppConfigDocument,
+            variables: {},
+        },
+        result: {
+            data: {
+                appConfig: DEFAULT_APP_CONFIG as AppConfig,
+            },
+        },
+    },
+    {
+        request: {
+            query: GetGlobalViewsSettingsDocument,
+            variables: {},
+        },
+        result: {
+            data: {
+                globalViewsSettings: {
+                    __typename: 'GlobalViewsSettings',
+                    defaultView: null,
+                },
+            },
+        },
+    },
+    {
+        request: {
+            query: GetHomePageSettingsDocument,
+            variables: {},
+        },
+        result: {
+            data: {
+                globalHomePageSettings: {
+                    __typename: 'GlobalHomePageSettings',
+                    defaultTemplate: null,
+                },
+            },
+        },
+    },
+    {
+        request: {
+            query: GetLatestProductUpdateDocument,
+            variables: {},
+        },
+        result: {
+            data: {
+                latestProductUpdate: null,
+            },
+        },
+    },
 ];
 
 export const mocksWithSearchFlagsOff = [
-    ...mocks,
     {
         request: {
             query: AppConfigDocument,
@@ -4063,6 +4118,7 @@ export const mocksWithSearchFlagsOff = [
             },
         },
     },
+    ...mocks,
 ];
 
 export const platformPrivileges: PlatformPrivileges = {

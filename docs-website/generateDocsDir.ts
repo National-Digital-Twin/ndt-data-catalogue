@@ -217,6 +217,14 @@ function markdown_guess_title(
   contents: matter.GrayMatterFile<string>,
   filepath: string
 ): void {
+  if (
+    typeof contents.data !== "object" ||
+    contents.data === null ||
+    Array.isArray(contents.data)
+  ) {
+    contents.data = {};
+  }
+
   if (sidebarsjs_hardcoded_titles.includes(filepath)) {
     return;
   }
@@ -237,19 +245,20 @@ function markdown_guess_title(
       contents.data.hide_title = true;
     }
   } else {
-    // Find first h1 header and use it as the title.
-    const headers = contents.content.match(/^# (.+)$/gm);
-
-    if (!headers) {
-      throw new Error(
-        `${filepath} must have at least one h1 header for setting the title`
-      );
+    const h1Headers = contents.content.match(/^# (.+)$/gm);
+    if (h1Headers) {
+      if (h1Headers.length > 1 && contents.content.indexOf("```") < 0) {
+        throw new Error(`too many h1 headers in ${filepath}`);
+      }
+      title = h1Headers[0].slice(2).trim();
+    } else {
+      const firstHeader = contents.content.match(/^#{2,6} (.+)$/m);
+      if (firstHeader) {
+        title = firstHeader[1].trim();
+      } else {
+        title = path.basename(filepath, path.extname(filepath));
+      }
     }
-
-    if (headers.length > 1 && contents.content.indexOf("```") < 0) {
-      throw new Error(`too many h1 headers in ${filepath}`);
-    }
-    title = headers[0].slice(2).trim();
   }
 
   contents.data.title = title;
@@ -640,7 +649,23 @@ function write_markdown_file(
   for (const filepath of markdown_files) {
     //console.log("Processing:", filepath);
     const contents_string = fs.readFileSync(`../${filepath}`).toString();
-    const contents = matter(contents_string);
+    const normalized_contents_string = contents_string.replace(
+      /^(?:\s*<!--[\s\S]*?-->\s*)+/,
+      ""
+    );
+    let contents: matter.GrayMatterFile<string>;
+    try {
+      contents = matter(normalized_contents_string);
+    } catch (error) {
+      console.warn(
+        `Failed to parse frontmatter in ${filepath}, retrying without leading separator`
+      );
+      const without_leading_separator = normalized_contents_string.replace(
+        /^---\s*\n/,
+        ""
+      );
+      contents = matter(without_leading_separator);
+    }
 
     markdown_guess_title(contents, filepath);
     markdown_add_slug(contents, filepath);
