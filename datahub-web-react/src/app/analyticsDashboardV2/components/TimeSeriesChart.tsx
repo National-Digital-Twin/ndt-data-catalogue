@@ -46,6 +46,9 @@ const StyledTooltip = styled(Tooltip)`
     font-weight: 400 !important;
 `;
 
+const XYChartAny = XYChart as any;
+const StyledTooltipAny = StyledTooltip as any;
+
 const MARGIN = {
     TOP: 40,
     RIGHT: 45,
@@ -145,7 +148,7 @@ export const TimeSeriesChart = ({
 
     return (
         <>
-            <XYChart
+            <XYChartAny
                 accessibilityLabel={chartData.title}
                 width={width}
                 height={height}
@@ -170,7 +173,7 @@ export const TimeSeriesChart = ({
                     numTicks={3}
                 />
                 {lines.map((line, i) => (
-                    <>
+                    <React.Fragment key={line.name}>
                         <LineSeries
                             dataKey={line.name}
                             data={line.data.map((point) => ({ x: new Date(point.x), y: point.y }))}
@@ -183,25 +186,25 @@ export const TimeSeriesChart = ({
                             data={line.data.map((point) => ({ x: new Date(point.x), y: point.y }))}
                             {...accessors}
                         />
-                    </>
+                    </React.Fragment>
                 ))}
-                <StyledTooltip
+                <StyledTooltipAny
                     snapTooltipToDatumX
                     showVerticalCrosshair
                     showDatumGlyph
                     verticalCrosshairStyle={{ stroke: '#D8D8D8', strokeDasharray: '5,2', strokeWidth: 1 }}
                     renderTooltip={({ tooltipData }) =>
-                        tooltipData?.nearestDatum && (
+                        tooltipData?.nearestDatum ? (
                             <div>
                                 <div>
                                     {formatAxisDate(accessors.xAccessor(tooltipData.nearestDatum.datum), chartData)}
                                 </div>
                                 <div>{accessors.yAccessor(tooltipData.nearestDatum.datum)}</div>
                             </div>
-                        )
+                        ) : null
                     }
                 />
-            </XYChart>
+            </XYChartAny>
             {!hideLegend && <Legend ordinalScale={ordinalColorScale} />}
         </>
     );

@@ -30,6 +30,8 @@ import usePreparedLineChartScales from '@components/components/LineChart/hooks/u
 import { Datum, LineChartProps } from '@components/components/LineChart/types';
 import { Popover } from '@components/components/Popover';
 
+const XYChartAny = XYChart as any;
+
 export function LineChart({
     data,
     isEmpty,
@@ -132,7 +134,7 @@ export function LineChart({
             <ParentSize>
                 {({ width, height }) => {
                     return (
-                        <XYChart
+                        <XYChartAny
                             width={width}
                             height={height}
                             margin={dynamicMargin}
@@ -205,7 +207,7 @@ export function LineChart({
                                     <GlyphSeries<AxisScale, AxisScale, Datum>
                                         dataKey="line-chart-seria-01"
                                         data={data}
-                                        renderGlyph={renderGlyphOnSingleDataPoint}
+                                        renderGlyph={renderGlyphOnSingleDataPoint as any}
                                         {...accessors}
                                     />
                                 )}
@@ -217,24 +219,22 @@ export function LineChart({
                                 showVerticalCrosshair
                                 applyPositionStyle
                                 showSeriesGlyphs
-                                verticalCrosshairStyle={toolbarVerticalCrosshairStyle}
-                                renderGlyph={renderTooltipGlyph}
+                                verticalCrosshairStyle={toolbarVerticalCrosshairStyle as any}
+                                renderGlyph={renderTooltipGlyph as any}
                                 unstyled
-                                renderTooltip={({ tooltipData }) => {
-                                    return (
-                                        tooltipData?.nearestDatum && (
-                                            <Popover
-                                                open
-                                                defaultOpen
-                                                placement="topLeft"
-                                                key={`${xAccessor(tooltipData.nearestDatum.datum)}`}
-                                                content={popoverRenderer?.(tooltipData.nearestDatum.datum)}
-                                            />
-                                        )
-                                    );
-                                }}
+                                renderTooltip={({ tooltipData }) =>
+                                    (tooltipData?.nearestDatum ? (
+                                        <Popover
+                                            open
+                                            defaultOpen
+                                            placement="topLeft"
+                                            key={`${xAccessor(tooltipData.nearestDatum.datum)}`}
+                                            content={popoverRenderer?.(tooltipData.nearestDatum.datum)}
+                                        />
+                                    ) : null) as any
+                                }
                             />
-                        </XYChart>
+                        </XYChartAny>
                     );
                 }}
             </ParentSize>

@@ -34,6 +34,8 @@ import { Popover } from '@components/components/Popover';
 
 import { colors } from '@src/alchemy-components/theme';
 
+const XYChartAny = XYChart as any;
+
 export function BarChart({
     data,
     isEmpty,
@@ -171,7 +173,7 @@ export function BarChart({
             <ParentSize>
                 {({ width, height }) => {
                     return (
-                        <XYChart
+                        <XYChartAny
                             width={width}
                             height={height}
                             margin={dynamicMargin}
@@ -254,23 +256,20 @@ export function BarChart({
                                 snapTooltipToDatumY
                                 unstyled
                                 applyPositionStyle
-                                renderTooltip={({ tooltipData }) => {
-                                    return (
-                                        tooltipData?.nearestDatum && (
-                                            <Popover
-                                                open
-                                                defaultOpen
-                                                // adjust offset for horizontal barchart to prevent blinking of popover and hover state
-                                                align={horizontal ? { offset: [0, 20] } : undefined}
-                                                placement={horizontal ? 'bottomRight' : 'topLeft'}
-                                                key={`${xAccessor(tooltipData.nearestDatum.datum)}`}
-                                                content={popoverRenderer?.(tooltipData.nearestDatum.datum)}
-                                            />
-                                        )
-                                    );
-                                }}
+                                renderTooltip={({ tooltipData }) =>
+                                    (tooltipData?.nearestDatum ? (
+                                        <Popover
+                                            open
+                                            defaultOpen
+                                            align={horizontal ? { offset: [0, 20] } : undefined}
+                                            placement={horizontal ? 'bottomRight' : 'topLeft'}
+                                            key={`${xAccessor(tooltipData.nearestDatum.datum)}`}
+                                            content={popoverRenderer?.(tooltipData.nearestDatum.datum)}
+                                        />
+                                    ) : null) as any
+                                }
                             />
-                        </XYChart>
+                        </XYChartAny>
                     );
                 }}
             </ParentSize>

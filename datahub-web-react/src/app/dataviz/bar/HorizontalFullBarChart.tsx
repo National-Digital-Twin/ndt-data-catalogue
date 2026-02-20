@@ -18,6 +18,8 @@ import { Legend } from '@app/dataviz/Legend';
 import { ChartWrapper } from '@app/dataviz/components';
 import { COMPLETED_COLOR, IN_PROGRESS_COLOR, NOT_STARTED_COLOR } from '@app/dataviz/constants';
 
+const XYChartAny = XYChart as any;
+
 export const HorizontalFullBarChart = <Data extends object, DataKeys>({
     data,
     dataKeys,
@@ -68,7 +70,7 @@ export const HorizontalFullBarChart = <Data extends object, DataKeys>({
 
                     return (
                         <>
-                            <XYChart
+                            <XYChartAny
                                 width={parentWidth}
                                 height={baseHeight}
                                 margin={margin}
@@ -133,7 +135,7 @@ export const HorizontalFullBarChart = <Data extends object, DataKeys>({
                                                     </g>
                                                 );
                                             }),
-                                        )
+                                        ) as any
                                     }
                                 </BarStackHorizontal>
                                 <AxisLeft
@@ -151,7 +153,7 @@ export const HorizontalFullBarChart = <Data extends object, DataKeys>({
                                         x2: margin.left + 10,
                                     }}
                                 />
-                            </XYChart>
+                            </XYChartAny>
                             <Legend scale={colorAccessor} />
                         </>
                     );

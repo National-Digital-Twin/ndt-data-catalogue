@@ -127,7 +127,9 @@ function InternalWhiskerChart({
                             valueScale={xScale}
                             top={offset}
                         >
-                            {renderWhisker ? (props) => renderWhisker({ datum, tooltip, ...props }) : undefined}
+                            {renderWhisker
+                                ? (((props) => renderWhisker({ datum, tooltip, ...props })) as any)
+                                : undefined}
                         </BoxPlot>
                     ))}
 
