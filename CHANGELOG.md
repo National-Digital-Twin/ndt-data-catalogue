@@ -18,7 +18,7 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ---
 
-## [0.90.3]
+## [0.90.4]
 
 ### Initial Reskin of the UI
 
@@ -26,7 +26,7 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 - Added new Digital Twin theme
 - Added new Digital Twin colour palette
-- Added Data Catalgoue logo to top navigation
+- Added Data Catalogue logo to top navigation
 
 ### Changed
 
@@ -34,6 +34,16 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 - Applied the new Digital Twin theme to the UI
 - Changed some of the side nav icons to the new DT versions
 - Removed the search bar from the home page and displayed it in the top nav instead
+
+---
+
+## [0.90.3]
+
+### Enhancing Sync Workflows
+
+### Added
+
+- Add GitHub Actions for intermediate merge, sync, and upstream PR creation
 
 ---
 
