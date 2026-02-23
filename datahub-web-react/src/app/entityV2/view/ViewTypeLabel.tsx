@@ -6,18 +6,11 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { Icon, Tooltip } from '@components';
-import { Typography } from 'antd';
+import { Icon, Text, Tooltip } from '@components';
 import React from 'react';
 import styled from 'styled-components';
 
 import { DataHubViewType } from '@types';
-
-const StyledText = styled(Typography.Text)<{ color }>`
-    && {
-        color: ${(props) => props.color};
-    }
-`;
 
 type Props = {
     type: DataHubViewType;
@@ -44,9 +37,9 @@ export const ViewTypeLabel = ({ type, color, onClick }: Props) => {
             <ViewNameContainer onClick={onClick}>
                 {!isPersonal && <Icon source="phosphor" icon="Globe" size="md" />}
                 {isPersonal && <Icon source="phosphor" icon="Lock" size="md" />}
-                <StyledText color={color} type="secondary">
+                <Text type="span" color="gray" style={{ color }}>
                     {!isPersonal ? 'Public' : 'Private'}
-                </StyledText>
+                </Text>
             </ViewNameContainer>
         </Tooltip>
     );

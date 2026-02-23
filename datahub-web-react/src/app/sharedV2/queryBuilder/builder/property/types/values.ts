@@ -89,7 +89,7 @@ export const valueTypes = [
     {
         id: ValueTypeId.BOOLEAN,
         displayName: 'Boolean',
-        operators: [OperatorId.IS_TRUE, OperatorId.IS_FALSE, OperatorId.EXISTS],
+        operators: [OperatorId.IS_TRUE, OperatorId.IS_FALSE],
     },
     {
         id: ValueTypeId.NUMBER,
@@ -189,6 +189,10 @@ export enum ValueInputType {
      */
     TIME_SELECT,
     /**
+     * Aggregation-based value input that dynamically fetches values from the backend
+     */
+    AGGREGATION,
+    /**
      * No input type
      */
     NONE,
@@ -213,11 +217,16 @@ export type EntitySearchParams = {
     entityTypes: EntityType[];
 };
 
+export type AggregationParams = {
+    facetField: string;
+    mode?: 'multiple' | 'single';
+};
+
 /**
  * Options provided to customize the value select experience for
  * well-known properties.
  */
 export type ValueOptions = {
     inputType: ValueInputType;
-    options: EntitySearchParams | SelectParams | undefined;
+    options: EntitySearchParams | SelectParams | AggregationParams | undefined;
 };
