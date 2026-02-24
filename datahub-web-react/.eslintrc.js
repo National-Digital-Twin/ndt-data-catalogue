@@ -26,23 +26,28 @@ rulesDirPlugin.RULES_DIR = path.join(__dirname, 'eslint-rules');
 const repoRoot = path.resolve(__dirname, '..');
 let changedTsFiles = [];
 try {
-    let baseBranch;
-    try {
-        execSync('git rev-parse --verify origin/master', { encoding: 'utf-8', cwd: repoRoot, stdio: 'pipe' });
-        baseBranch = 'origin/master';
-    } catch {
-        baseBranch = 'origin/main';
-    }
+    // Skip colour enforcement on sync branches — they contain large upstream diffs
+    // that pre-date the NDT colour-token initiative.
+    const currentBranch = execSync('git rev-parse --abbrev-ref HEAD', {
+        encoding: 'utf-8',
+        cwd: repoRoot,
+        stdio: 'pipe',
+    }).trim();
+    const isSyncBranch = currentBranch.includes('sync');
 
-    const raw = execSync(
-        `git diff --diff-filter=d --name-only ${baseBranch} -- "datahub-web-react/src/**/*.ts" "datahub-web-react/src/**/*.tsx"`,
-        { encoding: 'utf-8', cwd: repoRoot, stdio: 'pipe' },
-    );
-    changedTsFiles = raw
-        .trim()
-        .split('\n')
-        .filter(Boolean)
-        .map((f) => f.replace(/^datahub-web-react\//, ''));
+    if (!isSyncBranch) {
+        const baseBranch = 'origin/main';
+
+        const raw = execSync(
+            `git diff --diff-filter=d --name-only ${baseBranch} -- "datahub-web-react/src/**/*.ts" "datahub-web-react/src/**/*.tsx"`,
+            { encoding: 'utf-8', cwd: repoRoot, stdio: 'pipe' },
+        );
+        changedTsFiles = raw
+            .trim()
+            .split('\n')
+            .filter(Boolean)
+            .map((f) => f.replace(/^datahub-web-react\//, ''));
+    }
 } catch {
     // If git is unavailable (e.g. shallow clone in CI), skip scoped rules
 }
