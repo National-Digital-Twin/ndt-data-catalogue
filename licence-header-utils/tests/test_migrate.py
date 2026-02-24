@@ -1290,3 +1290,150 @@ class TestShebangPlacement:
         )
         assert "SPDX-License-Identifier: Apache-2.0" in content
         assert "Copyright 2024 Acryl Data, Inc." in content
+
+    # ------------------------------------------------------------------
+    # Extensionless scripts — shebang must remain on line 1
+    # ------------------------------------------------------------------
+
+    # The upstream styles.yaml ships ``after: '(?m)^*#!.+$'`` for Hashtag.
+    # That pattern is invalid Python regex and raises ``re.error`` at compile
+    # time.  These tests use the *actual* upstream pattern so they reproduce
+    # the production failure and confirm the fallback in find_after_block.
+    UPSTREAM_HASHTAG_STYLE = {
+        "id": "Hashtag",
+        "start": "#",
+        "middle": "#",
+        "end": "#",
+        "after": "(?m)^*#!.+$",   # upstream pattern — invalid Python regex
+    }
+
+    def test_process_sh_file_upstream_style_shebang_on_line_1(self, tmp_path):
+        """process_file with the real upstream Hashtag style keeps shebang on line 1.
+
+        Reproduces the production failure: the upstream ``after`` pattern
+        ``(?m)^*#!.+$`` is invalid Python regex.  Before the find_after_block
+        fallback fix the header was silently placed before the shebang.
+        """
+        dest = tmp_path / "deploy.sh"
+        dest.write_text(
+            "#!/bin/bash\nset -euo pipefail\necho 'deploy'\n",
+            encoding="utf-8",
+        )
+
+        process_file(str(dest), self.UPSTREAM_HASHTAG_STYLE, dry_run=False)
+
+        content = dest.read_text(encoding="utf-8")
+        lines = content.splitlines()
+        assert lines[0] == "#!/bin/bash", (
+            f"process_file moved the shebang with upstream Hashtag style; line 1 is: {lines[0]!r}"
+        )
+        assert "SPDX-License-Identifier: Apache-2.0" in content
+        assert "National Digital Twin Programme" in content
+        assert "echo 'deploy'" in content
+
+    def test_process_extensionless_bash_shebang_on_line_1(self, tmp_path):
+        """process_file on an extensionless bash script keeps shebang on line 1.
+
+        Uses the upstream Hashtag style (broken ``after`` regex) to match
+        real production conditions.
+        """
+        dest = tmp_path / "deploy"          # no extension
+        dest.write_text(
+            "#!/bin/bash\nset -euo pipefail\necho 'deploy'\n",
+            encoding="utf-8",
+        )
+
+        process_file(str(dest), self.UPSTREAM_HASHTAG_STYLE, dry_run=False)
+
+        content = dest.read_text(encoding="utf-8")
+        lines = content.splitlines()
+        assert lines[0] == "#!/bin/bash", (
+            f"process_file moved the shebang in extensionless script; line 1 is: {lines[0]!r}"
+        )
+        assert "SPDX-License-Identifier: Apache-2.0" in content
+        assert "National Digital Twin Programme" in content
+        assert "echo 'deploy'" in content
+
+    def test_process_extensionless_env_bash_shebang_on_line_1(self, tmp_path):
+        """process_file on an extensionless #!/usr/bin/env bash script keeps shebang on line 1.
+
+        Uses the upstream Hashtag style (broken ``after`` regex).
+        """
+        dest = tmp_path / "run"
+        dest.write_text(
+            "#!/usr/bin/env bash\nexport FOO=bar\necho $FOO\n",
+            encoding="utf-8",
+        )
+
+        process_file(str(dest), self.UPSTREAM_HASHTAG_STYLE, dry_run=False)
+
+        content = dest.read_text(encoding="utf-8")
+        lines = content.splitlines()
+        assert lines[0] == "#!/usr/bin/env bash", (
+            f"Shebang moved; line 1 is: {lines[0]!r}"
+        )
+        assert "SPDX-License-Identifier: Apache-2.0" in content
+
+    def test_process_extensionless_perl_shebang_header_added_and_shebang_first(
+        self, style_map, tmp_path, local_assets_dir, capsys
+    ):
+        """Extensionless Perl script: header must be added AND shebang kept on line 1.
+
+        FAILING: ``resolve_style_for_file`` only recognises bash/sh/zsh/ksh/dash/ash
+        shebangs.  A ``#!/usr/bin/env perl`` script is returned with no style,
+        so ``process_file_list`` silently skips it — no header is added at all.
+        """
+        from license_header_migration.migrate import process_file_list
+
+        dest = tmp_path / "transform"       # no extension
+        dest.write_text(
+            "#!/usr/bin/env perl\nuse strict;\nprint 'hello';\n",
+            encoding="utf-8",
+        )
+
+        file_list = tmp_path / "files.txt"
+        file_list.write_text(f"{dest}\n", encoding="utf-8")
+
+        process_file_list(str(file_list), assets_dir=local_assets_dir, dry_run=False)
+
+        content = dest.read_text(encoding="utf-8")
+        lines = content.splitlines()
+
+        # Both assertions are expected to fail: the file is skipped entirely.
+        assert "SPDX-License-Identifier: Apache-2.0" in content, (
+            "No licence header was added to the extensionless Perl script"
+        )
+        assert lines[0] == "#!/usr/bin/env perl", (
+            f"Shebang moved from line 1; got: {lines[0]!r}"
+        )
+
+    def test_process_extensionless_awk_shebang_header_added_and_shebang_first(
+        self, style_map, tmp_path, local_assets_dir, capsys
+    ):
+        """Extensionless awk script: header must be added AND shebang kept on line 1.
+
+        FAILING: Same root cause as the Perl test — ``#!/usr/bin/awk -f`` is not
+        in the recognised shell list so the file is skipped with no header.
+        """
+        from license_header_migration.migrate import process_file_list
+
+        dest = tmp_path / "filter"          # no extension
+        dest.write_text(
+            "#!/usr/bin/awk -f\n{ print $1 }\n",
+            encoding="utf-8",
+        )
+
+        file_list = tmp_path / "files.txt"
+        file_list.write_text(f"{dest}\n", encoding="utf-8")
+
+        process_file_list(str(file_list), assets_dir=local_assets_dir, dry_run=False)
+
+        content = dest.read_text(encoding="utf-8")
+        lines = content.splitlines()
+
+        assert "SPDX-License-Identifier: Apache-2.0" in content, (
+            "No licence header was added to the extensionless awk script"
+        )
+        assert lines[0] == "#!/usr/bin/awk -f", (
+            f"Shebang moved from line 1; got: {lines[0]!r}"
+        )
