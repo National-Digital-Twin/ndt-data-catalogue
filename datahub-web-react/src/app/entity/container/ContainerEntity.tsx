@@ -229,6 +229,7 @@ export class ContainerEntity implements Entity<Container> {
             EntityCapabilityType.DOMAINS,
             EntityCapabilityType.SOFT_DELETE,
             EntityCapabilityType.DATA_PRODUCTS,
+            EntityCapabilityType.FORMS,
         ]);
     };
 

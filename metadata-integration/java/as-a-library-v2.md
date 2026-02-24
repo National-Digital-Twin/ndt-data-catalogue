@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Java SDK V2
 
 The DataHub Java SDK V2 provides a modern, type-safe interface for interacting with DataHub's metadata platform. Built on top of the existing DataHub infrastructure, SDK V2 offers an intuitive, fluent API for creating and managing metadata entities.

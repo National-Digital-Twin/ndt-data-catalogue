@@ -403,40 +403,31 @@ class TestSoftDeletedEntitiesCleanup2(unittest.TestCase):
         urns = list(self.cleanup._get_urns())
         self.config.entity_types.remove("dataProcessInstance")
         # Verify get_urns_by_filter was called correctly
-        self.mock_graph.get_urns_by_filter.has_calls(
-            [
-                call(
-                    entity_types=self.config.entity_types,
-                    platform=self.config.platform,
-                    env=self.config.env,
-                    query=self.config.query,
-                    status=RemovedStatusFilter.ONLY_SOFT_DELETED,
-                    batch_size=self.config.batch_size,
-                    extraFilters=[
-                        SearchFilterRule(
-                            field="created",
-                            condition="LESS_THAN",
-                            values=[
-                                str(
-                                    int(
-                                        time.time()
-                                        - self.config.retention_days * 24 * 60 * 60
-                                    )
-                                    * 1000
-                                )
-                            ],
-                        ).to_raw()
-                    ],
-                ),
-                call(
-                    entity_types=["dataProcessInstance"],
-                    platform=self.config.platform,
-                    env=self.config.env,
-                    query=self.config.query,
-                    status=RemovedStatusFilter.ONLY_SOFT_DELETED,
-                    batch_size=self.config.batch_size,
-                ),
-            ]
+        cutoff_filter = SearchFilterRule(
+            field="created",
+            condition="LESS_THAN",
+            values=[
+                str(int(time.time() - self.config.retention_days * 24 * 60 * 60) * 1000)
+            ],
+        ).to_raw()
+
+        self.assertEqual(self.mock_graph.get_urns_by_filter.call_count, 2)
+        self.mock_graph.get_urns_by_filter.assert_any_call(
+            entity_types=self.config.entity_types,
+            platform=self.config.platform,
+            env=self.config.env,
+            query=self.config.query,
+            status=RemovedStatusFilter.ONLY_SOFT_DELETED,
+            batch_size=self.config.batch_size,
+        )
+        self.mock_graph.get_urns_by_filter.assert_any_call(
+            entity_types=["dataProcessInstance"],
+            platform=self.config.platform,
+            env=self.config.env,
+            query=self.config.query,
+            status=RemovedStatusFilter.ONLY_SOFT_DELETED,
+            batch_size=self.config.batch_size,
+            extraFilters=[cutoff_filter],
         )
 
         # Check the returned urns

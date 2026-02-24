@@ -1,14 +1,31 @@
 <!--
-  ~ © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
-  ~
-  ~ Licensed under the Open Government Licence v3.0.
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
 -->
 
 ---
 
-## description: Learn how to upload and use the DataHub Cloud Chrome extension (beta) locally before it's available on the Chrome store.
+## description: Learn how to use the DataHub Cloud Chrome extension.
 
 # DataHub Cloud Chrome Extension
+
+## Supported Tools
+
+The DataHub Cloud Chrome extension currently supports the following platforms and entity types:
+
+- **Looker** - Dashboards and Explores
+- **Tableau** - Workbooks, Views, and Datasources
+- **PowerBI** - Dashboards and Reports
+- **BigQuery** - Datasets, Tables, Sharded Tables, and Partitioned Tables
+- **Databricks** - Catalogs, Databases, and Tables
+- **Mode Analytics** - Reports, Charts, Queries, and Datasets
+- **Superset/Preset** - Dashboards and Charts
+- **Hex** - Projects and Components
+- **Metabase** - Dashboards, Questions, and Models
 
 ## Installing the Extension
 

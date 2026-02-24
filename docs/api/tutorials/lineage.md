@@ -1,7 +1,10 @@
 <!--
-  ~ © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
-  ~
-  ~ Licensed under the Open Government Licence v3.0.
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
 -->
 
 # Lineage
@@ -389,6 +392,38 @@ query scrollAcrossLineage {
   }
 }
 ```
+
+#### Get Time-Filtered Lineage with GraphQL
+
+Filter lineage edges by their last update time using `lineageFlags`:
+
+```graphql
+query searchAcrossLineage {
+  searchAcrossLineage(
+    input: {
+      query: "*"
+      urn: "urn:li:dataset:(urn:li:dataPlatform:snowflake,analytics.orders,PROD)"
+      count: 10
+      direction: UPSTREAM
+      orFilters: [{ and: [{ field: "degree", values: ["1"] }] }]
+      lineageFlags: {
+        startTimeMillis: 1625097600000
+        endTimeMillis: 1627776000000
+      }
+    }
+  ) {
+    searchResults {
+      entity {
+        urn
+        type
+      }
+      degree
+    }
+  }
+}
+```
+
+This returns only upstream lineage edges that were last updated between July 1 and August 1, 2021.
 
 ## FAQ
 

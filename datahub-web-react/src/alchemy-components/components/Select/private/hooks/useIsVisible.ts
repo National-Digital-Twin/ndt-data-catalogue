@@ -8,7 +8,7 @@
  */
 import { useEffect, useState } from 'react';
 
-export function useIsVisible(ref: React.RefObject<Element>) {
+export function useIsVisible(ref: React.RefObject<Element>, visibilityDeps: React.DependencyList = []) {
     const [isIntersecting, setIntersecting] = useState(false);
 
     useEffect(() => {
@@ -18,7 +18,7 @@ export function useIsVisible(ref: React.RefObject<Element>) {
         return () => {
             observer.disconnect();
         };
-    }, [ref]);
+    }, [ref, visibilityDeps]);
 
     return isIntersecting;
 }

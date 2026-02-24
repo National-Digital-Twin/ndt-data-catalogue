@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: Apache-2.0
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
+
+# Minimal Notion to DataHub ingestion recipe
+#
+# This is all you need! The Notion source automatically:
+# - Discovers ALL pages and databases accessible to your integration
+# - Enables hierarchy mode with Notion parent-child relationships
+# - Uses embeddings and chunking if configured on the DataHub server
+# - Sets production-ready defaults for all other options
+#
+# Prerequisites:
+# 1. Create a Notion integration at https://www.notion.so/my-integrations
+# 2. Share pages with the integration
+# 3. Set NOTION_API_KEY environment variable
+#
+# Install: pip install 'acryl-datahub[notion]'
+# Run: datahub ingest -c notion_minimal.yml
+
+source:
+  type: notion
+  config:
+    api_key: "${NOTION_API_KEY}"
+
+sink:
+  type: datahub-rest
+  config:
+    server: "http://localhost:8080"

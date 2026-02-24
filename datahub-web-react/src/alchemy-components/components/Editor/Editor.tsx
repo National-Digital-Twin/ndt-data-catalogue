@@ -61,9 +61,12 @@ export const Editor = forwardRef((props: EditorProps, ref) => {
         toolbarStyles,
         dataTestId,
         onKeyDown,
+        onPaste,
         hideBorder,
         uploadFileProps,
         fixedBottomToolbar,
+        hideToolbar,
+        compact,
     } = props;
     const { manager, state, getContext } = useRemirror({
         extensions: () => [
@@ -95,7 +98,6 @@ export const Editor = forwardRef((props: EditorProps, ref) => {
             new StrikeExtension(),
             new TableExtension({ resizable: false }),
             new FontSizeExtension({}),
-            ...(readOnly ? [] : [new HistoryExtension({})]),
         ],
         content,
         stringHandler: 'markdown',
@@ -120,9 +122,11 @@ export const Editor = forwardRef((props: EditorProps, ref) => {
             className={className}
             data-testid={dataTestId}
             $readOnly={readOnly}
-            onKeyDown={onKeyDown}
+            onKeyDownCapture={onKeyDown}
+            onPasteCapture={onPaste}
             $hideBorder={hideBorder}
             $fixedBottomToolbar={fixedBottomToolbar}
+            $compact={compact}
         >
             <ThemeProvider theme={EditorTheme}>
                 <Remirror
@@ -134,11 +138,15 @@ export const Editor = forwardRef((props: EditorProps, ref) => {
                 >
                     {!readOnly && (
                         <>
-                            <Toolbar styles={toolbarStyles} fixedBottom={fixedBottomToolbar} />
-                            <CodeBlockToolbar />
-                            {!hideHighlightToolbar && <FloatingToolbar />}
-                            <TableComponents tableCellMenuProps={{ Component: TableCellMenu }} />
-                            <MentionsComponent />
+                            {!hideToolbar && (
+                                <>
+                                    <Toolbar styles={toolbarStyles} fixedBottom={fixedBottomToolbar} />
+                                    <CodeBlockToolbar />
+                                    {!hideHighlightToolbar && <FloatingToolbar />}
+                                    <TableComponents tableCellMenuProps={{ Component: TableCellMenu }} />
+                                </>
+                            )}
+                            <MentionsComponent renderOutsideEditor={compact} />
                             {onChange && <OnChangeMarkdown onChange={onChange} />}
                         </>
                     )}

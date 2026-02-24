@@ -8,11 +8,15 @@
 header:
   license:
     spdx-id: OGL-UK-3.0
-    copyright-owner: © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
     content: |
-      © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
-      
-      Licensed under the Open Government Licence v3.0.
+      SPDX-License-Identifier: OGL-UK-3.0
+
+      This file is unmodified from its original version developed by Acryl Data, Inc.,
+      and is now included as part of a repository maintained by the National Digital Twin Programme.
+      All support, maintenance and further development of this code is now the responsibility
+      of the National Digital Twin Programme.
+    pattern: |
+      (SPDX-License-Identifier: OGL-UK-3\.0[\s\S]+This file is unmodified from its original version developed by .+[\s\S]+and is now included as part of a repository maintained by the National Digital Twin Programme\.[\s\S]+All support, maintenance and further development of this code is now the responsibility[\s\S]+of the National Digital Twin Programme\.|SPDX-License-Identifier: OGL-UK-3\.0[\s\S]+© Crown Copyright [0-9]{4}\. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade \(UK\) as the governing entity\.[\s\S]+Licensed under the Open Government Licence v3\.0\.)
   paths:
     - '**/*.md'
     - '**/*.mdx'
@@ -27,4 +31,15 @@ header:
     - 'OGL_LICENSE.md'
     - 'README.md'
     - 'SECURITY.md'
+    - 'licence-header-utils/.pytest_cache/**'
+    - 'licence-header-utils/tests/fixtures/**'
+    - '.github/ISSUE_TEMPLATE/**'
   comment: on-failure
+
+  language:
+    Markdown:
+      extensions:
+        - '.md'
+        - '.MD'
+        - '.mdx'
+      comment_style_id: AngleBracket

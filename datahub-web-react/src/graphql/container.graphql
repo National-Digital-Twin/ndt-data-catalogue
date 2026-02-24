@@ -82,9 +82,6 @@ query getContainer($urn: String!) {
                 ...structuredPropertiesFields
             }
         }
-        forms {
-            ...formsFields
-        }
         browsePathV2 {
             ...browsePathV2Fields
         }

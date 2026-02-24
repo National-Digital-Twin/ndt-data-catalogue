@@ -43,6 +43,7 @@ public class ParentDocumentsResolverTest {
     EntityClient mockClient = Mockito.mock(EntityClient.class);
     QueryContext mockContext = Mockito.mock(QueryContext.class);
     Mockito.when(mockContext.getAuthentication()).thenReturn(Mockito.mock(Authentication.class));
+    Mockito.when(mockContext.getMaxParentDepth()).thenReturn(50);
     Mockito.when(mockContext.getOperationContext())
         .thenReturn(TestOperationContexts.systemContextNoSearchAuthorization());
     DataFetchingEnvironment mockEnv = Mockito.mock(DataFetchingEnvironment.class);
@@ -183,6 +184,7 @@ public class ParentDocumentsResolverTest {
     EntityClient mockClient = Mockito.mock(EntityClient.class);
     QueryContext mockContext = Mockito.mock(QueryContext.class);
     Mockito.when(mockContext.getAuthentication()).thenReturn(Mockito.mock(Authentication.class));
+    Mockito.when(mockContext.getMaxParentDepth()).thenReturn(50);
     Mockito.when(mockContext.getOperationContext())
         .thenReturn(TestOperationContexts.systemContextNoSearchAuthorization());
     DataFetchingEnvironment mockEnv = Mockito.mock(DataFetchingEnvironment.class);

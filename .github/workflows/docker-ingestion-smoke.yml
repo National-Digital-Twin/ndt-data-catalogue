@@ -21,7 +21,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IMAGE: acryldata/datahub-ingestion-smoke
+  IMAGE: ${{ vars.DATAHUB_REPO || 'acryldata' }}/datahub-ingestion-smoke
 
 jobs:
   setup:

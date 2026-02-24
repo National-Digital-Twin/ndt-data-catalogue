@@ -10,6 +10,7 @@
 package com.linkedin.datahub.graphql.resolvers.search;
 
 import static com.linkedin.datahub.graphql.resolvers.ResolverUtils.bindArgument;
+import static com.linkedin.datahub.graphql.resolvers.ResolverUtils.getQueryContext;
 import static com.linkedin.datahub.graphql.resolvers.search.SearchUtils.*;
 
 import com.linkedin.common.urn.UrnUtils;
@@ -51,7 +52,7 @@ public class ScrollAcrossEntitiesResolver implements DataFetcher<CompletableFutu
 
   @Override
   public CompletableFuture<ScrollResults> get(DataFetchingEnvironment environment) {
-    final QueryContext context = environment.getContext();
+    final QueryContext context = getQueryContext(environment);
     final ScrollAcrossEntitiesInput input =
         bindArgument(environment.getArgument("input"), ScrollAcrossEntitiesInput.class);
 

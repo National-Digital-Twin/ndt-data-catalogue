@@ -1,7 +1,10 @@
 <!--
-  ~ © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
-  ~
-  ~ Licensed under the Open Government Licence v3.0.
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
 -->
 
 import Tabs from '@theme/Tabs';
@@ -28,7 +31,7 @@ If you're interested in a managed version, [DataHub](https://www.datahub.com) pr
   | Linux    | [Docker for Linux](https://docs.docker.com/desktop/install/linux-install/) and [Docker Compose](https://docs.docker.com/compose/install/linux/) |
 
 - **Launch the Docker engine** from command line or the desktop app.
-- Ensure you have **Python 3.9+** installed & configured. (Check using `python3 --version`).
+- Ensure you have **Python 3.10+** installed & configured. (Check using `python3 --version`).
 
 :::note Docker Resource Allocation
 

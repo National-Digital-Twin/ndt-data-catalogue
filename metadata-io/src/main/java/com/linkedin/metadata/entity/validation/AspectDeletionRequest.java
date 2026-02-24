@@ -1,0 +1,43 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
+ */
+
+package com.linkedin.metadata.entity.validation;
+
+import com.linkedin.common.urn.Urn;
+import javax.annotation.Nonnull;
+import lombok.Builder;
+import lombok.Data;
+
+/**
+ * Represents a request to delete an oversized aspect through EntityService.
+ *
+ * <p>Used by aspect size validation to collect deletion requests during transaction processing and
+ * execute them through proper EntityService flow after transaction commits. This ensures all side
+ * effects are handled: database deletion, Elasticsearch index updates, graph edge cleanup, and
+ * consumer hook invocation.
+ */
+@Data
+@Builder
+public class AspectDeletionRequest {
+  /** URN of the entity whose aspect needs deletion */
+  @Nonnull private final Urn urn;
+
+  /** Name of the aspect to delete */
+  @Nonnull private final String aspectName;
+
+  /**
+   * Validation point where oversized aspect was detected (e.g., "PRE_DB_PATCH", "POST_DB_PATCH")
+   */
+  @Nonnull private final String validationPoint;
+
+  /** Actual size of the oversized aspect in bytes */
+  private final long aspectSize;
+
+  /** Configured size threshold in bytes */
+  private final long threshold;
+}

@@ -14,6 +14,7 @@ import bigqueryLogo from '@images/bigquerylogo.png';
 import cassandraLogo from '@images/cassandralogo.png';
 import clickhouseLogo from '@images/clickhouselogo.png';
 import cockroachdbLogo from '@images/cockroachdblogo.png';
+import confluenceLogo from '@images/confluencelogo.svg';
 import csvLogo from '@images/csv-logo.png';
 import dagsterLogo from '@images/dagsterlogo.svg';
 import databricksLogo from '@images/databrickslogo.png';
@@ -23,6 +24,7 @@ import dremioLogo from '@images/dremiologo.png';
 import druidLogo from '@images/druidlogo.png';
 import dynamodbLogo from '@images/dynamodblogo.png';
 import elasticsearchLogo from '@images/elasticsearchlogo.png';
+import fabricOnelakeLogo from '@images/fabriconelakelogo.png';
 import feastLogo from '@images/feastlogo.png';
 import fivetranLogo from '@images/fivetranlogo.png';
 import glueLogo from '@images/gluelogo.png';
@@ -40,6 +42,7 @@ import mongodbLogo from '@images/mongodblogo.png';
 import mssqlLogo from '@images/mssqllogo.png';
 import mysqlLogo from '@images/mysqllogo-2.png';
 import neo4j from '@images/neo4j.svg';
+import notionLogo from '@images/notionlogo.png';
 import oktaLogo from '@images/oktalogo.png';
 import oracleLogo from '@images/oraclelogo.png';
 import postgresLogo from '@images/postgreslogo.png';
@@ -122,6 +125,10 @@ export const MSSQL = 'mssql';
 export const MSSQL_URN = `urn:li:dataPlatform:${MSSQL}`;
 export const MYSQL = 'mysql';
 export const MYSQL_URN = `urn:li:dataPlatform:${MYSQL}`;
+export const CONFLUENCE = 'confluence';
+export const CONFLUENCE_URN = `urn:li:dataPlatform:${CONFLUENCE}`;
+export const NOTION = 'notion';
+export const NOTION_URN = `urn:li:dataPlatform:${NOTION}`;
 export const OKTA = 'okta';
 export const OKTA_URN = `urn:li:dataPlatform:${OKTA}`;
 export const ORACLE = 'oracle';
@@ -189,6 +196,8 @@ export const VERTEX_AI = 'vertexai';
 export const VERTEXAI_URN = `urn:li:dataPlatform:${VERTEX_AI}`;
 export const SNAPLOGIC = 'snaplogic';
 export const SNAPLOGIC_URN = `urn:li:dataPlatform:${SNAPLOGIC}`;
+export const FABRIC_ONELAKE = 'fabric-onelake';
+export const FABRIC_ONELAKE_URN = `urn:li:dataPlatform:${FABRIC_ONELAKE}`;
 
 export const PLATFORM_URN_TO_LOGO = {
     [AIRFLOW_URN]: airflowLogo,
@@ -219,6 +228,8 @@ export const PLATFORM_URN_TO_LOGO = {
     [MONGO_DB_URN]: mongodbLogo,
     [MSSQL_URN]: mssqlLogo,
     [MYSQL_URN]: mysqlLogo,
+    [CONFLUENCE_URN]: confluenceLogo,
+    [NOTION_URN]: notionLogo,
     [OKTA_URN]: oktaLogo,
     [ORACLE_URN]: oracleLogo,
     [POSTGRES_URN]: postgresLogo,
@@ -247,6 +258,7 @@ export const PLATFORM_URN_TO_LOGO = {
     [NEO4J_URN]: neo4j,
     [VERTEXAI_URN]: vertexAI,
     [SNAPLOGIC_URN]: snaplogicLogo,
+    [FABRIC_ONELAKE_URN]: fabricOnelakeLogo,
 };
 
 export const SOURCE_TO_PLATFORM_URN = {

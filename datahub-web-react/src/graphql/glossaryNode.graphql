@@ -50,9 +50,6 @@ fragment glossaryNodeFields on GlossaryNode {
             ...structuredPropertiesFields
         }
     }
-    forms {
-        ...formsFields
-    }
     childrenCount {
         termsCount
         nodesCount

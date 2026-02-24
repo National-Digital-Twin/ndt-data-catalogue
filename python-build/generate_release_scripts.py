@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
+
 import dataclasses
 import pathlib
 
@@ -19,6 +25,9 @@ class Package:
 packages = [
     Package(directory="metadata-ingestion", main_module_name="datahub"),
     Package(directory="datahub-actions", main_module_name="datahub_actions"),
+    Package(
+        directory="datahub-agent-context", main_module_name="datahub_agent_context"
+    ),
     Package(
         directory="metadata-ingestion-modules/airflow-plugin",
         main_module_name="datahub_airflow_plugin",

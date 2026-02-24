@@ -7,7 +7,6 @@
  * of the National Digital Twin Programme.
  */
 import { Meta, StoryObj } from '@storybook/react';
-import React from 'react';
 
 import { IncidentStagePill } from '@components/components/IncidentStagePill/IncidentStagePill';
 
@@ -57,9 +56,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Sandbox Story
-export const sandbox: Story = {
-    render: (props) => <IncidentStagePill {...props} />,
-};
+export const sandbox: Story = {};
 
 // Example Stories
 export const triageStage: Story = {

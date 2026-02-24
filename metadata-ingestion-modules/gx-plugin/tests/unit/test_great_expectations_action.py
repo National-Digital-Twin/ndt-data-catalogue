@@ -5,6 +5,7 @@
 # All support, maintenance and further development of this code is now the responsibility
 # of the National Digital Twin Programme.
 
+import json
 import logging
 from datetime import datetime, timezone
 from unittest import mock
@@ -38,9 +39,11 @@ from great_expectations.execution_engine.sqlalchemy_execution_engine import (
 from great_expectations.validator.validator import Validator
 from pyspark.sql import SparkSession
 
+from datahub.emitter.aspect import JSON_PATCH_CONTENT_TYPE
 from datahub.emitter.mcp import MetadataChangeProposalWrapper
 from datahub.metadata.schema_classes import (
     AssertionInfoClass,
+    AssertionNoteClass,
     AssertionResultClass,
     AssertionResultTypeClass,
     AssertionRunEventClass,
@@ -48,10 +51,13 @@ from datahub.metadata.schema_classes import (
     AssertionStdParameterClass,
     AssertionStdParametersClass,
     AssertionTypeClass,
+    AuditStampClass,
     BatchSpecClass,
+    ChangeTypeClass,
     DataPlatformInstanceClass,
     DatasetAssertionInfoClass,
     DatasetAssertionScopeClass,
+    MetadataChangeProposalClass,
     PartitionSpecClass,
 )
 from datahub_gx_plugin.action import DataHubValidationAction
@@ -350,15 +356,20 @@ def ge_validation_result_suite_id_pandas() -> ValidationResultIdentifier:
     return validation_result_suite_id
 
 
+@mock.patch("datahub.emitter.rest_emitter.DatahubRestEmitter.to_graph", autospec=True)
 @mock.patch("datahub.emitter.rest_emitter.DatahubRestEmitter.emit_mcp", autospec=True)
 def test_DataHubValidationAction_sqlalchemy(
     mock_emitter: mock.MagicMock,
+    mock_to_graph: mock.MagicMock,
     ge_data_context: FileDataContext,
     ge_validator_sqlalchemy: Validator,
     ge_validation_result_suite: ExpectationSuiteValidationResult,
     ge_validation_result_suite_id: ValidationResultIdentifier,
 ) -> None:
     server_url = "http://localhost:9999"
+    mock_graph = mock.Mock()
+    mock_graph.get_aspect.return_value = None
+    mock_to_graph.return_value = mock_graph
 
     datahub_action = DataHubValidationAction(
         data_context=ge_data_context, server_url=server_url
@@ -454,15 +465,20 @@ def test_DataHubValidationAction_sqlalchemy(
     )
 
 
+@mock.patch("datahub.emitter.rest_emitter.DatahubRestEmitter.to_graph", autospec=True)
 @mock.patch("datahub.emitter.rest_emitter.DatahubRestEmitter.emit_mcp", autospec=True)
 def test_DataHubValidationAction_pandas(
     mock_emitter: mock.MagicMock,
+    mock_to_graph: mock.MagicMock,
     ge_data_context: FileDataContext,
     ge_validator_pandas: Validator,
     ge_validation_result_suite_pandas: ExpectationSuiteValidationResult,
     ge_validation_result_suite_id_pandas: ValidationResultIdentifier,
 ) -> None:
     server_url = "http://localhost:9999"
+    mock_graph = mock.Mock()
+    mock_graph.get_aspect.return_value = None
+    mock_to_graph.return_value = mock_graph
 
     datahub_action = DataHubValidationAction(
         data_context=ge_data_context,
@@ -518,15 +534,20 @@ def test_DataHubValidationAction_pandas(
     )
 
 
+@mock.patch("datahub.emitter.rest_emitter.DatahubRestEmitter.to_graph", autospec=True)
 @mock.patch("datahub.emitter.rest_emitter.DatahubRestEmitter.emit_mcp", autospec=True)
 def test_DataHubValidationAction_spark(
     mock_emitter: mock.MagicMock,
+    mock_to_graph: mock.MagicMock,
     ge_data_context: FileDataContext,
     ge_validator_spark: Validator,
     ge_validation_result_suite_spark: ExpectationSuiteValidationResult,
     ge_validation_result_suite_id_spark: ValidationResultIdentifier,
 ) -> None:
     server_url = "http://localhost:9999"
+    mock_graph = mock.Mock()
+    mock_graph.get_aspect.return_value = None
+    mock_to_graph.return_value = mock_graph
 
     datahub_action = DataHubValidationAction(
         data_context=ge_data_context,
@@ -625,13 +646,18 @@ def test_DataHubValidationAction_spark(
     )
 
 
+@mock.patch("datahub.emitter.rest_emitter.DatahubRestEmitter.to_graph", autospec=True)
 def test_DataHubValidationAction_graceful_failure(
+    mock_to_graph: mock.MagicMock,
     ge_data_context: FileDataContext,
     ge_validator_sqlalchemy: Validator,
     ge_validation_result_suite: ExpectationSuiteValidationResult,
     ge_validation_result_suite_id: ValidationResultIdentifier,
 ) -> None:
     server_url = "http://localhost:9999"
+    mock_graph = mock.Mock()
+    mock_graph.get_aspect.return_value = None
+    mock_to_graph.return_value = mock_graph
 
     datahub_action = DataHubValidationAction(
         data_context=ge_data_context, server_url=server_url
@@ -642,3 +668,53 @@ def test_DataHubValidationAction_graceful_failure(
         validation_result_suite=ge_validation_result_suite,
         data_asset=ge_validator_sqlalchemy,
     ) == {"datahub_notification_result": "DataHub notification failed"}
+
+
+@mock.patch("datahub.emitter.rest_emitter.DatahubRestEmitter.to_graph", autospec=True)
+@mock.patch("datahub.emitter.rest_emitter.DatahubRestEmitter.emit_mcp", autospec=True)
+def test_DataHubValidationAction_existing_assertion_uses_patch(
+    mock_emitter: mock.MagicMock,
+    mock_to_graph: mock.MagicMock,
+    ge_data_context: FileDataContext,
+    ge_validator_sqlalchemy: Validator,
+    ge_validation_result_suite: ExpectationSuiteValidationResult,
+    ge_validation_result_suite_id: ValidationResultIdentifier,
+) -> None:
+    server_url = "http://localhost:9999"
+    mock_graph = mock.Mock()
+    mock_graph.get_aspect.return_value = AssertionInfoClass(
+        type=AssertionTypeClass.DATASET,
+        note=AssertionNoteClass(
+            content="keep me",
+            lastModified=AuditStampClass(time=1, actor="urn:li:corpuser:test-user"),
+        ),
+    )
+    mock_to_graph.return_value = mock_graph
+
+    datahub_action = DataHubValidationAction(
+        data_context=ge_data_context, server_url=server_url
+    )
+
+    assert datahub_action.run(
+        validation_result_suite_identifier=ge_validation_result_suite_id,
+        validation_result_suite=ge_validation_result_suite,
+        data_asset=ge_validator_sqlalchemy,
+    ) == {"datahub_notification_result": "DataHub notification succeeded"}
+
+    first_mcp = mock_emitter.call_args_list[0].args[1]
+    assert isinstance(first_mcp, MetadataChangeProposalClass)
+    assert first_mcp.changeType == ChangeTypeClass.PATCH
+    assert first_mcp.aspectName == "assertionInfo"
+    assert first_mcp.aspect is not None
+    assert first_mcp.aspect.contentType == JSON_PATCH_CONTENT_TYPE
+
+    patch_payload = json.loads(first_mcp.aspect.value.decode())
+    patch_ops = (
+        patch_payload["patch"] if isinstance(patch_payload, dict) else patch_payload
+    )
+    assert {op["path"] for op in patch_ops} == {
+        "/type",
+        "/datasetAssertion",
+        "/customProperties/expectation_suite_name",
+    }
+    assert {op["op"] for op in patch_ops} == {"add"}

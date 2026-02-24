@@ -20,6 +20,10 @@ We do NOT test:
 - Pydantic validation (covered by test_adf_config.py)
 """
 
+import pytest
+
+pytest.importorskip("azure.mgmt.datafactory")
+
 from datahub.api.entities.dataprocess.dataprocess_instance import InstanceRunResult
 from datahub.ingestion.source.azure_data_factory.adf_source import (
     ACTIVITY_SUBTYPE_MAP,
@@ -452,5 +456,5 @@ class TestActivityRunToDataJobUrnMapping:
         assert len(set(str(u) for u in job_urns)) == len(activities)
 
         # Each URN should contain its activity name
-        for activity, urn in zip(activities, job_urns):
+        for activity, urn in zip(activities, job_urns, strict=False):
             assert activity in str(urn)

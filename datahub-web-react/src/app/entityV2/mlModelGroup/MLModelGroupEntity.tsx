@@ -243,6 +243,7 @@ export class MLModelGroupEntity implements Entity<MlModelGroup> {
             EntityCapabilityType.LINEAGE,
             EntityCapabilityType.APPLICATIONS,
             EntityCapabilityType.RELATED_DOCUMENTS,
+            EntityCapabilityType.FORMS,
         ]);
     };
 }

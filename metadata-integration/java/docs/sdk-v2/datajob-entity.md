@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # DataJob Entity
 
 The DataJob entity represents a unit of work in a data processing pipeline (e.g., an Airflow task, a dbt model, a Spark job). DataJobs belong to DataFlows (pipelines) and can have lineage to datasets and other DataJobs. This guide covers comprehensive DataJob operations in SDK V2.

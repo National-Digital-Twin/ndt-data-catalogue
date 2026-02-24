@@ -63,7 +63,7 @@ export const AccessTokenModal = ({ open, onClose, accessToken, expiresInText }: 
             width={700}
             title={
                 <Typography.Text>
-                    <b> New Personal Access Token</b>
+                    <b> New Access Token</b>
                 </Typography.Text>
             }
             open={open}
@@ -82,7 +82,7 @@ export const AccessTokenModal = ({ open, onClose, accessToken, expiresInText }: 
                     message={
                         <span>
                             <StyledInfoCircleOutlined />
-                            Make sure to copy your personal access token now. You won’t be able to see it again.
+                            Make sure to copy your access token now. You won’t be able to see it again.
                         </span>
                     }
                 />

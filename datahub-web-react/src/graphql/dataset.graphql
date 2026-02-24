@@ -228,9 +228,6 @@ fragment nonSiblingDatasetFields on Dataset {
     privileges {
         ...entityPrivileges
     }
-    forms {
-        ...formsFields
-    }
     institutionalMemory {
         ...institutionalMemoryFields
     }

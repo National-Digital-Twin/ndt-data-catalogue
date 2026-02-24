@@ -851,6 +851,7 @@ class JobProcessor:
             zip(
                 [metric["MetricName"] for metric in latest_metrics],
                 [metric["Value"] for metric in latest_metrics],
+                strict=False,
             )
         )
 

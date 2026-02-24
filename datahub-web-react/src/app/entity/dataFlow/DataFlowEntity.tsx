@@ -220,6 +220,7 @@ export class DataFlowEntity implements Entity<DataFlow> {
             EntityCapabilityType.DEPRECATION,
             EntityCapabilityType.SOFT_DELETE,
             EntityCapabilityType.DATA_PRODUCTS,
+            EntityCapabilityType.FORMS,
         ]);
     };
 }

@@ -1,7 +1,7 @@
+#!/bin/bash
 # SPDX-License-Identifier: Apache-2.0
 # Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by the National Digital Twin Programme.
 #
-#!/bin/bash
 
 # Copyright 2021 Acryl Data, Inc.
 #
@@ -21,6 +21,17 @@
 # and is now included as part of a repository maintained by the National Digital Twin Programme.
 # All support, maintenance and further development of this code is now the responsibility
 # of the National Digital Twin Programme.
+
+# Copy existing AWS SSO tokens from read-only mount to writable cache
+if [ -d "/home/datahub/.aws-ro/sso/cache" ]; then
+    echo "Copying existing AWS SSO tokens to writable cache..."
+    mkdir -p /home/datahub/.aws/sso/cache
+    cp -r /home/datahub/.aws-ro/sso/cache/* /home/datahub/.aws/sso/cache/ 2>/dev/null || true
+    chmod 700 /home/datahub/.aws/sso/cache
+    chmod 600 /home/datahub/.aws/sso/cache/* 2>/dev/null || true
+    echo "AWS SSO token copy complete."
+fi
+
 SYS_CONFIGS_PATH="${DATAHUB_ACTIONS_SYSTEM_CONFIGS_PATH:-/etc/datahub/actions/system/conf}"
 USER_CONFIGS_PATH="${DATAHUB_ACTIONS_USER_CONFIGS_PATH:-/etc/datahub/actions/conf}"
 MONITORING_ENABLED="${DATAHUB_ACTIONS_MONITORING_ENABLED:-false}"

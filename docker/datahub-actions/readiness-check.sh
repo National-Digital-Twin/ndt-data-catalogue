@@ -1,7 +1,7 @@
+#!/bin/bash
 # SPDX-License-Identifier: Apache-2.0
 # Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by the National Digital Twin Programme.
 #
-#!/bin/bash
 
 # Copyright 2023 Acryl Data, Inc.
 #

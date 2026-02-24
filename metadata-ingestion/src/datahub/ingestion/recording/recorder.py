@@ -29,16 +29,14 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from datahub.ingestion.recording import config as recording_config
 from datahub.ingestion.recording.archive import (
     DB_DIR,
     HTTP_DIR,
     ArchiveManifest,
     RecordingArchive,
 )
-from datahub.ingestion.recording.config import (
-    RecordingConfig,
-    check_recording_dependencies,
-)
+from datahub.ingestion.recording.config import RecordingConfig
 from datahub.ingestion.recording.db_proxy import QueryRecorder
 from datahub.ingestion.recording.http_recorder import HTTPRecorder
 from datahub.ingestion.recording.patcher import ModulePatcher
@@ -86,7 +84,7 @@ class IngestionRecorder:
             redact_secrets: Whether to redact secrets in the stored recipe (default: True).
                           Set to False for local debugging to keep actual credentials.
         """
-        check_recording_dependencies()
+        recording_config.check_recording_dependencies()
 
         self.run_id = run_id
         self.password = password

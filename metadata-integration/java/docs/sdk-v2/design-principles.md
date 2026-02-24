@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Design Principles of Java SDK V2
 
 This document provides an architectural overview of DataHub Java SDK V2, exploring the engineering principles and design patterns that enable its type-safe, efficient metadata management capabilities.

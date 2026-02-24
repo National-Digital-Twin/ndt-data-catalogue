@@ -392,6 +392,7 @@ export class ChartEntity implements Entity<Chart> {
             EntityCapabilityType.HEALTH,
             EntityCapabilityType.APPLICATIONS,
             EntityCapabilityType.RELATED_DOCUMENTS,
+            EntityCapabilityType.FORMS,
         ]);
     };
 

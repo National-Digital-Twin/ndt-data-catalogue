@@ -24,7 +24,7 @@ Please follow the [DataHub Quickstart Guide](./docs/quickstart.md) to run DataHu
 
 ## Pull Requests
 
-Included in this repository is an example [PULL_REQUEST_TEMPLATE.md](./.github/PULL_REQUEST_TEMPLATE.md), which can be used to help prompt specific content to include in pull requests by contributors. 
+Included in this repository is an example [PULL_REQUEST_TEMPLATE.md](./PULL_REQUEST_TEMPLATE.md), which can be used to help prompt specific content to include in pull requests by contributors. 
 
 ## Development
 
@@ -47,9 +47,9 @@ This repository has been developed with public funding as part of the National D
 ## License  
 This repository contains both source code and documentation, which are covered by different licenses:  
 - **Code:** Originally developed by DataHub and LinkedIn, now maintained by National Digital Twin Programme. Licensed under the [Apache License 2.0](./LICENSE.md).
-- **Documentation:** Licensed under the [Open Government Licence v3.0](./OGL_LICENCE.md).
+- **Documentation:** Licensed under the [Open Government Licence v3.0](./OGL_LICENSE.md).
 
-See [`LICENSE.md`](LICENSE.md), [`OGL_LICENCE.md`](OGL_LICENCE.md) and [`NOTICE.md`](NOTICE.md) for details.
+See the [Apache 2.0 license](LICENSE.md), the [Open Government Licence](OGL_LICENSE.md), and the [notice file](NOTICE.md) for details.
 
 ## Security and Responsible Disclosure
 We take security seriously. If you believe you have found a security vulnerability in this repository, please follow our responsible disclosure process outlined in [`SECURITY.md`](./SECURITY.md).  

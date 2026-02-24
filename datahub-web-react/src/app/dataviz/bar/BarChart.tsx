@@ -15,6 +15,8 @@ import { Legend } from '@app/dataviz/Legend';
 import { ChartWrapper } from '@app/dataviz/components';
 import { abbreviateNumber } from '@app/dataviz/utils';
 
+const XYChartAny = XYChart as any;
+
 export const BarChart = <Data extends object, DataKeys>({
     data,
     dataKeys,
@@ -46,7 +48,7 @@ export const BarChart = <Data extends object, DataKeys>({
 
                     return (
                         <>
-                            <XYChart
+                            <XYChartAny
                                 width={width}
                                 height={255}
                                 xScale={{ type: 'band', nice: true, invert: true, paddingInner: 0.3 }}
@@ -57,19 +59,21 @@ export const BarChart = <Data extends object, DataKeys>({
                                 <Grid columns={false} numTicks={tickCount} lineStyle={{ stroke: '#EAEAEA' }} />
                                 {multipleData ? (
                                     <BarStack>
-                                        {dataKeys
-                                            .slice()
-                                            .reverse()
-                                            .map((dK) => (
-                                                <BarSeries
-                                                    key={dK}
-                                                    dataKey={dK}
-                                                    data={data}
-                                                    xAccessor={xAccessor}
-                                                    yAccessor={(d) => yAccessor(d, dK)}
-                                                    colorAccessor={() => colorAccessor(dK)}
-                                                />
-                                            ))}
+                                        {
+                                            dataKeys
+                                                .slice()
+                                                .reverse()
+                                                .map((dK) => (
+                                                    <BarSeries
+                                                        key={dK}
+                                                        dataKey={dK}
+                                                        data={data}
+                                                        xAccessor={xAccessor}
+                                                        yAccessor={(d) => yAccessor(d, dK)}
+                                                        colorAccessor={() => colorAccessor(dK)}
+                                                    />
+                                                )) as any
+                                        }
                                     </BarStack>
                                 ) : (
                                     <BarSeries
@@ -102,7 +106,7 @@ export const BarChart = <Data extends object, DataKeys>({
                                     )}
                                     hideAxisLine
                                 />
-                            </XYChart>
+                            </XYChartAny>
                             <Legend scale={colorAccessor} />
                         </>
                     );

@@ -144,6 +144,20 @@ class Constant:
     M_QUERY_NULL = '"null"'
     REPORT_WEB_URL = "reportWebUrl"
 
+    # DirectLake / Fabric artifact constants
+    RELATIONS = "relations"
+    DEPENDENT_ON_ARTIFACT_ID = "dependentOnArtifactId"
+    SCHEMA_NAME = "schemaName"
+    STORAGE_MODE = "storageMode"
+
+    # Fabric artifact API keys (for parsing workspace metadata)
+    PARSING_KEY_LAKEHOUSE = "Lakehouse"
+    PARSING_KEY_WAREHOUSES = "warehouses"  # API key is lowercase
+    PARSING_KEY_SQL_ANALYTICS_ENDPOINT = "SQLAnalyticsEndpoint"
+
+    # Storage mode values
+    DIRECT_LAKE = "DirectLake"
+
 
 @dataclass
 class DataPlatformPair:
@@ -208,6 +222,12 @@ class SupportedDataPlatform(Enum):
         datahub_data_platform_name="odbc",
     )
 
+    # Fabric OneLake for DirectLake lineage (Lakehouse/Warehouse tables)
+    FABRIC_ONELAKE = DataPlatformPair(
+        powerbi_data_platform_name="FabricOneLake",
+        datahub_data_platform_name="fabric-onelake",
+    )
+
 
 @dataclass
 class PowerBiDashboardSourceReport(StaleEntityRemovalSourceReport):
@@ -270,7 +290,15 @@ class DataBricksPlatformDetail(PlatformDetail):
 
 class OwnershipMapping(ConfigModel):
     create_corp_user: bool = pydantic.Field(
-        default=True, description="Whether ingest PowerBI user as Datahub Corpuser"
+        default=False,
+        description=(
+            "Whether to create user entities from PowerBI data. "
+            "When False (RECOMMENDED): PowerBI emits ownership URNs only (soft references). "
+            "User profiles must come from LDAP/SCIM/Okta. "
+            "When True (OPT-IN): PowerBI creates users with displayName and email from PowerBI. "
+            "WARNING: May overwrite existing user profiles from other sources. Use only if "
+            "PowerBI is your authoritative user source."
+        ),
     )
     use_powerbi_email: bool = pydantic.Field(
         # TODO: Deprecate and remove this config, since the non-email format

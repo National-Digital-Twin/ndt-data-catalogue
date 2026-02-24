@@ -1,7 +1,10 @@
 <!--
-  ~ © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
-  ~
-  ~ Licensed under the Open Government Licence v3.0.
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
 -->
 
 # DataHub MCP Server
@@ -88,6 +91,64 @@ List schema fields for a dataset with keyword filtering and pagination, useful w
 `get_lineage_paths_between`
 
 Retrieve the exact lineage paths between two assets or columns, including intermediate transformations and SQL query information.
+
+### Mutation Tools
+
+:::info
+Mutation tools are available in [mcp-server-datahub](https://github.com/acryldata/mcp-server-datahub) v0.5.0+. They are enabled via the `TOOLS_IS_MUTATION_ENABLED=true` environment variable.
+:::
+
+`add_tags` / `remove_tags`
+
+Add or remove tags from entities or schema fields (columns). Supports bulk operations on multiple entities.
+
+`add_terms` / `remove_terms`
+
+Add or remove glossary terms from entities or schema fields. Useful for applying business definitions and data classification.
+
+`add_owners` / `remove_owners`
+
+Add or remove ownership assignments from entities. Supports different ownership types (technical owner, data owner, etc.).
+
+`set_domains` / `remove_domains`
+
+Assign or remove domain membership for entities. Each entity can belong to one domain.
+
+`update_description`
+
+Update, append to, or remove descriptions for entities or schema fields. Supports markdown formatting.
+
+`add_structured_properties` / `remove_structured_properties`
+
+Manage structured properties (typed metadata fields) on entities. Supports string, number, URN, date, and rich text value types.
+
+### User Tools
+
+:::info
+User tools are available in [mcp-server-datahub](https://github.com/acryldata/mcp-server-datahub) v0.5.0+. They are enabled via the `TOOLS_IS_USER_ENABLED=true` environment variable.
+:::
+
+`get_me`
+
+Retrieve information about the currently authenticated user, including profile details and group memberships.
+
+### Document Tools
+
+:::info
+Document tools are available in [mcp-server-datahub](https://github.com/acryldata/mcp-server-datahub) v0.5.0+. Document tools are automatically hidden if no documents exist in the catalog.
+:::
+
+`search_documents`
+
+Search for documents using keyword search with filters for platforms, domains, tags, glossary terms, and owners.
+
+`grep_documents`
+
+Search within document content using regex patterns. Useful for finding specific information across multiple documents.
+
+`save_document`
+
+Save standalone documents (insights, decisions, FAQs, notes) to DataHub's knowledge base. Documents are organized under a configurable parent folder.
 
 ## Managed MCP Server Usage
 

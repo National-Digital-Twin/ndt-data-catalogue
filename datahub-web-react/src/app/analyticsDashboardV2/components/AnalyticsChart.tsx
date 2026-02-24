@@ -22,6 +22,8 @@ import { colors } from '@src/alchemy-components/theme';
 
 import { AnalyticsChart as AnalyticsChartType, BarChart as BarChartType, TimeSeriesChart } from '@types';
 
+const XYChartAny = XYChart as any;
+
 type Props = {
     chartData: AnalyticsChartType;
 };
@@ -289,7 +291,7 @@ const StackedBarChartWithTooltip = ({ stackedBarChartData, allSegmentLabels, seg
                     {({ width, height }) =>
                         width > 0 && height > 0 ? (
                             <>
-                                <XYChart
+                                <XYChartAny
                                     width={width}
                                     height={height}
                                     xScale={{ type: 'band', paddingInner: 0.3 }}
@@ -326,19 +328,21 @@ const StackedBarChartWithTooltip = ({ stackedBarChartData, allSegmentLabels, seg
                                     />
                                     <Axis orientation="left" numTicks={5} />
                                     <BarStack>
-                                        {visibleSegmentLabels.map((segmentLabel) => {
-                                            const idx = allSegmentLabels.indexOf(segmentLabel);
-                                            return (
-                                                <BarSeries
-                                                    key={segmentLabel}
-                                                    dataKey={segmentLabel}
-                                                    data={filteredBarChartData}
-                                                    xAccessor={(d) => d.x}
-                                                    yAccessor={(d) => d[segmentLabel] || 0}
-                                                    colorAccessor={() => segmentColors[idx % segmentColors.length]}
-                                                />
-                                            );
-                                        })}
+                                        {
+                                            visibleSegmentLabels.map((segmentLabel) => {
+                                                const idx = allSegmentLabels.indexOf(segmentLabel);
+                                                return (
+                                                    <BarSeries
+                                                        key={segmentLabel}
+                                                        dataKey={segmentLabel}
+                                                        data={filteredBarChartData}
+                                                        xAccessor={(d) => d.x}
+                                                        yAccessor={(d) => d[segmentLabel] || 0}
+                                                        colorAccessor={() => segmentColors[idx % segmentColors.length]}
+                                                    />
+                                                );
+                                            }) as any
+                                        }
                                     </BarStack>
                                     <Tooltip
                                         key={Math.random()}
@@ -367,10 +371,10 @@ const StackedBarChartWithTooltip = ({ stackedBarChartData, allSegmentLabels, seg
                                                         </>
                                                     }
                                                 />
-                                            );
+                                            ) as any;
                                         }}
                                     />
-                                </XYChart>
+                                </XYChartAny>
                                 {tooltipData && (
                                     <TooltipInPortal key={Math.random()} top={tooltipTop} left={tooltipLeft}>
                                         <TooltipContainer>

@@ -1,7 +1,10 @@
 <!--
-  ~ © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
-  ~
-  ~ Licensed under the Open Government Licence v3.0.
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
 -->
 
 # Monitoring DataHub
@@ -679,6 +682,33 @@ Together, these metrics help identify where delays occur:
 - High Kafka queue time but low hook latency: Bottleneck in Kafka consumption
 - Low Kafka queue time but high hook latency: Bottleneck in processing or persistence
 - Both high: System-wide performance issues
+
+## Aspect Size Validation Metrics
+
+Emitted on all aspect writes (REST, GraphQL, MCP) to track sizes and detect oversized aspects.
+
+**Metrics:**
+
+- `aspectSizeValidation.prePatch.sizeDistribution` - Size distribution of existing aspects (tags: aspectName, sizeBucket)
+- `aspectSizeValidation.postPatch.sizeDistribution` - Size distribution of aspects being written (tags: aspectName, sizeBucket)
+- `aspectSizeValidation.prePatch.oversized` - Oversized aspects found in database (tags: aspectName, remediation)
+- `aspectSizeValidation.postPatch.oversized` - Oversized aspects rejected during writes (tags: aspectName, remediation)
+- `aspectSizeValidation.prePatch.warning` - Aspects approaching limit in database (tags: aspectName)
+- `aspectSizeValidation.postPatch.warning` - Aspects approaching limit during writes (tags: aspectName)
+
+**Configuration:**
+
+See [Aspect Size Validation](mcp-mcl.md#aspect-size-validation) for details.
+
+```yaml
+datahub:
+  validation:
+    aspectSize:
+      metrics:
+        sizeBuckets: [1048576, 5242880, 10485760, 15728640]
+```
+
+Default buckets (1MB, 5MB, 10MB, 15MB) create ranges: 0-1MB, 1MB-5MB, 5MB-10MB, 10MB-15MB, 15MB+
 
 ## Cache Monitoring (Micrometer)
 

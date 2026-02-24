@@ -10,7 +10,7 @@ import subprocess
 
 import pytest
 
-from datahub.configuration.env_vars import get_ci
+from datahub.configuration.env_vars import is_ci
 from datahub.testing.docker_utils import (
     docker_compose_runner as docker_compose_runner,
     is_responsive as is_responsive,
@@ -32,7 +32,7 @@ def docker_compose_command():
 def cleanup_image(image_name: str) -> None:
     assert ":" not in image_name, "image_name should not contain a tag"
 
-    if not get_ci():
+    if not is_ci():
         logger.debug("Not cleaning up images to speed up local development")
         return
 

@@ -42,6 +42,8 @@ public class DataHubConfiguration {
 
   private S3Configuration s3;
 
+  private ValidationConfiguration validation;
+
   @Data
   public static class DataHubMetrics {
     private MetricsOptions hookLatency;

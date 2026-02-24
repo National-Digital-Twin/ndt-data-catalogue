@@ -198,6 +198,8 @@ class TestHTTPPatching:
 
     def test_http_recorder_context_manager(self, tmp_path):
         """Test that HTTPRecorder works as context manager."""
+        pytest.importorskip("vcr")
+
         from datahub.ingestion.recording.http_recorder import HTTPRecorder
 
         cassette_path = tmp_path / "cassette.yaml"

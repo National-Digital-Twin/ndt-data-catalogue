@@ -7,7 +7,6 @@
  * of the National Digital Twin Programme.
  */
 import { Meta, StoryObj } from '@storybook/react';
-import React from 'react';
 
 import { Bar } from '@components/components/Bar/Bar';
 
@@ -64,9 +63,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Sandbox Story
-export const sandbox: Story = {
-    render: (props) => <Bar {...props} />,
-};
+export const sandbox: Story = {};
 
 // Example Stories
 export const withCustomColors: Story = {

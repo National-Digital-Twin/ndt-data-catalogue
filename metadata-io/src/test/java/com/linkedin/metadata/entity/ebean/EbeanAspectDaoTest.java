@@ -61,7 +61,9 @@ public class EbeanAspectDaoTest {
   @BeforeMethod
   public void setupTest() {
     server = EbeanTestUtils.createTestServer(EbeanAspectDaoTest.class.getSimpleName());
-    testDao = new EbeanAspectDao(server, EbeanConfiguration.testDefault, mock(MetricUtils.class));
+    testDao =
+        new EbeanAspectDao(
+            server, EbeanConfiguration.testDefault, mock(MetricUtils.class), List.of(), null);
   }
 
   @AfterMethod
@@ -272,7 +274,10 @@ public class EbeanAspectDaoTest {
             opContext.getEntityRegistry().getAspectSpecs().get(STATUS_ASPECT_NAME),
             new Status(),
             new SystemMetadata(),
-            AuditStampUtils.createDefaultAuditStamp());
+            AuditStampUtils.createDefaultAuditStamp(),
+            null, // systemAspectValidators
+            null, // validationConfig
+            null); // operationContext
 
     // Try to update aspect
     Optional<com.linkedin.metadata.aspect.EntityAspect> result =

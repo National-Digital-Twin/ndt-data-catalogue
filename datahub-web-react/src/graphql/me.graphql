@@ -79,6 +79,7 @@ query getMe {
             manageFeatures
             manageHomePageTemplates
             manageDocuments
+            manageServiceAccounts
         }
     }
 }

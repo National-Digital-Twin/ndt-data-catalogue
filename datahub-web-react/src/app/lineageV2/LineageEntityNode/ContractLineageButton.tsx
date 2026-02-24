@@ -47,6 +47,7 @@ export function ContractLineageButton({ urn, direction }: Props) {
                 onClick={(e) => onClickPreventSelect(e) && contractLineage(e)}
                 onMouseEnter={(e) => e.stopPropagation()}
                 onMouseLeave={(e) => e.stopPropagation()}
+                data-testid={`contract-${urn}-button`}
             >
                 <KeyboardArrowLeft viewBox="4 3 18 18" fontSize="inherit" />
             </Button>

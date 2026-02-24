@@ -35,7 +35,7 @@ describe("auto-complete", () => {
     // look for a dataflow
     cy.get("input[data-testid=search-input]").type("dataflow user");
     cy.contains("Pipelines").scrollIntoView();
-    cy.contains("Users");
+    cy.contains("users");
     cy.focused().clear();
   });
 

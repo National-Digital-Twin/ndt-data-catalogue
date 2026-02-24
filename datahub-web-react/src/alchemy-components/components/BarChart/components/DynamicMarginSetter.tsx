@@ -25,7 +25,7 @@ export default function DynamicMarginSetter({
     minimalMargin,
     currentMargin,
 }: DynamicMarginSetterProps) {
-    const { margin } = useContext(DataContext);
+    const { margin } = (useContext(DataContext as any) ?? {}) as { margin?: Margin };
 
     const safeMargin = useMemo(
         () => ({

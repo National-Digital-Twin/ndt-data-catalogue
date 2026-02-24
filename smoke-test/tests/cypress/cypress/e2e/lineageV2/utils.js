@@ -1,0 +1,85 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
+ */
+
+export function checkIfNodeExist(nodeUrn) {
+  cy.getWithTestId(`lineage-node-${nodeUrn}`).should("exist");
+}
+
+export function checkIfNodeNotExist(nodeUrn) {
+  cy.getWithTestId(`lineage-node-${nodeUrn}`).should("not.exist");
+}
+
+export function checkIfEdgeExist(node1Urn, node2Urn) {
+  cy.getWithTestId(`rf__edge-${node1Urn}-:-${node2Urn}`).should("exist");
+}
+
+export function checkIfEdgeNotExist(node1Urn, node2Urn) {
+  cy.getWithTestId(`rf__edge-${node1Urn}-:-${node2Urn}`).should("not.exist");
+}
+
+export function expandOne(nodeUrn) {
+  cy.getWithTestId(`expand-one-${nodeUrn}-button`).click({
+    force: true,
+  });
+}
+
+export function expandAll(nodeUrn) {
+  cy.getWithTestId(`expand-all-${nodeUrn}-button`).click({
+    force: true,
+  });
+}
+
+export function contract(nodeUrn) {
+  cy.clickOptionWithTestId(`contract-${nodeUrn}-button`);
+}
+
+export function expandColumns(nodeUrn) {
+  cy.getWithTestId(`lineage-node-${nodeUrn}`).within(() => {
+    cy.clickOptionWithTestId("expand-contract-columns");
+  });
+}
+
+export function hoverColumn(nodeUrn, columnName) {
+  cy.getWithTestId(`lineage-node-${nodeUrn}`).within(() => {
+    cy.getWithTestId(`column-${columnName}`).trigger("mouseover");
+  });
+}
+
+export function unhoverColumn(nodeUrn, columnName) {
+  cy.getWithTestId(`lineage-node-${nodeUrn}`).within(() => {
+    cy.getWithTestId(`column-${columnName}`).trigger("mouseout");
+  });
+}
+
+export function selectColumn(nodeUrn, columnName) {
+  cy.getWithTestId(`lineage-node-${nodeUrn}`).within(() => {
+    cy.clickOptionWithTestId(`column-${columnName}`);
+  });
+}
+
+export function checkIfEdgeBetweenColumnsExist(
+  node1Urn,
+  column1Name,
+  node2Urn,
+  column2Name,
+) {
+  cy.getWithTestId(
+    `rf__edge-${node1Urn}::${column1Name}-${node2Urn}::${column2Name}`,
+  ).should("exist");
+}
+
+export function checkIfEdgeBetweenColumnsNotExist(
+  node1Urn,
+  column1Name,
+  node2Urn,
+  column2Name,
+) {
+  cy.getWithTestId(
+    `rf__edge-${node1Urn}::${column1Name}-${node2Urn}::${column2Name}`,
+  ).should("not.exist");
+}

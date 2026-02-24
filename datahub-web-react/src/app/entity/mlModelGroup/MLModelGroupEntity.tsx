@@ -170,6 +170,7 @@ export class MLModelGroupEntity implements Entity<MlModelGroup> {
             EntityCapabilityType.DEPRECATION,
             EntityCapabilityType.SOFT_DELETE,
             EntityCapabilityType.DATA_PRODUCTS,
+            EntityCapabilityType.FORMS,
         ]);
     };
 }

@@ -10,6 +10,7 @@
 package com.linkedin.datahub.graphql.resolvers.glossary;
 
 import static com.linkedin.datahub.graphql.resolvers.ResolverUtils.bindArgument;
+import static com.linkedin.datahub.graphql.resolvers.ResolverUtils.getQueryContext;
 
 import com.linkedin.datahub.graphql.QueryContext;
 import com.linkedin.datahub.graphql.generated.Entity;
@@ -46,7 +47,7 @@ public class GlossaryChildrenSearchResolver
   @Override
   public CompletableFuture<ScrollResults> get(DataFetchingEnvironment environment) {
     final Entity entity = environment.getSource();
-    final QueryContext context = environment.getContext();
+    final QueryContext context = getQueryContext(environment);
     final ScrollAcrossEntitiesInput input =
         bindArgument(environment.getArgument("input"), ScrollAcrossEntitiesInput.class);
 

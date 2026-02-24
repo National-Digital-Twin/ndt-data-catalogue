@@ -183,6 +183,7 @@ class ThriftConnectionConfig:
     use_kerberos: bool = True
     kerberos_service_name: str = "hive"
     kerberos_hostname_override: Optional[str] = None
+    kerberos_qop: str = "auth"  # Quality of Protection: auth, auth-int, auth-conf
     timeout_seconds: int = 60
     max_retries: int = (
         3  # Uses exponential backoff internally (multiplier=2, max_wait=30s)
@@ -258,9 +259,13 @@ class HiveMetastoreThriftClient:
         # from the actual connection hostname (e.g., load balancer scenarios)
         sasl_host = self.config.kerberos_hostname_override or self.config.host
 
+        # PureSASLClient uses 'qops' (plural) as the list of acceptable QOP values
+        # The values must be bytes, not strings
+        qop_bytes = self.config.kerberos_qop.encode("utf-8")
+
         logger.debug(
             f"Setting up SASL/GSSAPI transport with service={self.config.kerberos_service_name}, "
-            f"host={sasl_host} (connection host={self.config.host})"
+            f"host={sasl_host}, qop={self.config.kerberos_qop} (connection host={self.config.host})"
         )
 
         def sasl_factory() -> PureSASLClient:
@@ -268,6 +273,7 @@ class HiveMetastoreThriftClient:
                 sasl_host,
                 service=self.config.kerberos_service_name,
                 mechanism="GSSAPI",
+                qops=[qop_bytes],  # Use qops (plural) with bytes list
             )
 
         return TSaslClientTransport(sasl_factory, "GSSAPI", socket)
