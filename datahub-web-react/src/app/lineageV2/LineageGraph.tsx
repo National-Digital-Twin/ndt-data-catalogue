@@ -39,11 +39,12 @@ export default function LineageGraph({ isFullscreen }: Props) {
     const lineageUrn = (!onIndividualSiblingPage && entityData?.lineageUrn) || urn;
     const props = { urn: lineageUrn, type: entityType };
     const explorer =
-        lineageGraphV3 || entityType === EntityType.DataFlow ? (
-            <LineageExplorerV3 {...props} />
-        ) : (
-            <LineageExplorerV2 {...props} />
-        );
+        // lineageGraphV3 || entityType === EntityType.DataFlow ? (
+        //     <LineageExplorerV3 {...props} />
+        // ) : (
+        //     <LineageExplorerV2 {...props} />
+        // );
+        <LineageExplorerV2 {...props} />
     if (isFullscreen) {
         return <LineageFullscreenWrapper>{explorer}</LineageFullscreenWrapper>;
     }
