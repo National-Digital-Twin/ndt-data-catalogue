@@ -28,11 +28,16 @@ let changedTsFiles = [];
 try {
     // Skip colour enforcement on sync branches — they contain large upstream diffs
     // that pre-date the NDT colour-token initiative.
-    const currentBranch = execSync('git rev-parse --abbrev-ref HEAD', {
-        encoding: 'utf-8',
-        cwd: repoRoot,
-        stdio: 'pipe',
-    }).trim();
+    // In GitHub Actions, HEAD is detached so we use GITHUB_HEAD_REF (PR source branch)
+    // or GITHUB_REF_NAME (push) instead of git rev-parse.
+    const currentBranch =
+        process.env.GITHUB_HEAD_REF ||
+        process.env.GITHUB_REF_NAME ||
+        execSync('git rev-parse --abbrev-ref HEAD', {
+            encoding: 'utf-8',
+            cwd: repoRoot,
+            stdio: 'pipe',
+        }).trim();
     const isSyncBranch = currentBranch.includes('sync');
 
     if (!isSyncBranch) {
