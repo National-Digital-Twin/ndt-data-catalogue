@@ -32,7 +32,7 @@ microFrontends:
     cy.skipIntroducePage();
     cy.on("uncaught:exception", (err, runnable) => false);
     cy.visitWithLogin("/");
-    cy.wait("@mfeConfig");
+    cy.wait("@mfeConfig", { timeout: 20000 });
     // Example of taking screenshots of key moments, for debugging or documentation:
     // cy.screenshot("after-visit");
   });

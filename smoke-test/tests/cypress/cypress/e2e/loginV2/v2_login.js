@@ -18,6 +18,6 @@ describe("login", () => {
     cy.get("input[data-testid=password]").type(Cypress.env("ADMIN_PASSWORD"));
     cy.get('[data-testid="sign-in"]').click();
     cy.skipIntroducePage();
-    cy.contains("Discover");
+    cy.waitTextVisible("Discover");
   });
 });

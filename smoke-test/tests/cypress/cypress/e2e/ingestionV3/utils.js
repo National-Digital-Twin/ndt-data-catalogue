@@ -123,6 +123,12 @@ export const verifyScheduleIsAppliedOnTable = (sourceName, scheduleText) => {
 export const createIngestionSource = (sourceName, options = undefined) => {
   cy.clickOptionWithTestId("create-ingestion-source-button");
   clickIfTestIdPresent("modal-confirm-button");
+  // Wait for the source selection modal to fully open before interacting (same pattern as createAndRunIngestionSource)
+  cy.get('[placeholder="Search..."], [placeholder="Search data sources..."]', {
+    timeout: 10000,
+  })
+    .first()
+    .should("be.visible");
   cy.clickOptionWithTextToScrollintoView("Snowflake");
   cy.waitTextVisible("Snowflake Connection Details");
 
