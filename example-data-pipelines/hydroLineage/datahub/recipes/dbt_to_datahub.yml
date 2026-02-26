@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# © Crown Copyright 2025. This work has been developed by the National Digital Twin
+# Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
+# entity
+
+source:
+  type: dbt
+  config:
+    # Point to the dbt project directory
+    manifest_path: /opt/airflow/dbt/target/manifest.json
+    # catalog_path is optional - only needed for column-level profiling stats
+    # catalog_path: /opt/airflow/dbt/target/catalog.json
+    # sources_path is optional - omit if dbt doesn't have sources defined
+    # sources_path: /opt/airflow/dbt/target/sources.json
+    
+    # Database connection info (where dbt models run)
+    # Must match postgres ingestion for URN consistency
+    target_platform: postgres
+    # Omit target_platform_instance to match postgres ingestion recipe
+    # This creates URNs like: postgres.hydro.schema.table (database comes from dbt profile)
+
+    run_results_paths: 
+      - "/opt/airflow/dbt/target/run_results.json"
+    
+    # Enable column-level lineage
+    include_column_lineage: true
+    
+    # Environment tag
+    env: prod
+
+sink:
+  type: datahub-rest
+  config:
+    server: "${DATAHUB_GMS_URL}"
+    token: "${DATAHUB_GMS_TOKEN}"
+    extra_headers:
+      Authorization: "Bearer ${DATAHUB_GMS_TOKEN}"
+    disable_ssl_verification: true
+
+# Transformers for consistent enrichment
+transformers:
+  - type: "simple_add_dataset_tags"
+    config:
+      tag_urns:
+        - "urn:li:tag:HydroLineage"
+        - "urn:li:tag:dbt"
+        - "urn:li:tag:Analytics"
+  
+  - type: "pattern_add_dataset_tags"
+    config:
+      tag_pattern:
+        rules:
+          "staging.*": ["urn:li:tag:Staging"]
+          "marts.core.*": ["urn:li:tag:Core"]
+          "marts.api.*": ["urn:li:tag:API"]

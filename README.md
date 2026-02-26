@@ -30,6 +30,10 @@ Included in this repository is an example [PULL_REQUEST_TEMPLATE.md](./PULL_REQU
 
 As DataHub will be modified to build the NDT Data Catalogue, developers should consult the [Development Guide](./docs/quickstart.md). Additional relevant documentation is available within the repository's `docs` folder.
 
+## Example Data Pipelines
+
+- [HydroLineage](./example-data-pipelines/hydroLineage): Example pipeline assets and scripts for the HydroLineage setup.
+
 ## Other Source Code and Repositories from DataHub
 
 - [datahub-project/datahub](https://github.com/datahub-project/datahub): This repository contains the complete source code for DataHub's metadata model, metadata services, integration connectors and the web application. (the repo this repo was forked from)

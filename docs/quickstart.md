@@ -158,6 +158,10 @@ using the `--token <token>` parameter in the command.
 
 That's it! Now feel free to play around with DataHub!
 
+## Example Data Pipelines
+
+For a complete end-to-end example, see [HydroLineage](../example-data-pipelines/hydroLineage), including setup and pipeline trigger scripts.
+
 ---
 
 ## Common Operations
