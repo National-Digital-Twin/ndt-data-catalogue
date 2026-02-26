@@ -588,7 +588,12 @@ Cypress.Commands.add("createGlossaryTermGroup", (term_group_name) => {
 const SKIP_INTRODUCE_PAGE_KEY = "skipAcrylIntroducePage";
 
 Cypress.Commands.add("skipIntroducePage", () => {
-  localStorage.setItem(SKIP_INTRODUCE_PAGE_KEY, "true");
+  // Must use cy.window() to set localStorage in the app's window context, not the
+  // Cypress runner's own window — bare localStorage.setItem() would be a no-op
+  // from the app's perspective.
+  cy.window().then((win) => {
+    win.localStorage.setItem(SKIP_INTRODUCE_PAGE_KEY, "true");
+  });
 });
 
 Cypress.Commands.add("goToStructuredProperties", () => {
@@ -630,6 +635,9 @@ Cypress.Commands.add("setIsThemeV2Enabled", (isEnabled) => {
         res.body.data.appConfig.featureFlags.themeV2Enabled = isEnabled;
         res.body.data.appConfig.featureFlags.themeV2Default = isEnabled;
         res.body.data.appConfig.featureFlags.showNavBarRedesign = isEnabled;
+        // Suppress the introduce-yourself page so tests landing on / after
+        // sign-in never get redirected to /introduce.
+        res.body.data.appConfig.featureFlags.showIntroducePage = false;
       });
     } else if (hasOperationName(req, "getMe")) {
       req.alias = "gqlgetMeQuery";

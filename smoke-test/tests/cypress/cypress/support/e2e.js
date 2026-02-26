@@ -41,6 +41,10 @@ require("cypress-timestamps/support")({
 
 // Add file name to test titles for better JUnit reporting
 beforeEach(function () {
+  // Clear all browser state before each test so local runs behave the same as CI
+  cy.clearLocalStorage();
+  cy.clearAllCookies();
+
   if (this.currentTest) {
     const testPath = this.currentTest.invocationDetails?.relativeFile;
     if (testPath) {

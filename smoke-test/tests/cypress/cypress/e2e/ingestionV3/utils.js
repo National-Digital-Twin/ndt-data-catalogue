@@ -21,6 +21,17 @@ export const setThemeV2AndIngestionRedesignFlags = (isOn) => {
         res.body.data.appConfig.featureFlags.themeV2Default = isOn;
         res.body.data.appConfig.featureFlags.showNavBarRedesign = isOn;
       });
+    } else if (hasOperationName(req, "batchGetStepStates")) {
+      // Return all education steps as already seen so onboarding/education
+      // modals (including CreateSourceEducationModal on the ingestion page)
+      // never appear and block test interactions.
+      req.on("response", (res) => {
+        const ids = req.body?.variables?.input?.ids || [];
+        res.body.data.batchGetStepStates.results = ids.map((id) => ({
+          id,
+          properties: [],
+        }));
+      });
     }
   });
 };
@@ -73,18 +84,27 @@ export const verifySourceDetails = (source) => {
 
   // Verify yaml recipe is generated correctly
   cy.clickOptionWithTestId("yaml-editor-tab");
-  cy.waitTextVisible("account_id");
-  cy.waitTextVisible(source.accound_id);
-  cy.waitTextVisible(source.warehouse_id);
-  cy.waitTextVisible(source.username);
+  // Monaco is a virtual renderer - lines outside the viewport are not in the
+  // DOM. Scroll to the bottom first to force all lines to be rendered.
+  // Also, Monaco renders text inside overflow:hidden containers so Cypress's
+  // be.visible check always fails - use .should("exist") instead.
+  // ensureScrollable:false prevents Cypress erroring when Monaco marks the
+  // element overflow:hidden (Monaco manages scrolling programmatically).
+  cy.get(".monaco-scrollable-element")
+    .first()
+    .scrollTo("bottom", { ensureScrollable: false });
+  cy.contains("account_id").should("exist");
+  cy.contains(source.accound_id).should("exist");
+  cy.contains(source.warehouse_id).should("exist");
+  cy.contains(source.username).should("exist");
 
   // Verify credentials in YAML based on auth type
   if (source.authentication_type === "Private Key" && source.private_key) {
     // For private key, just verify it contains the key content (not exact format with newlines)
-    cy.waitTextVisible("private_key");
-    cy.waitTextVisible("BEGIN PRIVATE KEY");
+    cy.contains("private_key").should("exist");
+    cy.contains("BEGIN PRIVATE KEY").should("exist");
   } else {
-    cy.waitTextVisible(source.password);
+    cy.contains(source.password).should("exist");
   }
 };
 
