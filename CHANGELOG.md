@@ -18,6 +18,15 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ---
 
+## [Unreleased]
+
+### Changed
+
+- Updated root [README.md](README.md) to include a link to the HydroLineage example pipeline folder at [example-data-pipelines/hydroLineage](example-data-pipelines/hydroLineage).
+- Updated [docs/quickstart.md](docs/quickstart.md) to reference the HydroLineage example pipeline.
+
+---
+
 ## [0.90.4]
 
 ### Initial Reskin of the UI
