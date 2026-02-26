@@ -299,8 +299,14 @@ def test_run_cypress(auth_session):
     test_spec_arg = f" --spec '{specs_str}' "
 
     logger.info("Running Cypress tests with command")
-    node_options = "--max-old-space-size=500"
-    electron_args = 'ELECTRON_EXTRA_LAUNCH_ARGS="--js-flags=\'--max-old-space-size=4096 --disable-dev-shm-usage --disable-gpu --no-sandbox"'
+    node_old_space_size = env_vars.get_cypress_node_max_old_space_size()
+    electron_old_space_size = env_vars.get_cypress_electron_max_old_space_size()
+    node_options = f"--max-old-space-size={node_old_space_size}"
+    electron_launch_args = (
+        f"--js-flags=--max-old-space-size={electron_old_space_size} "
+        "--disable-dev-shm-usage --disable-gpu --no-sandbox"
+    )
+    electron_args = f'ELECTRON_EXTRA_LAUNCH_ARGS="{electron_launch_args}"'
     command = f'{electron_args} NO_COLOR=1 NODE_OPTIONS="{node_options}" npx cypress run {record_arg} {test_spec_arg} {tag_arg}'
     logger.info(command)
     # Add --headed --spec '**/mutations/mutations.js' (change spec name)
