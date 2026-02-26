@@ -1,0 +1,96 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# © Crown Copyright 2025. This work has been developed by the National Digital Twin
+# Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
+# entity
+
+version: 2
+
+models:
+  - name: vw_latest_water_levels
+    description: >
+      API-ready view providing the most recent water level reading for each active station.
+      Includes station metadata, geographic coordinates, and data freshness indicators.
+      Designed for consumption by REST APIs and dashboards.
+    
+    config:
+      tags: ['api', 'view']
+    
+    columns:
+      - name: station_id
+        description: Unique station identifier
+        tests:
+          - unique
+          - not_null
+      
+      - name: station_name
+        description: Human-readable station name
+        tests:
+          - not_null
+      
+      - name: river_name
+        description: Name of the river
+      
+      - name: town
+        description: Nearest town
+      
+      - name: catchment_name
+        description: Catchment area name
+      
+      - name: region
+        description: Geographic region (North, Central, South)
+        tests:
+          - accepted_values:
+              values: ['North', 'Central', 'South']
+      
+      - name: latitude
+        description: Latitude (WGS84) for mapping
+        tests:
+          - not_null
+      
+      - name: longitude
+        description: Longitude (WGS84) for mapping
+        tests:
+          - not_null
+      
+      - name: latest_water_level_m
+        description: Most recent water level measurement in meters
+      
+      - name: latest_reading_timestamp
+        description: UTC timestamp of the latest reading
+      
+      - name: latest_reading_is_outlier
+        description: Flag indicating if latest reading is an outlier
+      
+      - name: station_status
+        description: Current operational status
+        tests:
+          - accepted_values:
+              values: ['Active', 'Closed', 'Suspended']
+      
+      - name: station_is_active
+        description: Boolean indicating active status
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true]  # View only shows active stations
+      
+      - name: hours_since_reading
+        description: Hours elapsed since latest reading (for staleness detection)
+      
+      - name: data_freshness
+        description: Human-readable freshness indicator
+        tests:
+          - accepted_values:
+              values: ['Fresh', 'Recent', 'Stale', 'Very Stale', 'No Data']
+              config:
+                severity: warn
+
+    meta:
+      owner: "Data Platform Team"
+      api_version: "v1"
+      refresh_frequency: "Real-time (via dbt incremental)"
+      primary_consumers:
+        - "HydroLineage API"
+        - "Monitoring Dashboards"
+        - "Alert Systems"

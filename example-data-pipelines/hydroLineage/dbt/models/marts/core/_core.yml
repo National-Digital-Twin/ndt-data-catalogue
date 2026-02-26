@@ -1,0 +1,150 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# © Crown Copyright 2025. This work has been developed by the National Digital Twin
+# Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
+# entity
+
+version: 2
+
+models:
+  - name: dim_station
+    description: >
+      Dimension table containing river monitoring station attributes.
+      Type 1 Slowly Changing Dimension - updates overwrite existing records.
+      This is the master reference for all station information.
+    
+    columns:
+      - name: station_key
+        description: Surrogate key for the station dimension (SHA256 hash of station_id)
+        tests:
+          - unique
+          - not_null
+      
+      - name: station_id
+        description: Natural key - unique station identifier from source system
+        tests:
+          - unique
+          - not_null
+      
+      - name: station_name
+        description: Human-readable name of the monitoring station
+        tests:
+          - not_null
+      
+      - name: station_reference
+        description: Official station reference code
+      
+      - name: wiski_id
+        description: WISKI system identifier
+      
+      - name: latitude
+        description: Latitude coordinate in WGS84
+        tests:
+          - not_null
+      
+      - name: longitude
+        description: Longitude coordinate in WGS84
+        tests:
+          - not_null
+      
+      - name: easting
+        description: British National Grid easting coordinate
+      
+      - name: northing
+        description: British National Grid northing coordinate
+      
+      - name: river_name
+        description: Name of the river being monitored
+      
+      - name: town
+        description: Nearest town or locality
+      
+      - name: catchment_name
+        description: Catchment area name
+      
+      - name: status
+        description: Operational status (Active, Closed, Suspended)
+        tests:
+          - accepted_values:
+              values: ['Active', 'Closed', 'Suspended']
+      
+      - name: date_opened
+        description: Date station became operational
+      
+      - name: is_active
+        description: Boolean flag indicating if station is currently active
+        tests:
+          - not_null
+      
+      - name: region
+        description: Derived region classification (North, Central, South)
+        tests:
+          - accepted_values:
+              values: ['North', 'Central', 'South']
+      
+      - name: source_updated_at
+        description: When source data was last extracted
+      
+      - name: dbt_updated_at
+        description: When dbt last processed this record
+
+  - name: fct_water_levels
+    description: >
+      Fact table containing water level measurements over time.
+      One record per reading per station. Incrementally loaded based on
+      reading_timestamp to only process new data.
+    
+    config:
+      tags: ['fact', 'incremental']
+    
+    columns:
+      - name: reading_key
+        description: Surrogate key for the reading (SHA256 hash of reading_id)
+        tests:
+          - unique
+          - not_null
+      
+      - name: station_key
+        description: Foreign key to dim_station
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_station')
+              field: station_key
+      
+      - name: station_id
+        description: Natural key for the station (denormalized for performance)
+        tests:
+          - not_null
+      
+      - name: reading_timestamp
+        description: UTC timestamp when measurement was taken
+        tests:
+          - not_null
+      
+      - name: reading_date
+        description: Date portion of reading_timestamp (partition key)
+        tests:
+          - not_null
+      
+      - name: reading_hour
+        description: Hour of day (0-23)
+      
+      - name: water_level_m
+        description: Water level in meters above local datum
+        tests:
+          - not_null
+      
+      - name: is_outlier
+        description: Flag for readings outside normal range
+        tests:
+          - not_null
+      
+      - name: measure_uri
+        description: Source API measure URI
+      
+      - name: source_updated_at
+        description: When source data was extracted
+      
+      - name: dbt_updated_at
+        description: When dbt processed this record

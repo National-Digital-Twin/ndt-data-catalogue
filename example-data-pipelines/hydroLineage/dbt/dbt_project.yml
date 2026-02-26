@@ -1,0 +1,109 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# © Crown Copyright 2025. This work has been developed by the National Digital Twin
+# Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
+# entity
+
+name: 'hydro_lineage'
+version: '1.0.0'
+config-version: 2
+
+# Project profile
+profile: 'hydro_lineage'
+
+# Model paths
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+# Target directory for compiled code
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Docs
+docs-paths: ["docs"]
+
+# Model Configuration
+models:
+  hydro_lineage:
+    # Staging models: materialized tables (avoid view dependencies on raw tables)
+    staging:
+      +materialized: table
+      +schema: staging
+      +tags: ["staging"]
+      
+    # Marts models
+    marts:
+      # Core dimension and fact tables
+      core:
+        +materialized: table
+        +schema: analytics
+        +tags: ["core", "marts"]
+        
+      # API-ready views
+      api:
+        +materialized: view
+        +schema: analytics
+        +tags: ["api", "marts"]
+
+# Seeds Configuration
+seeds:
+  hydro_lineage:
+    +schema: analytics
+    +tags: ["reference_data"]
+
+# Snapshots Configuration
+snapshots:
+  hydro_lineage:
+    +target_schema: snapshots
+    +unique_key: id
+    +strategy: timestamp
+    +updated_at: updated_at
+
+# Test Configuration
+tests:
+  +store_failures: true
+  +schema: test_failures
+
+# Variables
+vars:
+  # dbt Cloud Environment variable to use prod target when not in dev
+  dbt_cloud_environment: "{{ env_var('DBT_CLOUD_ENV', 'dev') }}"
+  
+  # Schema suffix for CI/CD ephemeral testing
+  schema_suffix: ""
+  
+  # Date ranges for testing
+  test_start_date: "2024-01-01"
+  test_end_date: "{{ modules.datetime.date.today() }}"
+
+# Metadata
+require-dbt-version: [">=1.5.0", "<2.0.0"]
+
+# Quoting
+quoting:
+  database: false
+  schema: false
+  identifier: false
+
+# Dispatch (for adapter-specific macros)
+dispatch:
+  - macro_namespace: dbt_utils
+    search_order: ['hydro_lineage', 'dbt_utils']
+
+# On-run-start/end hooks
+on-run-start:
+  - "{{ log('Starting dbt run for HydroLineage', info=True) }}"
+  
+on-run-end:
+  - "{{ log('Completed dbt run for HydroLineage', info=True) }}"
+
+# Exposures and metrics
+exposures:
+  hydro_lineage:
+    +enabled: true

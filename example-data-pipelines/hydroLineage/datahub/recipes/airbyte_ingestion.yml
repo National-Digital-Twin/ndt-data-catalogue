@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# © Crown Copyright 2025. This work has been developed by the National Digital Twin
+# Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
+# entity
+
+# DataHub Ingestion Recipe - Airbyte to DataHub
+# Ingests metadata from Airbyte connections and sources
+
+source:
+  type: airbyte
+  config:
+    # Airbyte instance connection (Kubernetes internal service)
+    instance_url: "http://airbyte-airbyte-server-svc.hydro-lineage.svc.cluster.local:8001"
+    
+    # Authentication (if enabled)
+    # username: "airbyte"
+    # password: "password"
+    
+    # Workspace ID (usually default workspace)
+    workspace_id: "default"
+    
+    # Include connection metadata
+    include_connection_to_lineage: true
+    
+    # Include source and destination metadata
+    ingest_sources: true
+    ingest_destinations: true
+
+    # Emit only destination datasets to avoid duplicate Airbyte platform datasets
+    emit_source_datasets: false
+    strip_database_prefix_from_namespace: true
+    
+    # Stateful ingestion requires additional config (and differs by DataHub CLI version).
+    # Keep it disabled for this demo deployment to avoid config-version mismatches.
+    stateful_ingestion:
+      enabled: false
+
+# DataHub connection
+sink:
+  type: "datahub-rest"
+  config:
+    server: "${DATAHUB_GMS_URL:-http://datahub-datahub-gms.datahub.svc.cluster.local:8080}"
+    # Do not commit tokens. Provide at runtime via env var.
+    # Example: export DATAHUB_GMS_TOKEN='...'
+    token: "${DATAHUB_GMS_TOKEN}"
+
+# Transformers for enriching metadata
+transformers:
+# Aligns Airbyte datasets to the 'hydro' instance used by dbt
+  - type: "set_dataset_platform_instance"
+    config:
+      platform_instance: "urn:li:dataPlatformInstance:(urn:li:dataPlatform:postgres,hydro)"
+  - type: "simple_add_dataset_tags"
+    config:
+      tag_urns:
+        - "urn:li:tag:HydroLineage"
+        - "urn:li:tag:Airbyte"
+        - "urn:li:tag:Ingestion"

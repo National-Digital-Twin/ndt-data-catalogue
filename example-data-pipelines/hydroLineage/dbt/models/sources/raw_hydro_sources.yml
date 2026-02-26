@@ -1,0 +1,160 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# © Crown Copyright 2025. This work has been developed by the National Digital Twin
+# Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
+# entity
+
+version: 2
+
+sources:
+  - name: raw
+    description: Raw data ingested from UK Environment Agency Flood Monitoring API via Airbyte
+    database: hydro
+    schema: raw
+    
+    tables:
+      - name: stations
+        description: >
+          River monitoring stations across the UK. Contains station metadata including
+          location coordinates, river name, and operational status. This data is relatively
+          static and synced daily via Airbyte.
+        
+        # Freshness check - stations should be updated daily
+        freshness:
+          warn_after: {count: 2, period: day}
+          error_after: {count: 7, period: day}
+        
+        # Airbyte metadata fields
+        loaded_at_field: _airbyte_extracted_at
+        
+        columns:
+          - name: notation
+            description: Unique station identifier (primary key)
+            tests:
+              - unique
+              - not_null
+          
+          - name: label
+            description: Human-readable station name
+            tests:
+              - not_null
+          
+          - name: lat
+            description: Latitude coordinate (WGS84)
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 49.0
+                  max_value: 61.0
+                  config:
+                    severity: warn
+          
+          - name: long
+            description: Longitude coordinate (WGS84)
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: -8.0
+                  max_value: 2.0
+                  config:
+                    severity: warn
+          
+          - name: riverName
+            description: Name of the river being monitored
+          
+          - name: stationReference
+            description: Station reference code
+          
+          - name: town
+            description: Nearest town or locality
+          
+          - name: status
+            description: Operational status of the station
+            tests:
+              - accepted_values:
+                  values: ['Active', 'Closed', 'Suspended']
+                  config:
+                    severity: warn
+          
+          - name: easting
+            description: British National Grid easting coordinate
+          
+          - name: northing
+            description: British National Grid northing coordinate
+          
+          - name: catchmentName
+            description: Name of the catchment area
+          
+          - name: dateOpened
+            description: Date the station became operational
+          
+          - name: wiskiID
+            description: WISKI system identifier
+          
+          - name: RLOIid
+            description: River Levels on the Internet identifier
+          
+          - name: _id
+            description: Station ID from source API
+          
+          # Airbyte metadata columns
+          - name: _airbyte_raw_id
+            description: Airbyte unique record identifier (UUID)
+          
+          - name: _airbyte_emitted_at
+            description: Timestamp when record was extracted by Airbyte
+      
+      - name: water_level_readings
+        description: >
+          Water level measurements from river monitoring stations. Contains time-series
+          readings updated approximately every 15 minutes. Synced hourly via Airbyte
+          in incremental mode based on dateTime cursor.
+        
+        # Freshness check - readings should be recent
+        freshness:
+          warn_after: {count: 2, period: hour}
+          error_after: {count: 6, period: hour}
+        
+        # Airbyte metadata fields
+        loaded_at_field: _airbyte_extracted_at
+        
+        columns:
+          - name: reading_id
+            description: Unique reading identifier from source API
+            tests:
+              - unique
+              - not_null
+          
+          - name: measure_id
+            description: >
+              Measure ID (links to station).
+              Format: measure identifier from UK Environment Agency
+            tests:
+              - not_null
+          
+          - name: reading_datetime
+            description: Timestamp of the water level reading (UTC, ISO 8601 format)
+            tests:
+              - not_null
+          
+          - name: station_id
+            description: Station identifier (foreign key)
+            tests:
+              - not_null
+          
+          - name: value
+            description: Water level measurement in meters above local datum
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: -10.0
+                  max_value: 50.0
+                  config:
+                    severity: warn
+          
+          # Airbyte metadata columns
+          - name: _airbyte_raw_id
+            description: Airbyte unique record identifier (UUID)
+          
+          - name: _airbyte_emitted_at
+            description: Timestamp when record was extracted by Airbyte

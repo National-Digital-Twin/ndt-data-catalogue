@@ -1,0 +1,805 @@
+# HydroLineage - Helm Values (Simple K8s Deployment)
+# Deploy Airflow and dependencies to Kubernetes cluster
+
+# =============================================================================
+# PostgreSQL - Data Warehouse
+# =============================================================================
+warehouse-postgresql:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: "latest"
+  auth:
+    database: hydro
+    username: postgres
+    password: "hydro_secure_password_2024"  # Change in production
+    postgresPassword: "hydro_secure_password_2024"  # Must match password
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: "ebs-gp3-default"  # Explicitly set storage class
+    podAnnotations:
+      # Prevent Karpenter node consolidation from disrupting this database
+      karpenter.sh/do-not-disrupt: "true"
+      # Also prevent pod descheduler eviction
+      descheduler.alpha.kubernetes.io/evict: "false"
+      cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+    podSecurityContext:
+      enabled: true
+      fsGroup: 1001
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+      runAsNonRoot: true
+    resources:
+      limits:
+        cpu: 500m
+      requests:
+        cpu: 250m  # Increased from 100m to avoid underutilization eviction
+        memory: 512Mi
+    initdb:
+      scriptsConfigMap: "{{ .Release.Name }}-hydro-postgres-init"
+  service:
+    type: ClusterIP
+    ports:
+      postgresql: 5432
+
+# =============================================================================
+# Apache Airflow
+# =============================================================================
+airflow:
+  enabled: true
+  
+  # Airflow version
+  airflowVersion: "2.8.3"
+  defaultAirflowRepository: apache/airflow
+  defaultAirflowTag: "2.8.3-python3.10"
+  
+  # Executor
+  executor: "CeleryExecutor"
+  
+  # Fernet key for encryption (generate new: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+  fernetKey: "46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho="  # Change in production
+  
+  # Webserver secret key
+  webserverSecretKey: "CHANGE_ME_RANDOM_STRING_32_CHARS"  # Generate with: openssl rand -hex 32
+  
+  # Connections configuration
+  connections:
+    postgres:
+      host: "{{ .Release.Name }}-warehouse-postgresql"
+      port: "5432"
+      database: "hydro"
+      user: "postgres"
+      password: "hydro_secure_password_2024"
+    datahub:
+      enabled: false
+      host: "datahub-gms"
+      port: "8080"
+
+  # dbt configuration
+  dbt:
+    password: "dbt_dev_pass"
+  
+  # Webserver configuration
+  webserver:
+    service:
+      type: LoadBalancer  # Change to ClusterIP if using Ingress
+      ports:
+        - name: airflow-ui
+          port: 8080
+    replicas: 1
+    resources:
+      limits:
+        cpu: 750m
+        memory: 2000Mi
+      requests:
+        cpu: 100m
+        memory: 400Mi
+    defaultUser:
+      enabled: true
+      username: admin
+      password: admin
+      firstName: Admin
+      lastName: User
+      email: admin@example.com
+
+    extraVolumes:
+      - name: dags-configmap
+        configMap:
+          name: airflow-lineage-dags
+      - name: dbt-configmap
+        configMap:
+          name: airflow-lineage-dbt
+      - name: datahub-recipes-configmap
+        configMap:
+          name: airflow-lineage-datahub-recipes
+      - name: dags
+        emptyDir: {}
+      - name: dbt
+        emptyDir: {}
+      - name: datahub-recipes
+        emptyDir: {}
+      - name: dbt-venv
+        emptyDir: {}
+      - name: extra-python-packages
+        emptyDir: {}
+    extraVolumeMounts:
+      - name: dags-configmap
+        mountPath: /configmap
+        readOnly: true
+      - name: dbt-configmap
+        mountPath: /configmap-dbt
+        readOnly: true
+      - name: datahub-recipes-configmap
+        mountPath: /configmap-datahub
+        readOnly: true
+      - name: dags
+        mountPath: /opt/airflow/dags
+      - name: dbt
+        mountPath: /opt/airflow/dbt
+      - name: datahub-recipes
+        mountPath: /opt/airflow/datahub/recipes
+      - name: dbt-venv
+        mountPath: /opt/airflow/dbt_venv
+      - name: extra-python-packages
+        mountPath: /opt/airflow/extra_python_packages
+    extraInitContainers:
+      - name: copy-dbt
+        image: apache/airflow:2.8.3-python3.10
+        securityContext:
+          runAsUser: 50000
+          runAsGroup: 0
+          runAsNonRoot: true
+        command:
+          - bash
+          - -c
+          - |
+            # Copy dbt files from ConfigMap to writable directory with proper structure
+            if [ -d /configmap-dbt ]; then
+              mkdir -p /opt/airflow/dbt
+              cd /configmap-dbt
+              for file in *; do
+                if [ -f "$file" ]; then
+                  # Convert flattened name to directory path (models__staging__file.sql -> models/staging/file.sql)
+                  target_path=$(echo "$file" | sed 's/__/\//g')
+                  target_dir=$(dirname "$target_path")
+                  mkdir -p "/opt/airflow/dbt/$target_dir"
+                  cp "$file" "/opt/airflow/dbt/$target_path"
+                fi
+              done
+              echo "✅ dbt project copied from ConfigMap with directory structure"
+            else
+              echo "⚠️  dbt ConfigMap not found, creating empty directory"
+              mkdir -p /opt/airflow/dbt
+            fi
+            
+            # Copy DataHub recipes from ConfigMap to writable directory
+            if [ -d /configmap-datahub ]; then
+              mkdir -p /opt/airflow/datahub/recipes
+              cp -r /configmap-datahub/* /opt/airflow/datahub/recipes/
+              echo "✅ DataHub recipes copied from ConfigMap"
+            else
+              echo "⚠️  DataHub recipes ConfigMap not found"
+              mkdir -p /opt/airflow/datahub/recipes
+            fi
+        volumeMounts:
+          - name: dbt-configmap
+            mountPath: /configmap-dbt
+            readOnly: true
+          - name: datahub-recipes-configmap
+            mountPath: /configmap-datahub
+            readOnly: true
+          - name: dbt
+            mountPath: /opt/airflow/dbt
+          - name: datahub-recipes
+            mountPath: /opt/airflow/datahub/recipes
+      - name: install-packages
+        image: apache/airflow:2.8.3-python3.10
+        securityContext:
+          runAsUser: 50000
+          runAsGroup: 0
+          runAsNonRoot: true
+        command:
+          - bash
+          - -c
+          - |
+            export PIP_USER=0
+            unset PIP_USER
+
+            # Install dbt into a dedicated venv to avoid protobuf conflicts with DataHub dependencies
+            python -m venv /opt/airflow/dbt_venv
+            /opt/airflow/dbt_venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir -U pip setuptools wheel
+            /opt/airflow/dbt_venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir \
+              dbt-core==1.11.2 \
+              dbt-postgres==1.10.0
+
+            # Install DataHub CLI for metadata ingestion (includes dbt plugin)
+            /opt/airflow/dbt_venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir \
+              'acryl-datahub[dbt,postgres]'
+
+
+            # Install Airflow providers + DataHub Airflow plugin into the user site-packages
+            mkdir -p /opt/airflow/extra_python_packages
+            python -m pip install --disable-pip-version-check --no-cache-dir \
+              --target /opt/airflow/extra_python_packages \
+              --no-deps \
+              apache-airflow-providers-airbyte==3.8.1
+        volumeMounts:
+          - name: dbt
+            mountPath: /opt/airflow/dbt
+          - name: dbt-venv
+            mountPath: /opt/airflow/dbt_venv
+          - name: extra-python-packages
+            mountPath: /opt/airflow/extra_python_packages
+      - name: copy-dags
+        image: busybox
+        command:
+          - sh
+          - -c
+          - |
+            mkdir -p /opt/airflow/dags/utils
+            for file in /configmap/*; do
+              filename=$(basename "$file")
+              if echo "$filename" | grep -q "^utils_"; then
+                cp "$file" "/opt/airflow/dags/utils/$(echo $filename | sed 's/^utils_//')"
+              else
+                cp "$file" "/opt/airflow/dags/$filename"
+              fi
+            done
+        volumeMounts:
+          - name: dags-configmap
+            mountPath: /configmap
+          - name: dags
+            mountPath: /opt/airflow/dags
+  
+  # Scheduler configuration
+  scheduler:
+    replicas: 1
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 50m
+        memory: 512Mi
+
+    extraVolumes:
+      - name: dags-configmap
+        configMap:
+          name: airflow-lineage-dags
+      - name: dbt-configmap
+        configMap:
+          name: airflow-lineage-dbt
+      - name: datahub-recipes-configmap
+        configMap:
+          name: airflow-lineage-datahub-recipes
+      - name: dags
+        emptyDir: {}
+      - name: dbt
+        emptyDir: {}
+      - name: datahub-recipes
+        emptyDir: {}
+      - name: dbt-venv
+        emptyDir: {}
+      - name: extra-python-packages
+        emptyDir: {}
+    extraVolumeMounts:
+      - name: dags-configmap
+        mountPath: /configmap
+        readOnly: true
+      - name: dbt-configmap
+        mountPath: /configmap-dbt
+        readOnly: true
+      - name: datahub-recipes-configmap
+        mountPath: /configmap-datahub
+        readOnly: true
+      - name: dags
+        mountPath: /opt/airflow/dags
+      - name: dbt
+        mountPath: /opt/airflow/dbt
+      - name: datahub-recipes
+        mountPath: /opt/airflow/datahub/recipes
+      - name: dbt-venv
+        mountPath: /opt/airflow/dbt_venv
+      - name: extra-python-packages
+        mountPath: /opt/airflow/extra_python_packages
+    extraInitContainers:
+      - name: copy-dbt
+        image: apache/airflow:2.8.3-python3.10
+        securityContext:
+          runAsUser: 50000
+          runAsGroup: 0
+          runAsNonRoot: true
+        command:
+          - bash
+          - -c
+          - |
+            # Copy dbt files from ConfigMap to writable directory with proper structure
+            if [ -d /configmap-dbt ]; then
+              mkdir -p /opt/airflow/dbt
+              cd /configmap-dbt
+              for file in *; do
+                if [ -f "$file" ]; then
+                  # Convert flattened name to directory path (models__staging__file.sql -> models/staging/file.sql)
+                  target_path=$(echo "$file" | sed 's/__/\//g')
+                  target_dir=$(dirname "$target_path")
+                  mkdir -p "/opt/airflow/dbt/$target_dir"
+                  cp "$file" "/opt/airflow/dbt/$target_path"
+                fi
+              done
+              echo "✅ dbt project copied from ConfigMap with directory structure"
+            else
+              echo "⚠️  dbt ConfigMap not found, creating empty directory"
+              mkdir -p /opt/airflow/dbt
+            fi
+            
+            # Copy DataHub recipes from ConfigMap to writable directory
+            if [ -d /configmap-datahub ]; then
+              mkdir -p /opt/airflow/datahub/recipes
+              cp -r /configmap-datahub/* /opt/airflow/datahub/recipes/
+              echo "✅ DataHub recipes copied from ConfigMap"
+            else
+              echo "⚠️  DataHub recipes ConfigMap not found"
+              mkdir -p /opt/airflow/datahub/recipes
+            fi
+        volumeMounts:
+          - name: dbt-configmap
+            mountPath: /configmap-dbt
+            readOnly: true
+          - name: datahub-recipes-configmap
+            mountPath: /configmap-datahub
+            readOnly: true
+          - name: dbt
+            mountPath: /opt/airflow/dbt
+          - name: datahub-recipes
+            mountPath: /opt/airflow/datahub/recipes
+      - name: install-packages
+        image: apache/airflow:2.8.3-python3.10
+        securityContext:
+          runAsUser: 50000
+          runAsGroup: 0
+          runAsNonRoot: true
+        command:
+          - bash
+          - -c
+          - |
+            export PIP_USER=0
+            unset PIP_USER
+
+            python -m venv /opt/airflow/dbt_venv
+            /opt/airflow/dbt_venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir -U pip setuptools wheel
+            /opt/airflow/dbt_venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir \
+              dbt-core==1.11.2 \
+              dbt-postgres==1.10.0
+
+            # Install DataHub CLI for metadata ingestion (includes dbt plugin)
+            /opt/airflow/dbt_venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir \
+              'acryl-datahub[dbt,postgres]'
+
+
+            mkdir -p /opt/airflow/extra_python_packages
+            python -m pip install --disable-pip-version-check --no-cache-dir \
+              --target /opt/airflow/extra_python_packages \
+              --no-deps \
+              apache-airflow-providers-airbyte==3.8.1
+        volumeMounts:
+          - name: dbt
+            mountPath: /opt/airflow/dbt
+          - name: dbt-venv
+            mountPath: /opt/airflow/dbt_venv
+          - name: extra-python-packages
+            mountPath: /opt/airflow/extra_python_packages
+      - name: copy-dags
+        image: busybox
+        command:
+          - sh
+          - -c
+          - |
+            mkdir -p /opt/airflow/dags/utils
+            for file in /configmap/*; do
+              filename=$(basename "$file")
+              if echo "$filename" | grep -q "^utils_"; then
+                cp "$file" "/opt/airflow/dags/utils/$(echo $filename | sed 's/^utils_//')"
+              else
+                cp "$file" "/opt/airflow/dags/$filename"
+              fi
+            done
+        volumeMounts:
+          - name: dags-configmap
+            mountPath: /configmap
+          - name: dags
+            mountPath: /opt/airflow/dags
+  
+  # Worker configuration
+  workers:
+    replicas: 1
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 100m
+        memory: 512Mi
+    persistence:
+      enabled: true
+      size: 10Gi
+
+    extraVolumes:
+      - name: dags-configmap
+        configMap:
+          name: airflow-lineage-dags
+      - name: dbt-configmap
+        configMap:
+          name: airflow-lineage-dbt
+      - name: datahub-recipes-configmap
+        configMap:
+          name: airflow-lineage-datahub-recipes
+      - name: dags
+        emptyDir: {}
+      - name: dbt
+        emptyDir: {}
+      - name: datahub-recipes
+        emptyDir: {}
+      - name: dbt-venv
+        emptyDir: {}
+      - name: extra-python-packages
+        emptyDir: {}
+    extraVolumeMounts:
+      - name: dags-configmap
+        mountPath: /configmap
+        readOnly: true
+      - name: dbt-configmap
+        mountPath: /configmap-dbt
+        readOnly: true
+      - name: datahub-recipes-configmap
+        mountPath: /configmap-datahub
+        readOnly: true
+      - name: dags
+        mountPath: /opt/airflow/dags
+      - name: dbt
+        mountPath: /opt/airflow/dbt
+      - name: datahub-recipes
+        mountPath: /opt/airflow/datahub/recipes
+      - name: dbt-venv
+        mountPath: /opt/airflow/dbt_venv
+      - name: extra-python-packages
+        mountPath: /opt/airflow/extra_python_packages
+    extraInitContainers:
+      - name: copy-dbt
+        image: apache/airflow:2.8.3-python3.10
+        securityContext:
+          runAsUser: 50000
+          runAsGroup: 0
+          runAsNonRoot: true
+        command:
+          - bash
+          - -c
+          - |
+            # Copy dbt files from ConfigMap to writable directory with proper structure
+            if [ -d /configmap-dbt ]; then
+              mkdir -p /opt/airflow/dbt
+              cd /configmap-dbt
+              for file in *; do
+                if [ -f "$file" ]; then
+                  # Convert flattened name to directory path (models__staging__file.sql -> models/staging/file.sql)
+                  target_path=$(echo "$file" | sed 's/__/\//g')
+                  target_dir=$(dirname "$target_path")
+                  mkdir -p "/opt/airflow/dbt/$target_dir"
+                  cp "$file" "/opt/airflow/dbt/$target_path"
+                fi
+              done
+              echo "✅ dbt project copied from ConfigMap with directory structure"
+            else
+              echo "⚠️  dbt ConfigMap not found, creating empty directory"
+              mkdir -p /opt/airflow/dbt
+            fi
+            
+            # Copy DataHub recipes from ConfigMap to writable directory
+            if [ -d /configmap-datahub ]; then
+              mkdir -p /opt/airflow/datahub/recipes
+              cp -r /configmap-datahub/* /opt/airflow/datahub/recipes/
+              echo "✅ DataHub recipes copied from ConfigMap"
+            else
+              echo "⚠️  DataHub recipes ConfigMap not found"
+              mkdir -p /opt/airflow/datahub/recipes
+            fi
+        volumeMounts:
+          - name: dbt-configmap
+            mountPath: /configmap-dbt
+            readOnly: true
+          - name: datahub-recipes-configmap
+            mountPath: /configmap-datahub
+            readOnly: true
+          - name: dbt
+            mountPath: /opt/airflow/dbt
+          - name: datahub-recipes
+            mountPath: /opt/airflow/datahub/recipes
+      - name: install-packages
+        image: apache/airflow:2.8.3-python3.10
+        securityContext:
+          runAsUser: 50000
+          runAsGroup: 0
+          runAsNonRoot: true
+        command:
+          - bash
+          - -c
+          - |
+            export PIP_USER=0
+            unset PIP_USER
+
+            python -m venv /opt/airflow/dbt_venv
+            /opt/airflow/dbt_venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir -U pip setuptools wheel
+            /opt/airflow/dbt_venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir \
+              dbt-core==1.11.2 \
+              dbt-postgres==1.10.0
+
+            # Install DataHub CLI for metadata ingestion (includes dbt plugin)
+            /opt/airflow/dbt_venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir \
+              'acryl-datahub[dbt,postgres]'
+
+
+            mkdir -p /opt/airflow/extra_python_packages
+            python -m pip install --disable-pip-version-check --no-cache-dir \
+              --target /opt/airflow/extra_python_packages \
+              --no-deps \
+              apache-airflow-providers-airbyte==3.8.1
+        volumeMounts:
+          - name: dbt
+            mountPath: /opt/airflow/dbt
+          - name: dbt-venv
+            mountPath: /opt/airflow/dbt_venv
+          - name: extra-python-packages
+            mountPath: /opt/airflow/extra_python_packages
+      - name: copy-dags
+        image: busybox
+        command:
+          - sh
+          - -c
+          - |
+            mkdir -p /opt/airflow/dags/utils
+            for file in /configmap/*; do
+              filename=$(basename "$file")
+              if echo "$filename" | grep -q "^utils_"; then
+                cp "$file" "/opt/airflow/dags/utils/$(echo $filename | sed 's/^utils_//')"
+              else
+                cp "$file" "/opt/airflow/dags/$filename"
+              fi
+            done
+        volumeMounts:
+          - name: dags-configmap
+            mountPath: /configmap
+          - name: dags
+            mountPath: /opt/airflow/dags
+
+  # Triggerer configuration (needed for deferrable operators)
+  triggerer:
+    enabled: true
+    extraVolumes:
+      - name: dags-configmap
+        configMap:
+          name: airflow-lineage-dags
+      - name: dbt-configmap
+        configMap:
+          name: airflow-lineage-dbt
+      - name: datahub-recipes-configmap
+        configMap:
+          name: airflow-lineage-datahub-recipes
+      - name: dags
+        emptyDir: {}
+      - name: dbt
+        emptyDir: {}
+      - name: datahub-recipes
+        emptyDir: {}
+      - name: dbt-venv
+        emptyDir: {}
+      - name: extra-python-packages
+        emptyDir: {}
+    extraVolumeMounts:
+      - name: dags-configmap
+        mountPath: /configmap
+        readOnly: true
+      - name: dbt-configmap
+        mountPath: /configmap-dbt
+        readOnly: true
+      - name: datahub-recipes-configmap
+        mountPath: /configmap-datahub
+        readOnly: true
+      - name: dags
+        mountPath: /opt/airflow/dags
+      - name: dbt
+        mountPath: /opt/airflow/dbt
+      - name: datahub-recipes
+        mountPath: /opt/airflow/datahub/recipes
+      - name: dbt-venv
+        mountPath: /opt/airflow/dbt_venv
+      - name: extra-python-packages
+        mountPath: /opt/airflow/extra_python_packages
+    extraInitContainers:
+      - name: install-packages
+        image: apache/airflow:2.8.3-python3.10
+        securityContext:
+          runAsUser: 50000
+          runAsGroup: 0
+          runAsNonRoot: true
+        command:
+          - bash
+          - -c
+          - |
+            export PIP_USER=0
+            unset PIP_USER
+
+            python -m venv /opt/airflow/dbt_venv
+            /opt/airflow/dbt_venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir -U pip setuptools wheel
+            /opt/airflow/dbt_venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir \
+              dbt-core==1.11.2 \
+              dbt-postgres==1.10.0
+
+            # Install DataHub CLI for metadata ingestion (includes dbt plugin)
+            /opt/airflow/dbt_venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir \
+              'acryl-datahub[dbt,postgres]'
+
+
+            mkdir -p /opt/airflow/extra_python_packages
+            python -m pip install --disable-pip-version-check --no-cache-dir \
+              --target /opt/airflow/extra_python_packages \
+              --no-deps \
+              apache-airflow-providers-airbyte==3.8.1
+        volumeMounts:
+          - name: dbt
+            mountPath: /opt/airflow/dbt
+          - name: dbt-venv
+            mountPath: /opt/airflow/dbt_venv
+          - name: extra-python-packages
+            mountPath: /opt/airflow/extra_python_packages
+      - name: copy-dags
+        image: busybox
+        command:
+          - sh
+          - -c
+          - |
+            mkdir -p /opt/airflow/dags/utils
+            for file in /configmap/*; do
+              filename=$(basename "$file")
+              if echo "$filename" | grep -q "^utils_"; then
+                cp "$file" "/opt/airflow/dags/utils/$(echo $filename | sed 's/^utils_//')"
+              else
+                cp "$file" "/opt/airflow/dags/$filename"
+              fi
+            done
+        volumeMounts:
+          - name: dags-configmap
+            mountPath: /configmap
+          - name: dags
+            mountPath: /opt/airflow/dags
+  
+  # Redis for Celery
+  redis:
+    enabled: true
+    persistence:
+      enabled: true
+      size: 1Gi
+  
+  # PostgreSQL for Airflow metadata (built-in from Airflow chart)
+  postgresql:
+    enabled: true
+    image:
+      registry: docker.io
+      repository: bitnami/postgresql
+      tag: "latest"
+    auth:
+      enablePostgresUser: true
+      postgresPassword: "airflow_secure_password_2024"
+      username: airflow
+      password: "airflow_secure_password_2024"
+      database: airflow
+    primary:
+      podAnnotations:
+        karpenter.sh/do-not-disrupt: "true"
+      persistence:
+        enabled: true
+      resources:
+        limits:
+          cpu: 500m
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+  
+  # Database connection (using separate Airflow PostgreSQL)
+  data:
+    metadataConnection:
+      user: airflow
+      pass: "airflow_secure_password_2024"  # Match postgresql password
+      host: "airflow-lineage-postgresql"
+      port: 5432
+      db: airflow
+  
+  # Additional environment variables
+  env:
+    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
+      value: "true"
+    - name: AIRFLOW__CORE__LOAD_EXAMPLES
+      value: "false"
+    # Define connections via env vars so DAGs can run without manual Airflow UI setup.
+    - name: AIRFLOW_CONN_HYDRO_POSTGRES
+      value: "postgresql://postgres:hydro_secure_password_2024@airflow-lineage-warehouse-postgresql:5432/hydro"
+    - name: AIRFLOW_CONN_AIRBYTE_DEFAULT
+      value: "http://airbyte-airbyte-server-svc.hydro-lineage.svc.cluster.local:8001"
+    - name: AIRFLOW__DATAHUB__CONN_ID
+      value: "datahub_rest"
+    - name: AIRFLOW_CONN_DATAHUB_REST
+      value: "http://:@datahub-datahub-gms.datahub.svc.cluster.local:8080"
+    - name: POSTGRES_HOST
+      value: "airflow-lineage-warehouse-postgresql"
+    - name: POSTGRES_PORT
+      value: "5432"
+    - name: POSTGRES_DB
+      value: "hydro"
+    - name: POSTGRES_PASSWORD
+      value: "hydro_secure_password_2024"
+    - name: DBT_USER
+      value: "postgres"
+    - name: DBT_PASSWORD
+      value: "hydro_secure_password_2024"
+    # Keep base image Airflow install as primary; add dbt venv bin for convenience.
+    - name: PATH
+      value: "/home/airflow/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/airflow/dbt_venv/bin"
+    - name: PYTHONPATH
+      value: "/opt/airflow/extra_python_packages"
+
+  # Load additional env vars from Kubernetes Secrets/ConfigMaps.
+  # NOTE: Airflow chart schema requires env entries to be {name,value} only;
+  # use extraEnvFrom for secretKeyRef/configMapRef.
+  extraEnvFrom: |
+    - secretRef:
+        name: datahub-gms-token
+  
+  # DAGs configuration - using ConfigMap for automatic deployment
+  dags:
+    persistence:
+      enabled: false  # Using ConfigMap + init containers instead of PVC
+    gitSync:
+      enabled: false
+  
+  # Admin user
+  webserverSecretKeySecretName: airflow-webserver-secret
+  
+  # Migration and user creation jobs
+  # NOTE: Disabling migrations tends to leave scheduler/worker waiting forever; keep enabled.
+  migrateDatabaseJob:
+    enabled: true
+  createUserJob:
+    useHelmHooks: true  # Use Helm hooks for proper migration sequencing
+    applyCustomEnv: true
+  
+  # Airflow configuration
+  config:
+    core:
+      dags_folder: /opt/airflow/dags
+      executor: CeleryExecutor
+    webserver:
+      expose_config: "True"
+    api:
+      auth_backends: "airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session"
+
+# =============================================================================
+# Airbyte (Optional Data Integration)
+# =============================================================================
+# NOTE: Airbyte must be installed as a SEPARATE Helm release (not as a dependency)
+# Reason: Both Airflow and Airbyte charts depend on Bitnami's 'common' library,
+#         causing template conflicts when installed together.
+#
+# To install Airbyte separately:
+#   helm repo add airbyte https://airbytehq.github.io/helm-charts
+#   helm install airbyte airbyte/airbyte -n hydro-lineage --set global.edition=community
+#
+# See k8s/README.md for full instructions.
+
+# =============================================================================
+# Global Configuration
+# =============================================================================
+global:
+  namespace: hydro-lineage

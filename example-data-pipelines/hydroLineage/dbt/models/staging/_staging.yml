@@ -1,0 +1,149 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# © Crown Copyright 2025. This work has been developed by the National Digital Twin
+# Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
+# entity
+
+version: 2
+
+models:
+  - name: stg_river_stations
+    description: >
+      Staging model for river monitoring stations. Cleans and standardizes column names
+      from the raw stations table. Each record represents one monitoring station.
+    
+    columns:
+      - name: station_id
+        description: Unique station identifier (notation)
+        tests:
+          - unique
+          - not_null
+      
+      - name: station_name
+        description: Human-readable name of the station
+        tests:
+          - not_null
+      
+      - name: station_reference
+        description: Official station reference code
+      
+      - name: wiski_id
+        description: WISKI system identifier
+      
+      - name: latitude
+        description: Latitude coordinate in WGS84
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 49.0
+              max_value: 61.0
+      
+      - name: longitude
+        description: Longitude coordinate in WGS84
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: -8.0
+              max_value: 2.0
+      
+      - name: easting
+        description: British National Grid easting coordinate
+      
+      - name: northing
+        description: British National Grid northing coordinate
+      
+      - name: river_name
+        description: Name of the river being monitored
+      
+      - name: town
+        description: Nearest town or locality
+      
+      - name: catchment_name
+        description: Name of the catchment area
+      
+      - name: status
+        description: Operational status of the station
+        tests:
+          - accepted_values:
+              values: ['Active', 'Closed', 'Suspended']
+              config:
+                severity: warn
+      
+      - name: date_opened
+        description: Date the station became operational
+      
+      - name: airbyte_id
+        description: Airbyte unique record identifier
+      
+      - name: airbyte_extracted_at
+        description: When Airbyte extracted this record
+
+  - name: stg_water_level_readings
+    description: >
+      Staging model for water level readings. Cleans, parses, and enriches the raw
+      readings data. Filters out future readings and adds data quality flags.
+      Each record represents one water level measurement at a specific timestamp.
+    
+    columns:
+      - name: reading_key
+        description: Surrogate key generated from reading_id
+        tests:
+          - unique
+          - not_null
+      
+      - name: reading_id
+        description: Unique reading URI from source API
+        tests:
+          - unique
+          - not_null
+      
+      - name: station_id
+        description: Station identifier (foreign key to stg_river_stations)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_river_stations')
+              field: station_id
+              config:
+                severity: warn  # Warn instead of error due to potential timing issues
+      
+      - name: reading_timestamp
+        description: UTC timestamp of the water level measurement
+        tests:
+          - not_null
+      
+      - name: water_level_m
+        description: Water level in meters above local datum
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: -10.0
+              max_value: 50.0
+      
+      - name: reading_date
+        description: Date portion of reading_timestamp (for partitioning)
+        tests:
+          - not_null
+      
+      - name: reading_hour
+        description: Hour of day (0-23) when reading was taken
+      
+      - name: is_outlier
+        description: Flag indicating if reading is outside normal range
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      
+      - name: is_future_reading
+        description: Flag for readings with timestamps in the future (should always be false)
+        tests:
+          - not_null
+          - accepted_values:
+              values: [false]
+      
+      - name: measure_uri
+        description: Full URI to the measure resource
+      
+      - name: airbyte_extracted_at
+        description: When Airbyte extracted this record
