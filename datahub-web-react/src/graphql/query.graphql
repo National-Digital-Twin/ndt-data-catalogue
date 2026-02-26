@@ -5,7 +5,7 @@
 # All support, maintenance and further development of this code is now the responsibility
 # of the National Digital Twin Programme.
 
-query getQuery($urn: String!) {
+query getQuery($urn: String!, $skipSiblingsSearch: Boolean = false) {
     entity(urn: $urn) {
         urn
         type
@@ -52,7 +52,7 @@ fragment query on QueryEntity {
             actor
         }
         origin {
-            ...searchResultFields
+            ...searchResultFieldsNoLineage
         }
     }
     platform {
@@ -72,7 +72,7 @@ fragment query on QueryEntity {
     }
 }
 
-query listQueries($input: ListQueriesInput!) {
+query listQueries($input: ListQueriesInput!, $skipSiblingsSearch: Boolean = false) {
     listQueries(input: $input) {
         start
         total
@@ -83,13 +83,13 @@ query listQueries($input: ListQueriesInput!) {
     }
 }
 
-mutation createQuery($input: CreateQueryInput!) {
+mutation createQuery($input: CreateQueryInput!, $skipSiblingsSearch: Boolean = false) {
     createQuery(input: $input) {
         ...query
     }
 }
 
-mutation updateQuery($urn: String!, $input: UpdateQueryInput!) {
+mutation updateQuery($urn: String!, $input: UpdateQueryInput!, $skipSiblingsSearch: Boolean = false) {
     updateQuery(urn: $urn, input: $input) {
         ...query
     }
@@ -99,7 +99,7 @@ mutation deleteQuery($urn: String!) {
     deleteQuery(urn: $urn)
 }
 
-query searchAcrossLineageForQueries($input: SearchAcrossLineageInput!) {
+query searchAcrossLineageForQueries($input: SearchAcrossLineageInput!, $skipSiblingsSearch: Boolean = false) {
     searchAcrossLineage(input: $input) {
         start
         count

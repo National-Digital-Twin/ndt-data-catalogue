@@ -5,7 +5,7 @@
 # All support, maintenance and further development of this code is now the responsibility
 # of the National Digital Twin Programme.
 
-query getMLFeature($urn: String!) {
+query getMLFeature($urn: String!, $skipSiblingsSearch: Boolean = false) {
     mlFeature(urn: $urn) {
         urn
         type

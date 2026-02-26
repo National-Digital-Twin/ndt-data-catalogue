@@ -133,6 +133,7 @@ export const GROUP_ALLOW: FilterRecipeField = {
     fieldPath: schemaAllowFieldPathGroup,
     rules: null,
     section: 'Group',
+    filteringResource: 'Group',
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, schemaAllowFieldPathGroup),
 };
@@ -151,6 +152,7 @@ export const GROUP_DENY: FilterRecipeField = {
     fieldPath: schemaDenyFieldPathGroup,
     rules: null,
     section: 'Group',
+    filteringResource: 'Group',
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, schemaDenyFieldPathGroup),
 };
@@ -169,6 +171,7 @@ export const USER_ALLOW: FilterRecipeField = {
     fieldPath: schemaAllowFieldPathUser,
     rules: null,
     section: 'User',
+    filteringResource: 'User',
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, schemaAllowFieldPathUser),
 };
@@ -187,6 +190,7 @@ export const USER_DENY: FilterRecipeField = {
     fieldPath: schemaDenyFieldPathUser,
     rules: null,
     section: 'User',
+    filteringResource: 'User',
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, schemaDenyFieldPathUser),
 };

@@ -11,7 +11,12 @@ from typing import List, Literal, Optional
 import certifi
 from pydantic import Field, ValidationInfo, field_validator
 
-from datahub.configuration.common import AllowDenyPattern, ConfigModel, HiddenFromDocs
+from datahub.configuration.common import (
+    AllowDenyPattern,
+    ConfigModel,
+    HiddenFromDocs,
+    TransparentSecretStr,
+)
 from datahub.configuration.source_common import (
     EnvConfigMixin,
     PlatformInstanceConfigMixin,
@@ -49,7 +54,7 @@ class DremioConnectionConfig(ConfigModel):
         description="Authentication method: 'password' or 'PAT' (Personal Access Token)",
     )
 
-    password: Optional[str] = Field(
+    password: Optional[TransparentSecretStr] = Field(
         default=None,
         description="Dremio password or Personal Access Token",
     )

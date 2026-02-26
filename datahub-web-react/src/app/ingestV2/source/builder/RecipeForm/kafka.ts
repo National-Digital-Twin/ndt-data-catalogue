@@ -136,6 +136,7 @@ export const TOPIC_ALLOW: FilterRecipeField = {
     fieldPath: topicAllowFieldPath,
     rules: null,
     section: 'Filter by Topic',
+    filteringResource: 'Topic',
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, topicAllowFieldPath),
 };
@@ -152,6 +153,7 @@ export const TOPIC_DENY: FilterRecipeField = {
     fieldPath: topicDenyFieldPath,
     rules: null,
     section: 'Filter by Topic',
+    filteringResource: 'Topic',
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, topicDenyFieldPath),
 };

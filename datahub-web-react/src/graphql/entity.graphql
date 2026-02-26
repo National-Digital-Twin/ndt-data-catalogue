@@ -5,8 +5,21 @@
 # All support, maintenance and further development of this code is now the responsibility
 # of the National Digital Twin Programme.
 
-query getEntities($urns: [String!]!, $checkForExistence: Boolean) {
+query getEntities(
+    $urns: [String!]!
+    $checkForExistence: Boolean
+    $skipSiblingsSearch: Boolean = false
+    $skipLineage: Boolean = false
+) {
     entities(urns: $urns, checkForExistence: $checkForExistence) {
+        urn
+        type
+        ...searchResultFields
+    }
+}
+
+query getEntity($urn: String!, $skipSiblingsSearch: Boolean = false, $skipLineage: Boolean = false) {
+    entity(urn: $urn) {
         urn
         type
         ...searchResultFields

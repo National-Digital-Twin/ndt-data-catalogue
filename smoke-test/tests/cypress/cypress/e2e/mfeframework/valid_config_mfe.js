@@ -29,25 +29,31 @@ microFrontends:
     }).as("mfeConfig");
 
     cy.setIsThemeV2Enabled(true);
-    cy.skipIntroducePage();
+    // skipIntroducePage not needed here: setIsThemeV2Enabled intercepts appConfig
+    // and sets showIntroducePage=false, suppressing the introduce-page redirect.
     cy.on("uncaught:exception", (err, runnable) => false);
-    cy.loginWithCredentials("datahub", "datahub");
-    cy.visit("/");
-    cy.wait("@mfeConfig");
+    cy.visitWithLogin("/");
+    cy.wait("@mfeConfig", { timeout: 20000 });
+    // Wait for the appConfig GraphQL response (set up by setIsThemeV2Enabled) so
+    // the ThemeV2 nav sidebar is fully rendered before tests assert on its elements
+    cy.wait("@gqlappConfigQuery", { timeout: 15000 });
+    // useMFEConfigFromBackend sets state asynchronously after the fetch resolves.
+    // The sidebar defaults to collapsed, so item *text* is never rendered — only
+    // the aria-label is always present. Wait for that as a DOM-level gate.
+    cy.get('[aria-label="HelloWorld Cypress"]').should("exist");
     // Example of taking screenshots of key moments, for debugging or documentation:
     // cy.screenshot("after-visit");
   });
 
   it("shows all MFE items from YAML in the sidebar", () => {
-    cy.contains("HelloWorld Cypress").should("exist");
+    cy.get('[aria-label="HelloWorld Cypress"]').should("exist");
   });
 
   it("navigates to MFE route when sidebar item is clicked and shows error if mounting fails", () => {
     cy.intercept("GET", "http://localhost-cypress:3002/remoteEntry.js", {
       statusCode: 503,
     }).as("remoteEntry");
-    cy.contains("HelloWorld Cypress").should("exist");
-    cy.contains("HelloWorld Cypress").click();
+    cy.get('[aria-label="HelloWorld Cypress"]').click();
     cy.url().should("include", "/helloworld-mfe");
     cy.wait("@remoteEntry");
     cy.contains("HelloWorld Cypress is not available");
@@ -92,8 +98,7 @@ microFrontends:
     `,
       headers: { "content-type": "application/javascript" },
     }).as("remoteEntry");
-    cy.contains("HelloWorld Cypress").should("exist");
-    cy.contains("HelloWorld Cypress").click();
+    cy.get('[aria-label="HelloWorld Cypress"]').click();
     cy.url().should("include", "/helloworld-mfe");
     cy.wait("@remoteEntry");
     cy.get(MFE_CONTAINER_CSS_SELECTOR).should("exist");

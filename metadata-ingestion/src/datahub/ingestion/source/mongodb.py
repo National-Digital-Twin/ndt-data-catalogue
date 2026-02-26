@@ -17,7 +17,7 @@ from pydantic import PositiveInt, field_validator
 from pydantic.fields import Field
 from pymongo.mongo_client import MongoClient
 
-from datahub.configuration.common import AllowDenyPattern
+from datahub.configuration.common import AllowDenyPattern, TransparentSecretStr
 from datahub.configuration.source_common import (
     EnvConfigMixin,
     PlatformInstanceConfigMixin,
@@ -104,7 +104,9 @@ class MongoDBConfig(
         default="mongodb://localhost", description="MongoDB connection URI."
     )
     username: Optional[str] = Field(default=None, description="MongoDB username.")
-    password: Optional[str] = Field(default=None, description="MongoDB password.")
+    password: Optional[TransparentSecretStr] = Field(
+        default=None, description="MongoDB password."
+    )
     authMechanism: Optional[str] = Field(
         default=None, description="MongoDB authentication mechanism."
     )
@@ -298,7 +300,7 @@ class MongoDBSource(StatefulIngestionSourceBase):
         if self.config.username is not None:
             options["username"] = self.config.username
         if self.config.password is not None:
-            options["password"] = self.config.password
+            options["password"] = self.config.password.get_secret_value()
         if self.config.authMechanism is not None:
             options["authMechanism"] = self.config.authMechanism
         options = {

@@ -99,6 +99,13 @@ import {
     TARGET_PLATFORM_INSTANCE,
 } from '@app/ingestV2/source/builder/RecipeForm/dbt_cloud';
 import {
+    DORIS,
+    DORIS_DATABASE,
+    DORIS_HOST_PORT,
+    DORIS_PASSWORD,
+    DORIS_USERNAME,
+} from '@app/ingestV2/source/builder/RecipeForm/doris';
+import {
     DREMIO,
     DREMIO_AUTHENTICATION_METHOD,
     DREMIO_DREMIO_CLOUD_PROJECT_ID,
@@ -266,7 +273,10 @@ import {
 } from '@app/ingestV2/source/builder/RecipeForm/sac';
 import {
     SNOWFLAKE_ACCOUNT_ID,
+    SNOWFLAKE_AUTHENTICATION_TYPE,
     SNOWFLAKE_PASSWORD,
+    SNOWFLAKE_PRIVATE_KEY,
+    SNOWFLAKE_PRIVATE_KEY_PASSWORD,
     SNOWFLAKE_ROLE,
     SNOWFLAKE_USERNAME,
     SNOWFLAKE_WAREHOUSE,
@@ -373,7 +383,16 @@ export const DEFAULT_DB: RecipeField = {
 
 export const RECIPE_FIELDS: RecipeFields = {
     [SNOWFLAKE]: {
-        fields: [SNOWFLAKE_ACCOUNT_ID, SNOWFLAKE_WAREHOUSE, SNOWFLAKE_USERNAME, SNOWFLAKE_PASSWORD, SNOWFLAKE_ROLE],
+        fields: [
+            SNOWFLAKE_ACCOUNT_ID,
+            SNOWFLAKE_WAREHOUSE,
+            SNOWFLAKE_USERNAME,
+            SNOWFLAKE_AUTHENTICATION_TYPE,
+            SNOWFLAKE_PASSWORD,
+            SNOWFLAKE_PRIVATE_KEY,
+            SNOWFLAKE_PRIVATE_KEY_PASSWORD,
+            SNOWFLAKE_ROLE,
+        ],
         advancedFields: [
             INCLUDE_TABLES,
             INCLUDE_VIEWS,
@@ -575,6 +594,18 @@ export const RECIPE_FIELDS: RecipeFields = {
         ],
         filterSectionTooltip: 'Include or exclude specific Schemas, Tables and Views from ingestion.',
     },
+    [DORIS]: {
+        fields: [DORIS_HOST_PORT, DORIS_USERNAME, DORIS_PASSWORD, DORIS_DATABASE],
+        filterFields: [SCHEMA_ALLOW, SCHEMA_DENY, TABLE_ALLOW, TABLE_DENY, VIEW_ALLOW, VIEW_DENY],
+        advancedFields: [
+            INCLUDE_TABLES,
+            INCLUDE_VIEWS,
+            TABLE_PROFILING_ENABLED,
+            COLUMN_PROFILING_ENABLED,
+            STATEFUL_INGESTION_ENABLED,
+        ],
+        filterSectionTooltip: 'Include or exclude specific Schemas, Tables and Views from ingestion.',
+    },
     [DATABRICKS]: {
         fields: [WORKSPACE_URL, TOKEN],
         filterFields: [
@@ -647,10 +678,10 @@ export const RECIPE_FIELDS: RecipeFields = {
     [OKTA]: {
         fields: [OKTA_DOMAIN_URL, OKTA_API_TOKEN, PROFILE_TO_USER, PROFILE_TO_GROUP],
         filterFields: [
-            PROFILE_TO_USER_REGX_ALLOW,
-            PROFILE_TO_USER_REGEX_DENY,
             PROFILE_TO_GROUP_REGX_ALLOW,
             PROFILE_TO_GROUP_REGX_DENY,
+            PROFILE_TO_USER_REGX_ALLOW,
+            PROFILE_TO_USER_REGEX_DENY,
         ],
         advancedFields: [
             INGEST_USERS,
@@ -696,12 +727,12 @@ export const RECIPE_FIELDS: RecipeFields = {
     [SAC]: {
         fields: [SAC_TENANT_URL, SAC_TOKEN_URL, SAC_CLIENT_ID, SAC_CLIENT_SECRET],
         filterFields: [
-            RESOURCE_ID_ALLOW,
-            RESOURCE_ID_DENY,
-            RESOURCE_NAME_ALLOW,
-            RESOURCE_NAME_DENY,
             FOLDER_ALLOW,
             FOLDER_DENY,
+            RESOURCE_NAME_ALLOW,
+            RESOURCE_NAME_DENY,
+            RESOURCE_ID_ALLOW,
+            RESOURCE_ID_DENY,
         ],
         advancedFields: [INGEST_STORIES, INGEST_APPLICATIONS, STATEFUL_INGESTION_ENABLED],
     },

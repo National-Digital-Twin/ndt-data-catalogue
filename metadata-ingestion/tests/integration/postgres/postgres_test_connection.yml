@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
+
+source:
+  type: postgres
+  config:
+    host_port: 'localhost:5432'
+    initial_database: 'postgrestest'
+    username: 'postgres'
+    password: 'example'
+    include_tables: true
+    database: postgres
+    profiling:
+      enabled: true
+      profile_table_level_only: true
+    include_views: true
+    stateful_ingestion:
+      enabled: true
+pipeline_name: 'urn:li:dataHubExecutionRequest:test'

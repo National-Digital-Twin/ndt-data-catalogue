@@ -95,6 +95,7 @@ def test_mysql_ingest_no_db(
                 "database": "northwind",
                 "username": "root",
                 "password": "example",
+                "stateful_ingestion": {"enabled": "true"},
             },
             True,
         ),

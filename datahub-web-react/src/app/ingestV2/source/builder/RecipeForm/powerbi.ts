@@ -175,6 +175,7 @@ export const WORKSPACE_ID_ALLOW: FilterRecipeField = {
     fieldPath: workspaceIdAllowFieldPath,
     rules: null,
     section: 'Workspaces',
+    filteringResource: 'Workspace',
     placeholder: '4bd10256-e999-45dd-8e56-571c77153a5f',
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, workspaceIdAllowFieldPath),
@@ -193,6 +194,7 @@ export const WORKSPACE_ID_DENY: FilterRecipeField = {
     fieldPath: workspaceIdDenyFieldPath,
     rules: null,
     section: 'Workspaces',
+    filteringResource: 'Workspace',
     placeholder: '4bd10256-e999-45dd-8e56-571c77153a5f',
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, workspaceIdDenyFieldPath),

@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: Apache-2.0
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
+
+source:
+  type: doris
+  config:
+    # Connection (Doris FE query port is 9030)
+    host_port: localhost:9030
+    database: your_database
+    username: root
+    password: ""
+    
+    # Optional: Schema/Table Filtering
+    # schema_pattern:
+    #   allow: ["^production_.*"]
+    #   deny: [".*_temp$"]
+    # table_pattern:
+    #   allow: ["^fact_.*", "^dim_.*"]
+    #   deny: [".*_backup$"]
+    
+    # Optional: Data Profiling
+    # Note: Doris types (HLL, BITMAP, QUANTILE_STATE, ARRAY, JSONB) are
+    # automatically excluded from field-level profiling
+    # profiling:
+    #   enabled: true
+    #   profile_table_level_only: false
+    
+    # Optional: Stateful Ingestion (tracks previously ingested entities)
+    # stateful_ingestion:
+    #   enabled: true
+    #   remove_stale_metadata: true

@@ -196,6 +196,16 @@ def get_filtered_tests_file() -> Optional[str]:
     return os.getenv("FILTERED_TESTS")
 
 
+def get_cypress_node_max_old_space_size() -> int:
+    """Node heap size (MB) used by Cypress runner process."""
+    return int(os.getenv("CYPRESS_NODE_MAX_OLD_SPACE_SIZE", "2048"))
+
+
+def get_cypress_electron_max_old_space_size() -> int:
+    """V8 heap size (MB) used by Cypress Electron renderer."""
+    return int(os.getenv("CYPRESS_ELECTRON_MAX_OLD_SPACE_SIZE", "2048"))
+
+
 # ============================================================================
 # Cleanup Configuration
 # ============================================================================

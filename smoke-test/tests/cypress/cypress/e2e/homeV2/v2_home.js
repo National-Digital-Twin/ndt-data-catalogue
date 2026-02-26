@@ -9,7 +9,9 @@
 
 describe("home", () => {
   beforeEach(() => {
-    cy.setIsThemeV2Enabled(true);
+    cy.setFeatureFlags(true, (res) => {
+      res.body.data.appConfig.featureFlags.showHomePageRedesign = false;
+    });
     cy.skipIntroducePage();
     cy.on("uncaught:exception", (err, runnable) => false);
   });

@@ -197,6 +197,7 @@ export const CONFLUENCE_SPACE_ALLOW: FilterRecipeField = {
     buttonLabel: 'Add space',
     rules: null,
     section: 'Spaces',
+    filteringResource: 'Space',
     rule: FilterRule.INCLUDE,
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, spaceAllowFieldPath),
@@ -219,6 +220,7 @@ export const CONFLUENCE_SPACE_DENY: FilterRecipeField = {
     buttonLabel: 'Add space',
     rules: null,
     section: 'Spaces',
+    filteringResource: 'Space',
     rule: FilterRule.EXCLUDE,
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, spaceDenyFieldPath),
@@ -246,6 +248,7 @@ export const CONFLUENCE_PAGE_ALLOW: FilterRecipeField = {
     buttonLabel: 'Add page',
     rules: null,
     section: 'Pages',
+    filteringResource: 'Page',
     rule: FilterRule.INCLUDE,
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, pageAllowFieldPath),
@@ -268,6 +271,7 @@ export const CONFLUENCE_PAGE_DENY: FilterRecipeField = {
     buttonLabel: 'Add page',
     rules: null,
     section: 'Pages',
+    filteringResource: 'Page',
     rule: FilterRule.EXCLUDE,
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, pageDenyFieldPath),
