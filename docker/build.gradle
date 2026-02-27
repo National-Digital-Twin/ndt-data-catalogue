@@ -408,6 +408,9 @@ task generateQuickstartComposeConfig {
         configOutput = configOutput.replace('__VERSION__', '${DATAHUB_VERSION}')
         configOutput = configOutput.replace('__VERSION__', '${DATAHUB_APP_VERSION}')
         configOutput = configOutput.replace(System.getenv('HOME'), '${HOME}')
+        // Normalize Snap Docker HOME mounts (e.g. ${HOME}/snap/docker/3377/...) to stable ${HOME}/... paths
+        // so generated output is deterministic across local environments and CI.
+        configOutput = configOutput.replaceAll('\\$\\{HOME\\}/snap/docker/\\d+/', '\\${HOME}/')
         // Replace the DATAHUB_REPO placeholder so the registry remains configurable at runtime
         configOutput = configOutput.replace('__DATAHUB_REPO__/', '${DATAHUB_REPO:-acryldata}/')
 
