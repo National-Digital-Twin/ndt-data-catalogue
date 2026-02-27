@@ -32,7 +32,7 @@ NDTP does not accept public code contributions, but we welcome **bug reports and
 
 | Name              | Organisation           | Role               | Contact                           |
 |-------------------|------------------------|--------------------|-----------------------------------|
-| Kash Javed        | Answer Digital         | Lead Maintainer    | kashif.javed@answerdigital.com    |
+| Jake Aitchison       | Answer Digital         | Lead Maintainer    | jake.aitchison@answerdigital.com    |
 
 For general issues, please **open a GitHub issue** rather than contacting maintainers directly.  
 
