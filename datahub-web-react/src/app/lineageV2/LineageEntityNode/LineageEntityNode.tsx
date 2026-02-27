@@ -6,7 +6,6 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
-import { HomeOutlined } from '@ant-design/icons';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { NodeProps } from 'reactflow';
 import styled from 'styled-components';
@@ -25,21 +24,24 @@ import useSearchAcrossLineage from '@app/lineageV2/useSearchAcrossLineage';
 
 import { EntityType, LineageDirection } from '@types';
 
+import HomeIcon from '@images/dt-home-white.svg?react';
+
 export const LINEAGE_ENTITY_NODE_NAME = 'lineage-entity';
 const MAX_NODES_FOR_TRANSITION = 50;
 
 const HomeNodeBubble = styled.div`
     align-items: center;
-    background-color: ${(p) => p.theme.styles['primary-color']};
-    border-radius: 10px;
-    color: white;
+    background-color: ${(props) => props.theme.styles['lineage-home-badge-bg-color']};
+    border-radius: 12px;
+    color: ${(props) => props.theme.styles['lineage-home-badge-text-color']};
     display: flex;
-    font-size: 10px;
-    font-weight: 600;
-    height: 22px;
-    justify-content: center;
-    left: 1px;
-    padding: 4px 8px;
+    font-size: 13.33px;
+    font-weight: 400;
+    height: 24px;
+    width: 78px;
+    left: -39px
+    padding: 6px;
+    padding-left: 6px;
     position: absolute;
     top: -26px;
 `;
@@ -79,7 +81,7 @@ export default function LineageEntityNode(props: NodeProps<LineageEntity>) {
         <>
             {urn === rootUrn && (
                 <HomeNodeBubble>
-                    <HomeOutlined style={{ marginRight: 4 }} />
+                    <HomeIcon height="15px" />
                     Home
                 </HomeNodeBubble>
             )}

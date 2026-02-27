@@ -1,19 +1,21 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
-import { ConsoleSqlOutlined, HomeOutlined, LoadingOutlined } from '@ant-design/icons';
+import { ConsoleSqlOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Tooltip } from '@components';
 import { Skeleton, Spin } from 'antd';
 import React, { useContext } from 'react';
 import { Handle, NodeProps, Position } from 'reactflow';
 import styled from 'styled-components';
 
-import { LINEAGE_COLORS } from '@app/entityV2/shared/constants';
 import { LoadingWrapper } from '@app/lineageV2/LineageEntityNode/NodeContents';
 import LineageVisualizationContext from '@app/lineageV2/LineageVisualizationContext';
 import {
@@ -29,22 +31,25 @@ import { useEntityRegistryV2 } from '@app/useEntityRegistry';
 import { useGetQueryQuery } from '@graphql/query.generated';
 import { EntityType, LineageDirection } from '@types';
 
+import HomeIcon from '@images/dt-home-white.svg?react';
+
 export const LINEAGE_TRANSFORMATION_NODE_NAME = 'lineage-transformation';
-export const TRANSFORMATION_NODE_SIZE = 30;
+export const TRANSFORMATION_NODE_SIZE = 48;
 
 // TODO: Share with LineageEntityNode
 const HomeNodeBubble = styled.div`
     align-items: center;
-    background-color: ${LINEAGE_COLORS.PURPLE_3};
-    border-radius: 10px;
-    color: white;
+    background-color: ${(props) => props.theme.styles['lineage-home-badge-bg-color']};
+    border-radius: 12px;
+    color: ${(props) => props.theme.styles['lineage-home-badge-text-color']};
     display: flex;
-    font-size: 10px;
-    font-weight: 600;
-    height: 22px;
-    justify-content: center;
-    left: -50%;
-    padding: 4px 8px;
+    font-size: 13.33px;
+    font-weight: 400;
+    height: 24px;
+    width: 78px;
+    left: -39px
+    padding: 6px;
+    padding-left: 5px;
     position: absolute;
     top: -26px;
 `;
@@ -58,9 +63,10 @@ const NodeWrapper = styled.div<{
     type: EntityType;
 }>`
     background-color: white;
-    border: ${({ selected }) => (selected ? 2 : 1)}px solid;
-    border-color: ${({ selected }) => (selected ? LINEAGE_COLORS.PURPLE_3 : LINEAGE_COLORS.NODE_BORDER)};
-    border-radius: 50%;
+    border: 1px solid;
+    border-color: ${({ selected, theme }) =>
+        selected ? theme.styles['lineage-node-selected-border-color'] : theme.styles['lineage-node-border-color']};
+    border-radius: 4px;
     box-shadow: ${({ isSearchedEntity, theme }) =>
         isSearchedEntity ? `0 0 3px 3px ${theme.styles['primary-color']}95` : 'none'};
     opacity: ${({ opacity }) => opacity};
@@ -76,6 +82,8 @@ const NodeWrapper = styled.div<{
         if (type === EntityType.SchemaField) return 'grab';
         return 'pointer';
     }};
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.16);
+    margin-top: 10px;
 `;
 
 const IconWrapper = styled.div<{ isGhost: boolean }>`
@@ -97,8 +105,8 @@ const CustomHandle = styled(Handle)<{ position: Position; $onEdge: boolean }>`
 `;
 
 const CustomIcon = styled.img`
-    height: 18px;
-    width: 18px;
+    height: 24px;
+    width: 24px;
 `;
 
 export default function LineageTransformationNode(props: NodeProps<LineageEntity>) {
@@ -139,7 +147,7 @@ export default function LineageTransformationNode(props: NodeProps<LineageEntity
         >
             {urn === rootUrn && (
                 <HomeNodeBubble>
-                    <HomeOutlined style={{ marginRight: 4 }} />
+                    <HomeIcon height="15px" />
                     Home
                 </HomeNodeBubble>
             )}

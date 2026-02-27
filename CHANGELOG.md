@@ -43,6 +43,7 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 - Applied the new Digital Twin theme to the UI
 - Changed some of the side nav icons to the new DT versions
 - Removed the search bar from the home page and displayed it in the top nav instead
+- Reskin of the Lineage explorer
 
 ---
 
