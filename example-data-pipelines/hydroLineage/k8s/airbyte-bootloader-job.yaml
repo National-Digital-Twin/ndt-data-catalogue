@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# © Crown Copyright 2025. This work has been developed by the National Digital Twin
+# Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
+# entity
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: airbyte-bootloader-manual
+  namespace: hydro-lineage
+  labels:
+    app: airbyte-bootloader
+spec:
+  ttlSecondsAfterFinished: 300  # Auto-cleanup after 5 minutes
+  template:
+    spec:
+      serviceAccountName: airbyte-admin
+      restartPolicy: Never
+      containers:
+      - name: bootloader
+        image: airbyte/bootloader:2.0.1
+        env:
+        - name: AIRBYTE_VERSION
+          value: "2.0.1"
+        - name: DATABASE_HOST
+          value: airbyte-db-svc
+        - name: DATABASE_PORT
+          value: "5432"
+        - name: DATABASE_DB
+          value: db-airbyte
+        - name: DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: airbyte-airbyte-secrets
+              key: DATABASE_USER
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: airbyte-airbyte-secrets
+              key: DATABASE_PASSWORD
+        - name: DATABASE_URL
+          value: jdbc:postgresql://airbyte-db-svc:5432/db-airbyte
+        - name: INITIAL_USER_EMAIL
+          value: admin@airbyte.io
+        - name: INITIAL_USER_FIRST_NAME
+          value: Admin
+        - name: INITIAL_USER_LAST_NAME
+          value: User
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"

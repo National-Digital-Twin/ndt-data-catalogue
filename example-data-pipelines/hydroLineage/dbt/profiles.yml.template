@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# © Crown Copyright 2025. This work has been developed by the National Digital Twin
+# Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
+# entity
+
+# dbt Profile Configuration Template
+# Copy this file to ~/.dbt/profiles.yml or set DBT_PROFILES_DIR environment variable
+
+hydro_lineage:
+  target: "{{ env_var('DBT_TARGET', 'dev') }}"
+  
+  outputs:
+    # Development target
+    dev:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'localhost') }}"
+      port: "{{ env_var('POSTGRES_PORT', '5432') | int }}"
+      user: "{{ env_var('DBT_USER', 'dbt_user') }}"
+      password: "{{ env_var('DBT_DB_PASSWORD', 'dbt_dev_pass') }}"
+      dbname: "{{ env_var('POSTGRES_DB', 'hydro') }}"
+      schema: analytics
+      threads: 4
+      keepalives_idle: 0
+      connect_timeout: 10
+      search_path: "analytics,raw,public"
+      
+    # CI target (ephemeral schemas for testing)
+    ci:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'localhost') }}"
+      port: "{{ env_var('POSTGRES_PORT', '5432') | int }}"
+      user: "{{ env_var('DBT_USER', 'dbt_user') }}"
+      password: "{{ env_var('DBT_DB_PASSWORD', 'dbt_dev_pass') }}"
+      dbname: "{{ env_var('POSTGRES_DB', 'hydro') }}"
+      schema: "analytics_ci{{ var('schema_suffix', '') }}"
+      threads: 4
+      keepalives_idle: 0
+      connect_timeout: 10
+      
+    # Production target
+    prod:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST') }}"
+      port: "{{ env_var('POSTGRES_PORT', '5432') | int }}"
+      user: "{{ env_var('DBT_USER', 'dbt_user') }}"
+      password: "{{ env_var('DBT_DB_PASSWORD') }}"
+      dbname: "{{ env_var('POSTGRES_DB', 'hydro') }}"
+      schema: analytics
+      threads: 8
+      keepalives_idle: 0
+      connect_timeout: 10
+      search_path: "analytics,raw,public"
+      sslmode: require  # Require SSL in production
+
+# Configuration Notes:
+# - Set environment variables or create .env file
+# - For local development, use 'dev' target
+# - For CI/CD testing, use 'ci' target with schema_suffix
+# - For production, use 'prod' target with proper credentials
+# - dbt_user should have SELECT on raw, ALL on analytics

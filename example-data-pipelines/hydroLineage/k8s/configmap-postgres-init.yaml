@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# © Crown Copyright 2025. This work has been developed by the National Digital Twin
+# Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
+# entity
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hydro-postgres-init
+  namespace: hydro-lineage
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    meta.helm.sh/release-name: airflow-lineage
+    meta.helm.sh/release-namespace: hydro-lineage
+data:
+  01_create_schemas.sql: |
+    -- HydroLineage - Database Schema Initialization
+    
+    -- Create schemas
+    CREATE SCHEMA IF NOT EXISTS raw;
+    CREATE SCHEMA IF NOT EXISTS analytics;
+    CREATE SCHEMA IF NOT EXISTS staging;
+    
+    -- Set search path
+    ALTER DATABASE hydro SET search_path TO raw, analytics, staging, public;
+    
+    -- Extensions
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS citext;
+    CREATE EXTENSION IF NOT EXISTS pgcrypto;
+    
+    -- Create dbt user
+    DO
+    $$
+    BEGIN
+      IF NOT EXISTS (SELECT FROM pg_user WHERE usename = 'dbt_user') THEN
+        CREATE USER dbt_user WITH PASSWORD 'dbt_dev_pass';
+      END IF;
+    END
+    $$;
+    
+    -- Grant permissions
+    GRANT ALL PRIVILEGES ON SCHEMA raw TO dbt_user;
+    GRANT ALL PRIVILEGES ON SCHEMA analytics TO dbt_user;
+    GRANT ALL PRIVILEGES ON SCHEMA staging TO dbt_user;
+    GRANT ALL PRIVILEGES ON DATABASE hydro TO dbt_user;
+    
+    -- Comments
+    COMMENT ON SCHEMA raw IS 'Raw data landing zone - ingested via Airflow';
+    COMMENT ON SCHEMA analytics IS 'Curated analytics layer - transformed via dbt';
+    COMMENT ON SCHEMA staging IS 'Staging layer - intermediate transformations';

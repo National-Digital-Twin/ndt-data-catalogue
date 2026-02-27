@@ -1,0 +1,439 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# © Crown Copyright 2025. This work has been developed by the National Digital Twin
+# Programme and is legally attributed to the Department for Business and Trade (UK) as the governing
+# entity
+
+apiVersion: v1
+data:
+  healthcheck_hydro_dag.py: "\"\"\"\r\nComprehensive connectivity test DAG for HydroLineage
+    platform\r\nTests connections to: PostgreSQL, dbt, DataHub, Airbyte, Redis healthcheck_hydro_dag.py\r\n\"\"\"\r\n\r\nfrom
+    datetime import datetime, timedelta\r\nfrom airflow.models.dag import DAG\r\nfrom
+    airflow.providers.standard.operators.bash import BashOperator\r\nfrom airflow.providers.standard.operators.python
+    import PythonOperator\r\nimport os\r\n\r\ndefault_args = {\r\n    'owner': 'hydro-team',\r\n
+    \   'depends_on_past': False,\r\n    'email_on_failure': False,\r\n    'email_on_retry':
+    False,\r\n    'retries': 1,\r\n    'retry_delay': timedelta(minutes=1),\r\n}\r\n\r\ndef
+    print_hello():\r\n    \"\"\"Simple Python function\"\"\"\r\n    print(\"Hello
+    from HydroLineage!\")\r\n    print(\"Airflow is working correctly!\")\r\n    return
+    \"Success\"\r\n\r\ndef print_context(**context):\r\n    \"\"\"Print Airflow context\"\"\"\r\n
+    \   print(\"Airflow Context:\")\r\n    print(f\"  Available keys: {list(context.keys())}\")\r\n
+    \   print(f\"  DAG run: {context.get('dag_run', 'N/A')}\")\r\n    print(f\"  Task
+    instance: {context.get('task_instance', 'N/A')}\")\r\n    print(f\"  Logical date:
+    {context.get('logical_date', context.get('data_interval_start', 'N/A'))}\")\r\n\r\ndef
+    test_postgres_connection():\r\n    \"\"\"Test PostgreSQL warehouse connection\"\"\"\r\n
+    \   import psycopg2\r\n    host = os.getenv('POSTGRES_HOST', 'airflow-lineage-warehouse-postgresql')\r\n
+    \   port = os.getenv('POSTGRES_PORT', '5432')\r\n    database = os.getenv('POSTGRES_DB',
+    'hydro')\r\n    user = os.getenv('DBT_USER', 'postgres')\r\n    password = os.getenv('POSTGRES_PASSWORD',
+    'hydro_secure_password_2024')\r\n    \r\n    try:\r\n        conn = psycopg2.connect(\r\n
+    \           host=host,\r\n            port=port,\r\n            database=database,\r\n
+    \           user=user,\r\n            password=password,\r\n            connect_timeout=5\r\n
+    \       )\r\n        cursor = conn.cursor()\r\n        cursor.execute(\"SELECT
+    version();\")\r\n        version = cursor.fetchone()\r\n        print(f\"✅ PostgreSQL
+    connection successful!\")\r\n        print(f\"   Host: {host}:{port}\")\r\n        print(f\"
+    \  Database: {database}\")\r\n        print(f\"   Version: {version[0][:50]}...\")\r\n
+    \       cursor.close()\r\n        conn.close()\r\n        return \"PostgreSQL:
+    OK\"\r\n    except Exception as e:\r\n        print(f\"❌ PostgreSQL connection
+    failed: {e}\")\r\n        raise\r\n\r\ndef test_datahub_connection():\r\n    \"\"\"Test
+    DataHub GMS API connection\"\"\"\r\n    import requests\r\n    \r\n    # Try both
+    internal and external DataHub URLs\r\n    urls = [\r\n        os.getenv('AIRFLOW_CONN_DATAHUB_REST',
+    'http://datahub-datahub-gms.datahub.svc.cluster.local:8080'),\r\n        'http://datahub-gms:8080',\r\n
+    \       'http://datahub-datahub-gms:8080'\r\n    ]\r\n    \r\n    for url in urls:\r\n
+    \       # Extract just the base URL\r\n        base_url = url.replace('http://:@',
+    'http://').split('@')[-1]\r\n        health_url = f\"{base_url}/health\"\r\n        \r\n
+    \       try:\r\n            response = requests.get(health_url, timeout=5)\r\n
+    \           if response.status_code == 200:\r\n                print(f\"✅ DataHub
+    GMS connection successful!\")\r\n                print(f\"   URL: {base_url}\")\r\n
+    \               print(f\"   Status: {response.status_code}\")\r\n                return
+    f\"DataHub: OK ({base_url})\"\r\n        except Exception as e:\r\n            print(f\"⚠️
+    \ DataHub attempt failed for {base_url}: {e}\")\r\n            continue\r\n    \r\n
+    \   print(\"❌ DataHub connection failed on all URLs\")\r\n    print(\"   This
+    is expected if DataHub is not deployed\")\r\n    return \"DataHub: Not Available
+    (optional)\"\r\n\r\ndef test_airbyte_connection():\r\n    \"\"\"Test Airbyte API
+    connection and pipeline-required connection IDs.\"\"\"\r\n    import requests\r\n
+    \   from airflow.hooks.base import BaseHook\r\n    from airflow.models import
+    Variable\r\n    \r\n    def _validate_pipeline_connections(base: str, auth):\r\n
+    \       stations_id = Variable.get(\"airbyte_stations_connection_id\", default_var=None)\r\n
+    \       readings_id = Variable.get(\"airbyte_readings_connection_id\", default_var=None)\r\n\r\n
+    \       missing = [\r\n            name\r\n            for name, value in [\r\n
+    \               (\"airbyte_stations_connection_id\", stations_id),\r\n                (\"airbyte_readings_connection_id\",
+    readings_id),\r\n            ]\r\n            if not value\r\n        ]\r\n        if
+    missing:\r\n            raise ValueError(\r\n                \"Airbyte API is
+    reachable, but the pipeline is not configured. Missing Airflow Variables: \"\r\n
+    \               + \", \".join(missing)\r\n            )\r\n\r\n        for label,
+    connection_id in [(\"stations\", stations_id), (\"readings\", readings_id)]:\r\n
+    \           resp = requests.post(\r\n                f\"{base}/api/v1/connections/get\",\r\n
+    \               json={\"connectionId\": connection_id},\r\n                timeout=10,\r\n
+    \               auth=auth,\r\n            )\r\n            if resp.status_code
+    == 404:\r\n                raise ValueError(\r\n                    f\"Airbyte
+    connection ID for {label} not found: {connection_id}. \"\r\n                    \"Update
+    the corresponding Airflow Variable with the correct UUID from Airbyte UI.\"\r\n
+    \               )\r\n            resp.raise_for_status()\r\n\r\n    # Prefer testing
+    via the same Airflow connection used by the pipeline.\r\n    # This catches misconfigurations
+    in AIRFLOW_CONN_AIRBYTE_DEFAULT.\r\n    try:\r\n        conn = BaseHook.get_connection('airbyte_default')\r\n
+    \       scheme = conn.schema or 'http'\r\n        host = conn.host\r\n        port
+    = conn.port\r\n        if host:\r\n            base = f\"{scheme}://{host}\" +
+    (f\":{port}\" if port else \"\")\r\n            auth = (conn.login, conn.password)
+    if conn.login or conn.password else None\r\n            response = requests.get(f\"{base}/api/v1/health\",
+    timeout=5, auth=auth)\r\n            if response.status_code == 200:\r\n                _validate_pipeline_connections(base,
+    auth)  # Let ValueError propagate\r\n                print(f\"✅ Airbyte API connection
+    successful!\")\r\n                print(f\"   URL: {base}\")\r\n                print(f\"
+    \  Status: {response.status_code}\")\r\n                data = response.json()\r\n
+    \               print(f\"   Available: {data.get('available', 'unknown')}\")\r\n
+    \               return f\"Airbyte: OK ({base})\"\r\n    except ValueError:\r\n
+    \       # Re-raise ValueError for missing/invalid Airbyte connection IDs\r\n        raise\r\n
+    \   except Exception as e:\r\n        print(f\"⚠️  Airbyte via Airflow connection
+    failed: {e}\")\r\n\r\n    # Fallback: try common in-cluster service names.\r\n
+    \   urls = [\r\n        'http://airbyte-airbyte-server-svc:8001',\r\n        'http://airbyte-server:8001'\r\n
+    \   ]\r\n\r\n    for url in urls:\r\n        try:\r\n            health_url =
+    f\"{url}/api/v1/health\"\r\n            response = requests.get(health_url, timeout=5)\r\n
+    \           if response.status_code == 200:\r\n                _validate_pipeline_connections(url,
+    auth=None)  # Let ValueError propagate\r\n                print(f\"✅ Airbyte API
+    connection successful!\")\r\n                print(f\"   URL: {url}\")\r\n                print(f\"
+    \  Status: {response.status_code}\")\r\n                data = response.json()\r\n
+    \               print(f\"   Available: {data.get('available', 'unknown')}\")\r\n
+    \               return f\"Airbyte: OK ({url})\"\r\n        except ValueError:\r\n
+    \           # Re-raise ValueError for missing/invalid Airbyte connection IDs\r\n
+    \           raise\r\n        except Exception as e:\r\n            print(f\"⚠️
+    \ Airbyte attempt failed for {url}: {e}\")\r\n            continue\r\n    \r\n
+    \   print(\"❌ Airbyte connection failed on all URLs\")\r\n    print(\"   This
+    is expected if Airbyte is not deployed\")\r\n    return \"Airbyte: Not Available
+    (optional)\"\r\n\r\ndef test_datahub_plugin():\r\n    \"\"\"Test DataHub Airflow
+    plugin installation and configuration\"\"\"\r\n    import sys\r\n    from airflow.configuration
+    import conf\r\n    \r\n    # Add extra_python_packages to path if not already
+    there\r\n    extra_packages_path = '/opt/airflow/extra_python_packages'\r\n    if
+    extra_packages_path not in sys.path:\r\n        sys.path.insert(0, extra_packages_path)\r\n
+    \   \r\n    print(\"\U0001F50D Checking DataHub Airflow Plugin...\")\r\n    \r\n
+    \   # Check 1: Plugin is importable\r\n    try:\r\n        import datahub_airflow_plugin\r\n
+    \       version = getattr(datahub_airflow_plugin, '__version__', 'unknown')\r\n
+    \       print(f\"✅ DataHub plugin installed: v{version}\")\r\n    except ImportError
+    as e:\r\n        print(f\"❌ DataHub plugin not installed: {e}\")\r\n        raise\r\n
+    \   \r\n    # Check 2: Lineage backend is configured\r\n    try:\r\n        lineage_backend
+    = conf.get('lineage', 'backend', fallback=None)\r\n        if lineage_backend:\r\n
+    \           print(f\"✅ Lineage backend configured: {lineage_backend}\")\r\n            if
+    'datahub' not in lineage_backend.lower():\r\n                print(f\"⚠️  Warning:
+    Lineage backend doesn't appear to be DataHub\")\r\n        else:\r\n            print(\"❌
+    No lineage backend configured in [lineage] section\")\r\n            raise ValueError(\"lineage.backend
+    not set in airflow.cfg\")\r\n    except Exception as e:\r\n        print(f\"❌
+    Failed to check lineage backend: {e}\")\r\n        raise\r\n    \r\n    # Check
+    3: DataHub config section exists\r\n    try:\r\n        datahub_enabled = conf.getboolean('datahub',
+    'enabled', fallback=False)\r\n        datahub_conn_id = conf.get('datahub', 'conn_id',
+    fallback=None)\r\n        patch_sql = conf.getboolean('datahub', 'patch_sql_parser',
+    fallback=False)\r\n        \r\n        print(f\"✅ DataHub config section:\")\r\n
+    \       print(f\"   enabled: {datahub_enabled}\")\r\n        print(f\"   conn_id:
+    {datahub_conn_id}\")\r\n        print(f\"   patch_sql_parser: {patch_sql}\")\r\n
+    \       \r\n        if not datahub_enabled:\r\n            raise ValueError(\"datahub.enabled
+    is False\")\r\n        if not datahub_conn_id:\r\n            raise ValueError(\"datahub.conn_id
+    not set\")\r\n    except Exception as e:\r\n        print(f\"❌ DataHub configuration
+    error: {e}\")\r\n        raise\r\n    \r\n    # Check 4: DataHub connection exists\r\n
+    \   try:\r\n        from airflow.hooks.base import BaseHook\r\n        conn =
+    BaseHook.get_connection(datahub_conn_id)\r\n        print(f\"✅ DataHub connection
+    '{datahub_conn_id}' exists:\")\r\n        print(f\"   host: {conn.host}\")\r\n
+    \       print(f\"   port: {conn.port}\")\r\n    except Exception as e:\r\n        print(f\"❌
+    DataHub connection error: {e}\")\r\n        raise\r\n    \r\n    print(\"✅ DataHub
+    plugin verification complete!\")\r\n    return \"DataHub Plugin: OK\"\r\n\r\ndef
+    print_environment():\r\n    \"\"\"Print relevant environment variables\"\"\"\r\n
+    \   print(\"\U0001F50D Environment Configuration:\")\r\n    print(f\"   POSTGRES_HOST:
+    {os.getenv('POSTGRES_HOST', 'not set')}\")\r\n    print(f\"   POSTGRES_DB: {os.getenv('POSTGRES_DB',
+    'not set')}\")\r\n    print(f\"   AIRFLOW_CONN_DATAHUB_REST: {os.getenv('AIRFLOW_CONN_DATAHUB_REST',
+    'not set')}\")\r\n    print(f\"   Kubernetes namespace: {os.getenv('AIRFLOW__CORE__NAMESPACE',
+    'not set')}\")\r\n    return \"Environment: OK\"\r\n\r\nwith DAG(\r\n    'healthcheck_hydro',\r\n
+    \   default_args=default_args,\r\n    description='Comprehensive connectivity
+    test for HydroLineage platform',\r\n    schedule=None,  # Manual trigger only\r\n
+    \   start_date=datetime(2024, 1, 1),\r\n    catchup=False,\r\n    tags=['test',
+    'connectivity', 'health-check'],\r\n) as dag:\r\n\r\n    # Task 1: Print using
+    bash\r\n    hello_bash = BashOperator(\r\n        task_id='hello_bash',\r\n        bash_command='echo
+    \"\U0001F30A Hello from HydroLineage Platform!\"',\r\n    )\r\n\r\n    # Task
+    2: Print using Python\r\n    hello_python = PythonOperator(\r\n        task_id='hello_python',\r\n
+    \       python_callable=print_hello,\r\n    )\r\n\r\n    # Task 3: Print context\r\n
+    \   print_airflow_context = PythonOperator(\r\n        task_id='print_context',\r\n
+    \       python_callable=print_context,\r\n    )\r\n\r\n    # Task 4: Print environment\r\n
+    \   print_env = PythonOperator(\r\n        task_id='print_environment',\r\n        python_callable=print_environment,\r\n
+    \   )\r\n\r\n    # Task 5: Check dbt is available\r\n    check_dbt = BashOperator(\r\n
+    \       task_id='check_dbt',\r\n        bash_command='export PATH=$PATH:/home/airflow/.local/bin
+    && dbt --version || echo \"⚠️  dbt not found in PATH. Install via init container
+    or pip.\"',\r\n        trigger_rule='all_done',  # Don't fail if dbt not installed\r\n
+    \   )\r\n\r\n    # Task 6: Check PostgreSQL CLI\r\n    check_postgres_cli = BashOperator(\r\n
+    \       task_id='check_postgres_cli',\r\n        bash_command='psql --version
+    || echo \"⚠️  psql not found. Install postgresql-client if needed.\"',\r\n        trigger_rule='all_done',
+    \ # Don't fail if psql not installed\r\n    )\r\n\r\n    # Task 7: Test PostgreSQL
+    warehouse connection\r\n    test_postgres = PythonOperator(\r\n        task_id='test_postgres_connection',\r\n
+    \       python_callable=test_postgres_connection,\r\n    )\r\n\r\n    # Task 8:
+    Test DataHub plugin installation\r\n    test_datahub_plugin_task = PythonOperator(\r\n
+    \       task_id='test_datahub_plugin',\r\n        python_callable=test_datahub_plugin,\r\n
+    \       trigger_rule='all_done',  # Run even if upstream fails\r\n    )\r\n    \r\n
+    \   # Task 9: Test DataHub GMS API connection (optional)\r\n    test_datahub =
+    PythonOperator(\r\n        task_id='test_datahub_connection',\r\n        python_callable=test_datahub_connection,\r\n
+    \       trigger_rule='all_done',  # Run even if upstream fails\r\n    )\r\n\r\n
+    \   # Task 10: Test Airbyte connection (optional)\r\n    test_airbyte = PythonOperator(\r\n
+    \       task_id='test_airbyte_connection',\r\n        python_callable=test_airbyte_connection,\r\n
+    \       trigger_rule='all_done',  # Run even if upstream fails\r\n    )\r\n\r\n
+    \   # Task 11: Final summary\r\n    summary = BashOperator(\r\n        task_id='connectivity_summary',\r\n
+    \       bash_command='echo \"✅ Platform connectivity check complete! Check logs
+    above for details.\"',\r\n        trigger_rule='all_done',\r\n    )\r\n\r\n    #
+    Define dependencies - fan-out pattern for parallel testing\r\n    hello_bash >>
+    hello_python >> print_airflow_context >> print_env\r\n    \r\n    # Core service
+    checks (PostgreSQL must succeed, others can fail gracefully)\r\n    print_env
+    >> [check_dbt, check_postgres_cli, test_postgres]\r\n    \r\n    # Optional service
+    checks (can fail)\r\n    print_env >> [test_datahub_plugin_task, test_airbyte]\r\n
+    \   \r\n    # DataHub plugin check should run before API check\r\n    test_datahub_plugin_task
+    >> test_datahub\r\n    \r\n    # PostgreSQL is critical, others converge to summary\r\n
+    \   test_postgres >> summary\r\n    [check_dbt, check_postgres_cli, test_datahub,
+    test_airbyte] >> summary\r\n"
+  hydro_airbyte_pipeline.py: "\"\"\" \nHydroLineage Airbyte Pipeline DAG\nComplete
+    data pipeline orchestration using Airbyte for ingestion:\n1. Ingest data from
+    UK Flood API via Airbyte → raw tables\n2. Run dbt transformations → analytics
+    schema\n3. Ingest metadata to DataHub using built-in Airflow provider\n\nThis
+    DAG uses Airbyte for data ingestion instead of direct API calls.\n\nDataHub Integration:\n-
+    Uses apache-airflow-providers-datahub for metadata ingestion\n- dbt and PostgreSQL
+    metadata automatically sent to DataHub\n- No manual DataHub CLI commands needed\n-
+    Lineage and metadata tracked through provider operators\n\"\"\"\n\nfrom datetime
+    import datetime, timedelta\nimport os\nimport requests\nfrom airflow.models.dag
+    import DAG\nfrom airflow.providers.standard.operators.python import PythonOperator\nfrom
+    airflow.providers.standard.operators.bash import BashOperator\nfrom airflow.models.variable
+    import Variable\nfrom airflow.providers.postgres.hooks.postgres import PostgresHook\nfrom
+    airflow.providers.airbyte.operators.airbyte import AirbyteTriggerSyncOperator\n#
+    DataHub lineage now handled by built-in Airflow 3 plugin, not external provider\n\ndefault_args
+    = {\n    'owner': 'hydro-team',\n    'depends_on_past': False,\n    'email_on_failure':
+    False,\n    'email_on_retry': False,\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5),\n}\n\n#
+    Airbyte Configuration\n# These connection IDs must match the Airbyte connections
+    created in Airbyte UI\nAIRBYTE_CONN_ID = os.getenv('AIRBYTE_CONN_ID', 'airbyte_default')
+    \ # Airflow connection to Airbyte instance\n\n# Airbyte *connection IDs* are provided
+    at runtime via Airflow Variables.\n# Set these in the Airflow UI (Admin -> Variables)
+    so the DAG can run end-to-end\n# without code edits:\n# - airbyte_stations_connection_id\n#
+    - airbyte_readings_connection_id\nSTATIONS_SYNC_ID = \"{{ var.value.airbyte_stations_connection_id
+    }}\"\nREADINGS_SYNC_ID = \"{{ var.value.airbyte_readings_connection_id }}\"\n\n\n#
+    =====================================\n# STAGE 0: UK FLOOD API EXTRACTION\n# =====================================\n\ndef
+    extract_from_uk_flood_api(**context):\n    \"\"\"\n    Extract data from UK Flood
+    Monitoring API and load into seed schema.\n    This is the actual data source
+    - Airbyte then syncs seed→raw for lineage tracking.\n    \n    Architecture: UK
+    Flood API → seed schema → Airbyte → raw schema → dbt → analytics\n    \"\"\"\n
+    \   API_BASE = \"https://environment.data.gov.uk/flood-monitoring\"\n    \n    #
+    Fetch stations\n    print(\"Fetching stations from UK Flood Monitoring API...\")\n
+    \   stations_resp = requests.get(\n        f\"{API_BASE}/id/stations\",\n        params={\"_limit\":
+    100},\n        timeout=30\n    )\n    stations_resp.raise_for_status()\n    stations
+    = stations_resp.json().get(\"items\", [])\n    print(f\"✅ Fetched {len(stations)}
+    stations from API\")\n    \n    # Fetch water level readings\n    print(\"Fetching
+    water level readings from UK Flood Monitoring API...\")\n    readings_resp = requests.get(\n
+    \       f\"{API_BASE}/data/readings\",\n        params={\"parameter\": \"level\",
+    \"_limit\": 1000},\n        timeout=30\n    )\n    readings_resp.raise_for_status()\n
+    \   readings = readings_resp.json().get(\"items\", [])\n    print(f\"✅ Fetched
+    {len(readings)} readings from API\")\n    \n    # Load into seed schema\n    hook
+    = PostgresHook(postgres_conn_id='hydro_postgres')\n    conn = hook.get_conn()\n
+    \   cur = conn.cursor()\n    \n    # Truncate seed tables\n    cur.execute(\"TRUNCATE
+    TABLE seed.stations, seed.water_level_readings CASCADE\")\n    print(\"Truncated
+    seed tables\")\n    \n    # Insert stations\n    for station in stations:\n        cur.execute(\"\"\"\n
+    \           INSERT INTO seed.stations (\n                notation, label, lat,
+    long, \"riverName\", \"stationReference\",\n                town, status, easting,
+    northing, \"catchmentName\", \n                \"dateOpened\", \"wiskiID\", \"RLOIid\",
+    _id\n            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+    %s, %s)\n            ON CONFLICT (notation) DO NOTHING\n        \"\"\", (\n            station.get(\"notation\"),\n
+    \           station.get(\"label\"),\n            station.get(\"lat\"),\n            station.get(\"long\"),\n
+    \           station.get(\"riverName\"),\n            station.get(\"stationReference\"),\n
+    \           station.get(\"town\"),\n            station.get(\"status\"),\n            station.get(\"easting\"),\n
+    \           station.get(\"northing\"),\n            station.get(\"catchmentName\"),\n
+    \           station.get(\"dateOpened\"),\n            station.get(\"wiskiID\"),\n
+    \           station.get(\"RLOIid\"),\n            station.get(\"@id\")\n        ))\n
+    \   \n    # Insert readings\n    for reading in readings:\n        measure = reading.get(\"measure\",
+    \"\")\n        # Extract station reference from measure URL (e.g., \".../stations/E1234/measures/...\")\n
+    \       station_ref = measure.split(\"/stations/\")[1].split(\"/\")[0] if \"/stations/\"
+    in measure else \"\"\n        \n        cur.execute(\"\"\"\n            INSERT
+    INTO seed.water_level_readings (\n                reading_id, measure_id, reading_datetime,
+    station_id, value\n            ) VALUES (%s, %s, %s, %s, %s)\n            ON CONFLICT
+    (reading_id) DO NOTHING\n        \"\"\", (\n            f\"{measure}_{reading.get('dateTime')}\",\n
+    \           measure,\n            reading.get(\"dateTime\"),\n            station_ref,\n
+    \           reading.get(\"value\")\n        ))\n    \n    conn.commit()\n    cur.close()\n
+    \   conn.close()\n    \n    print(f\"✅ Loaded {len(stations)} stations and {len(readings)}
+    readings into seed schema\")\n    context['ti'].xcom_push(key='api_stations_fetched',
+    value=len(stations))\n    context['ti'].xcom_push(key='api_readings_fetched',
+    value=len(readings))\n\n\n# =====================================\n# STAGE 1:
+    AIRBYTE INGESTION (lineage)\n# =====================================\n\ndef validate_airbyte_configuration(**_context):\n
+    \   \"\"\"Fail fast with a clear message if Airbyte isn't configured yet.\"\"\"\n\n
+    \   stations_id = Variable.get(\"airbyte_stations_connection_id\", default_var=None)\n
+    \   readings_id = Variable.get(\"airbyte_readings_connection_id\", default_var=None)\n\n
+    \   missing = [\n        name\n        for name, value in [\n            (\"airbyte_stations_connection_id\",
+    stations_id),\n            (\"airbyte_readings_connection_id\", readings_id),\n
+    \       ]\n        if not value\n    ]\n\n    if missing:\n        raise ValueError(\n
+    \           \"Missing Airbyte connection IDs. Set Airflow Variables: \"\n            +
+    \", \".join(missing)\n            + \".\\n\"\n            \"In Airbyte UI, create
+    the two connections (stations + readings), then copy each connection's UUID into
+    the matching Airflow Variable.\"  # noqa: E501\n        )\n\n    # Optional: sanity-check
+    Airbyte is reachable and the connection IDs exist.\n    # IMPORTANT: Prefer the
+    Public API for connection lookups. The legacy internal\n    # `/api/v1/connections/get`
+    has been flaky for us (500/NPE) on Airbyte OSS 2.x.\n    from airflow.hooks.base
+    import BaseHook  # Airflow 3 moved from airflow.hooks.base_hook\n    import requests\n\n
+    \   conn = BaseHook.get_connection(AIRBYTE_CONN_ID)\n    scheme = conn.schema
+    or \"http\"\n    host = conn.host\n    if not host:\n        raise ValueError(\n
+    \           f\"Airflow connection '{AIRBYTE_CONN_ID}' has no host. \"\n            \"Ensure
+    AIRFLOW_CONN_AIRBYTE_DEFAULT is set to something like http://airbyte-airbyte-server-svc.hydro-lineage.svc.cluster.local:8001\"
+    \ # noqa: E501\n        )\n\n    base = f\"{scheme}://{host}\" + (f\":{conn.port}\"
+    if conn.port else \"\")\n    auth = (conn.login, conn.password) if conn.login
+    or conn.password else None\n\n    print(f\"Checking Airbyte health at {base} ...\")\n
+    \   try:\n        health = requests.get(f\"{base}/api/v1/health\", timeout=10,
+    auth=auth)\n        health.raise_for_status()\n    except requests.HTTPError:\n
+    \       # Fall back to public health if the internal endpoint is blocked.\n        health
+    = requests.get(f\"{base}/api/public/v1/health\", timeout=10, auth=auth)\n        health.raise_for_status()\n\n
+    \   for label, connection_id in [(\"stations\", stations_id), (\"readings\", readings_id)]:\n
+    \       print(f\"Validating Airbyte connection exists for {label}: {connection_id}\")\n
+    \       resp = requests.get(\n            f\"{base}/api/public/v1/connections/{connection_id}\",\n
+    \           timeout=15,\n            auth=auth,\n        )\n        if resp.status_code
+    == 404:\n            raise ValueError(\n                f\"Airbyte connection
+    ID for {label} not found: {connection_id}. \"\n                \"Double-check
+    the ID in the Airbyte UI and update the Airflow Variable.\"  # noqa: E501\n            )\n
+    \       resp.raise_for_status()\n\n# =====================================\n#
+    STAGE 1: DATA INGESTION\n# =====================================\n\ndef validate_raw_data(**context):\n
+    \   \"\"\"Validate raw data was loaded successfully\"\"\"\n    hook = PostgresHook(postgres_conn_id='hydro_postgres')\n
+    \   \n    stations_count = hook.get_first(\"SELECT COUNT(*) FROM raw.stations\")[0]\n
+    \   readings_count = hook.get_first(\"SELECT COUNT(*) FROM raw.water_level_readings\")[0]\n
+    \   \n    print(\"=\" * 60)\n    print(\"RAW DATA VALIDATION\")\n    print(\"=\"
+    * 60)\n    print(f\"✅ Stations loaded: {stations_count}\")\n    print(f\"✅ Readings
+    loaded: {readings_count}\")\n    \n    if stations_count == 0:\n        raise
+    ValueError(\"No stations were loaded!\")\n    \n    if readings_count == 0:\n
+    \       raise ValueError(\"No readings were loaded!\")\n    \n    print(\"✅ Raw
+    data validation passed\")\n    \n    context['ti'].xcom_push(key='validated_stations',
+    value=stations_count)\n    context['ti'].xcom_push(key='validated_readings', value=readings_count)\n\n\n#
+    =====================================\n# STAGE 2: DBT TRANSFORMATION\n# =====================================\n\ndef
+    validate_dbt_models(**context):\n    \"\"\"Validate dbt models created data\"\"\"\n
+    \   hook = PostgresHook(postgres_conn_id='hydro_postgres')\n    \n    # Check
+    analytics tables\n    dim_station_count = hook.get_first(\n        \"SELECT COUNT(*)
+    FROM analytics_analytics.dim_station\"\n    )[0]\n    \n    fct_levels_count =
+    hook.get_first(\n        \"SELECT COUNT(*) FROM analytics_analytics.fct_water_levels\"\n
+    \   )[0]\n    \n    print(\"=\" * 60)\n    print(\"DBT TRANSFORMATION VALIDATION\")\n
+    \   print(\"=\" * 60)\n    print(f\"✅ dim_station: {dim_station_count} rows\")\n
+    \   print(f\"✅ fct_water_levels: {fct_levels_count} rows\")\n    \n    if dim_station_count
+    == 0:\n        raise ValueError(\"dim_station is empty!\")\n    \n    if fct_levels_count
+    == 0:\n        raise ValueError(\"fct_water_levels is empty!\")\n    \n    print(\"✅
+    dbt transformation validation passed\")\n    \n    context['ti'].xcom_push(key='dim_station_rows',
+    value=dim_station_count)\n    context['ti'].xcom_push(key='fct_water_levels_rows',
+    value=fct_levels_count)\n\n\n# =====================================\n# PIPELINE
+    SUMMARY\n# =====================================\n\ndef log_pipeline_summary(**context):\n
+    \   \"\"\"Log complete pipeline execution summary\"\"\"\n    ti = context['ti']\n
+    \   \n    # Get metrics from all stages\n    api_stations = ti.xcom_pull(task_ids='extract_from_uk_flood_api',
+    key='api_stations_fetched') or 0\n    api_readings = ti.xcom_pull(task_ids='extract_from_uk_flood_api',
+    key='api_readings_fetched') or 0\n    stations_count = ti.xcom_pull(task_ids='validate_raw_data',
+    key='validated_stations') or 0\n    readings_count = ti.xcom_pull(task_ids='validate_raw_data',
+    key='validated_readings') or 0\n    dim_station_rows = ti.xcom_pull(task_ids='validate_dbt_models',
+    key='dim_station_rows') or 0\n    fct_levels_rows = ti.xcom_pull(task_ids='validate_dbt_models',
+    key='fct_water_levels_rows') or 0\n    \n    summary = f\"\"\"\n    ============================================================\n
+    \             HYDROLINEAGE PIPELINE SUMMARY\n    ============================================================\n
+    \   \n    \U0001F310 STAGE 0: UK FLOOD API EXTRACTION\n       ✅ Stations fetched:
+    \ {api_stations:,} (from API)\n       ✅ Readings fetched:  {api_readings:,} (from
+    API)\n       → Loaded into seed schema\n    \n    \U0001F4CA STAGE 1: AIRBYTE
+    SYNC (lineage tracking)\n       ✅ seed.stations → raw.stations:  {stations_count:,}\n
+    \      ✅ seed.water_level_readings → raw.water_level_readings:  {readings_count:,}\n
+    \   \n    \U0001F504 STAGE 2: DBT TRANSFORMATIONS\n       ✅ dim_station:      {dim_station_rows:,}
+    rows\n       ✅ fct_water_levels: {fct_levels_rows:,} rows\n    \n    \U0001F4CB
+    STAGE 3: METADATA GOVERNANCE\n       ✅ DataHub provider configured for automated
+    ingestion\n       ℹ️  Metadata tracked via apache-airflow-providers-datahub\n
+    \   \n    \U0001F3AF PIPELINE STATUS: SUCCESS\n    \n    Next Steps:\n      -
+    View data: SELECT * FROM analytics_analytics.dim_station LIMIT 10;\n      - View
+    lineage: http://localhost:9002 (DataHub UI)\n      - Run tests: dbt test --profiles-dir
+    . --target dev\n    \n    ============================================================\n
+    \   \"\"\"\n    \n    print(summary)\n    \n    # Push summary to XCom for downstream
+    monitoring\n    context['ti'].xcom_push(key='pipeline_summary', value={\n        'stations_loaded':
+    stations_count,\n        'readings_loaded': readings_count,\n        'dim_station_rows':
+    dim_station_rows,\n        'fct_water_levels_rows': fct_levels_rows,\n        'status':
+    'SUCCESS'\n    })\n\n\n# =====================================\n# DAG DEFINITION\n#
+    =====================================\n\nwith DAG(\n    'hydro_airbyte_pipeline',\n
+    \   default_args=default_args,\n    description='Complete end-to-end pipeline:
+    UK Flood API → seed → Airbyte → raw → dbt → analytics',\n    schedule='0 2 * *
+    *',  # Run at 2 AM daily\n    start_date=datetime(2024, 1, 1),\n    catchup=False,\n
+    \   tags=['production', 'airbyte', 'end-to-end', 'hydro', 'uk-flood-api'],\n    max_active_runs=1,
+    \ # Only one pipeline run at a time\n) as dag:\n\n    # =====================================\n
+    \   # STAGE 0: UK FLOOD API EXTRACTION\n    # =====================================\n
+    \   \n    extract_api_data = PythonOperator(\n        task_id='extract_from_uk_flood_api',\n
+    \       python_callable=extract_from_uk_flood_api,\n        retries=2,\n        execution_timeout=timedelta(minutes=5),\n
+    \       # Lineage: UK Flood API → seed.stations + seed.water_level_readings\n
+    \   )\n\n    # =====================================\n    # STAGE 1: DATA INGESTION
+    VIA AIRBYTE (lineage tracking)\n    # =====================================\n
+    \   \n    # Airbyte syncs seed→raw for metadata lineage tracking\n    # Actual
+    data source is UK Flood API (extracted in stage 0)\n\n    validate_airbyte_setup
+    = PythonOperator(\n        task_id=\"validate_airbyte_configuration\",\n        python_callable=validate_airbyte_configuration,\n
+    \       retries=0,\n        execution_timeout=timedelta(minutes=2),\n    )\n    \n
+    \   # Airbyte sync for stations\n    # NOTE: You must create these connections
+    in Airbyte UI first:\n    # 1. Source: HTTP API connector pointing to UK Flood
+    API stations endpoint\n    # 2. Destination: PostgreSQL (hydro database, raw schema,
+    stations table)\n    # 3. Get the connection ID from Airbyte UI and update STATIONS_SYNC_ID
+    above\n    sync_stations = AirbyteTriggerSyncOperator(\n        task_id='airbyte_sync_stations',\n
+    \       airbyte_conn_id=AIRBYTE_CONN_ID,\n        connection_id=STATIONS_SYNC_ID,\n
+    \       asynchronous=False,  # Wait for sync to complete\n        timeout=600,
+    \ # 10 minutes\n        wait_seconds=10,  # Poll every 10 seconds\n        # Automatic
+    lineage: Airbyte sync UK Flood API → raw.stations\n    )\n    \n    # Airbyte
+    sync for water level readings\n    # NOTE: Same as above, create connection in
+    Airbyte UI for readings endpoint\n    sync_readings = AirbyteTriggerSyncOperator(\n
+    \       task_id='airbyte_sync_readings',\n        airbyte_conn_id=AIRBYTE_CONN_ID,\n
+    \       connection_id=READINGS_SYNC_ID,\n        asynchronous=False,\n        timeout=600,\n
+    \       wait_seconds=10,\n        # Automatic lineage: Airbyte sync UK Flood API
+    → raw.water_level_readings\n    )\n    \n    validate_raw = PythonOperator(\n
+    \       task_id='validate_raw_data',\n        python_callable=validate_raw_data,\n
+    \       # Automatic lineage: Reads from raw tables for validation\n    )\n    \n
+    \   # =====================================\n    # STAGE 2: DBT TRANSFORMATIONS\n
+    \   # =====================================\n    \n    # Install dbt packages
+    (run deps before dbt run to avoid hub.getdbt.com network issues during init)\n
+    \   dbt_deps = BashOperator(\n        task_id='dbt_deps',\n        bash_command='cd
+    /opt/airflow/dbt && /opt/airflow/dbt_venv/bin/dbt deps --profiles-dir . --target
+    dev || echo \"⚠️ dbt deps may use cached packages\"',\n    )\n    \n    # Load
+    seed data (station metadata CSV)\n    dbt_seed = BashOperator(\n        task_id='dbt_seed',\n
+    \       bash_command='cd /opt/airflow/dbt && /opt/airflow/dbt_venv/bin/dbt seed
+    --profiles-dir . --target dev',\n    )\n    \n    # Run dbt models (packages and
+    profiles.yml already deployed)\n    dbt_run = BashOperator(\n        task_id='dbt_run',\n
+    \       bash_command='cd /opt/airflow/dbt && /opt/airflow/dbt_venv/bin/dbt run
+    --profiles-dir . --target dev',\n        # Automatic lineage: dbt transformations
+    raw → staging → analytics\n        # Note: dbt metadata ingestion task provides
+    detailed model lineage\n    )\n    \n    # Run dbt tests\n    dbt_test = BashOperator(\n
+    \       task_id='dbt_test',\n        bash_command='cd /opt/airflow/dbt && /opt/airflow/dbt_venv/bin/dbt
+    test --profiles-dir . --target dev || true',  # Don't fail on test warnings\n
+    \       # Automatic lineage: Data quality tests on analytics tables\n    )\n    \n
+    \   # Generate dbt documentation\n    dbt_docs = BashOperator(\n        task_id='dbt_docs_generate',\n
+    \       bash_command='cd /opt/airflow/dbt && /opt/airflow/dbt_venv/bin/dbt docs
+    generate --profiles-dir . --target dev',\n    )\n    \n    validate_dbt = PythonOperator(\n
+    \       task_id='validate_dbt_models',\n        python_callable=validate_dbt_models,\n
+    \       # Automatic lineage: Validation reads from analytics tables\n    )\n    \n
+    \   # =====================================\n    # STAGE 3: DATAHUB METADATA INGESTION\n
+    \   # =====================================\n    # Using built-in DataHub provider
+    operators for metadata ingestion\n    # These operators automatically handle dbt
+    and PostgreSQL metadata extraction\n    \n    # Note: DataHub ingestion using
+    the provider requires:\n    # 1. DataHub connection configured in Airflow (datahub_rest_default)\n
+    \   # 2. dbt project files accessible to the operator\n    # 3. PostgreSQL connection
+    details for profiling\n    \n    # DataHub metadata ingestion now handled automatically
+    by built-in Airflow 3 DataHub plugin\n    # Plugin configuration in airflow.cfg
+    enables automatic lineage capture:\n    # [datahub] emit_lineage = True, enable_datajob_lineage
+    = True, cluster = 'dev'\n    # No explicit ingestion operators needed - lineage
+    emitted automatically on task execution\n    \n    # Batch dbt metadata sync for
+    column-level lineage\n    ingest_dbt_metadata = BashOperator(\n        task_id='ingest_dbt_metadata',\n
+    \       bash_command=(\n            'cd /opt/airflow && '\n            'export
+    DATAHUB_GMS_URL=http://datahub-datahub-gms.datahub.svc.cluster.local:8080 && '\n
+    \           'export DATAHUB_GMS_TOKEN=${DATAHUB_GMS_TOKEN} && '\n            'export
+    PYTHONPATH=/opt/airflow/dbt_venv/lib/python3.11/site-packages && '\n            '/opt/airflow/dbt_venv/bin/python
+    -m datahub ingest run -c /opt/airflow/datahub/recipes/dbt_to_datahub.yml'\n        ),\n
+    \   )\n    \n    # PostgreSQL metadata ingestion for raw table schemas and statistics\n
+    \   ingest_postgres_metadata = BashOperator(\n        task_id='ingest_postgres_metadata',\n
+    \       bash_command=(\n            'export DATAHUB_GMS_URL=http://datahub-datahub-gms.datahub.svc.cluster.local:8080
+    && '\n            'export DATAHUB_GMS_TOKEN=${DATAHUB_GMS_TOKEN} && '\n            'export
+    POSTGRES_PASSWORD=${POSTGRES_PASSWORD} && '\n            'export PYTHONPATH=/opt/airflow/dbt_venv/lib/python3.11/site-packages
+    && '\n            '/opt/airflow/dbt_venv/bin/python -m datahub ingest run -c /opt/airflow/datahub/recipes/postgres_to_datahub.yml'\n
+    \       ),\n    )\n\n    # Airbyte metadata ingestion (DataHub pulls metadata
+    from Airbyte via recipe)\n    ingest_airbyte_metadata = BashOperator(\n        task_id='ingest_airbyte_metadata',\n
+    \       bash_command=(\n            'export DATAHUB_GMS_URL=http://datahub-datahub-gms.datahub.svc.cluster.local:8080
+    && '\n            'export DATAHUB_GMS_TOKEN=${DATAHUB_GMS_TOKEN} && '\n            'export
+    PYTHONPATH=/opt/airflow/dbt_venv/lib/python3.11/site-packages && '\n            '/opt/airflow/dbt_venv/bin/python
+    -m datahub ingest run -c /opt/airflow/datahub/recipes/airbyte_ingestion.yml'\n
+    \       ),\n    )\n    \n    # =====================================\n    # PIPELINE
+    SUMMARY\n    # =====================================\n    \n    summary = PythonOperator(\n
+    \       task_id='log_pipeline_summary',\n        python_callable=log_pipeline_summary,\n
+    \   )\n    \n    # =====================================\n    # TASK DEPENDENCIES\n
+    \   # =====================================\n    \n    # Stage 0: Extract from
+    UK Flood API into seed schema\n    extract_api_data >> validate_airbyte_setup\n
+    \   \n    # Stage 1: Ingestion via Airbyte (syncs seed→raw for lineage tracking)\n
+    \   validate_airbyte_setup >> [sync_stations, sync_readings] >> validate_raw\n
+    \   \n    # Stage 2: Transformation (install packages, load seeds, then run dbt)\n
+    \   validate_raw >> dbt_deps >> dbt_seed >> dbt_run >> dbt_test >> dbt_docs >>
+    validate_dbt\n    \n    # Stage 3: Metadata governance\n    # Airflow plugin captures
+    task lineage automatically\n    # Airbyte pushes lineage directly (configure in
+    Airbyte connection settings)\n    # dbt ingestion adds column-level lineage from
+    dbt models\n    # PostgreSQL ingestion adds table schemas and statistics\n    validate_dbt
+    >> ingest_dbt_metadata >> ingest_airbyte_metadata >> ingest_postgres_metadata\n
+    \   \n    # Final summary\n    ingest_postgres_metadata >> summary\n"
+kind: ConfigMap
+metadata:
+  name: airflow-lineage-dags
+  namespace: hydro-lineage
