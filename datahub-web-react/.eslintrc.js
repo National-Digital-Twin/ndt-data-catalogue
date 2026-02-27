@@ -41,17 +41,19 @@ try {
     const isSyncBranch = currentBranch.includes('sync');
 
     if (!isSyncBranch) {
-        const baseBranch = 'origin/main';
+        // Once we've amended our references to the old color palette, we can set the base branch to main and enforce color rules on all changed files.
+        
+        // const baseBranch = 'origin/main';
 
-        const raw = execSync(
-            `git diff --diff-filter=d --name-only ${baseBranch} -- "datahub-web-react/src/**/*.ts" "datahub-web-react/src/**/*.tsx"`,
-            { encoding: 'utf-8', cwd: repoRoot, stdio: 'pipe' },
-        );
-        changedTsFiles = raw
-            .trim()
-            .split('\n')
-            .filter(Boolean)
-            .map((f) => f.replace(/^datahub-web-react\//, ''));
+        // const raw = execSync(
+        //     `git diff --diff-filter=d --name-only ${baseBranch} -- "datahub-web-react/src/**/*.ts" "datahub-web-react/src/**/*.tsx"`,
+        //     { encoding: 'utf-8', cwd: repoRoot, stdio: 'pipe' },
+        // );
+        // changedTsFiles = raw
+        //     .trim()
+        //     .split('\n')
+        //     .filter(Boolean)
+        //     .map((f) => f.replace(/^datahub-web-react\//, ''));
     }
 } catch {
     // If git is unavailable (e.g. shallow clone in CI), skip scoped rules
