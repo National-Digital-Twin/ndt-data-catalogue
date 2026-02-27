@@ -18,16 +18,8 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ---
 
-## [Unreleased]
-
-### Changed
-
-- Updated root [README.md](README.md) to include a link to the HydroLineage example pipeline folder at [example-data-pipelines/hydroLineage](example-data-pipelines/hydroLineage).
-- Updated [docs/quickstart.md](docs/quickstart.md) to reference the HydroLineage example pipeline.
-
----
-
 ## [0.90.4]
+
 
 ### Initial Reskin of the UI
 
@@ -45,6 +37,15 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 - Removed the search bar from the home page and displayed it in the top nav instead
 - Reskin of the Lineage explorer
 
+### Upstream Sync and Examples
+
+### Added
+
+- HydroLineage example pipeline folder at [example-data-pipelines/hydroLineage](example-data-pipelines/hydroLineage).
+- Synced upstream releases:
+   - v1.4.0.3 see [DataHub](https://github.com/datahub-project/datahub/releases/tag/v1.4.0.3)
+   - v1.4.0.2 see [DataHub](https://github.com/datahub-project/datahub/releases/tag/v1.4.0.2)
+   - v1.4.0 see [DataHub](https://github.com/datahub-project/datahub/releases/tag/v1.4.0)
 ---
 
 ## [0.90.3]
