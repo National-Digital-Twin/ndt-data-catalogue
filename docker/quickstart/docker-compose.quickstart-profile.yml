@@ -32,13 +32,13 @@ services:
       default: null
     volumes:
     - type: bind
-      source: ${HOME}/snap/docker/3377/.aws
+      source: ${HOME}/.aws
       target: /home/datahub/.aws
       read_only: true
       bind:
         create_host_path: true
     - type: bind
-      source: ${HOME}/snap/docker/3377/.aws/sso/cache
+      source: ${HOME}/.aws/sso/cache
       target: /home/datahub/.aws/sso/cache
       bind:
         create_host_path: true
@@ -119,12 +119,12 @@ services:
       protocol: tcp
     volumes:
     - type: bind
-      source: ${HOME}/snap/docker/3377/.datahub/plugins
+      source: ${HOME}/.datahub/plugins
       target: /etc/datahub/plugins
       bind:
         create_host_path: true
     - type: bind
-      source: ${HOME}/snap/docker/3377/.datahub/search
+      source: ${HOME}/.datahub/search
       target: /etc/datahub/search
       bind:
         create_host_path: true
@@ -163,7 +163,7 @@ services:
       protocol: tcp
     volumes:
     - type: bind
-      source: ${HOME}/snap/docker/3377/.datahub/plugins
+      source: ${HOME}/.datahub/plugins
       target: /etc/datahub/plugins
       bind:
         create_host_path: true
@@ -461,7 +461,7 @@ services:
       default: null
     volumes:
     - type: bind
-      source: ${HOME}/snap/docker/3377/.datahub/plugins
+      source: ${HOME}/.datahub/plugins
       target: /etc/datahub/plugins
       bind:
         create_host_path: true
