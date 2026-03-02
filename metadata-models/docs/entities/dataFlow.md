@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # DataFlow
 
 A DataFlow represents a high-level data processing pipeline or workflow orchestrated by systems like Apache Airflow, Azkaban, Prefect, Dagster, or similar workflow management platforms. DataFlows serve as containers for related DataJobs, representing the overall execution context and organization of data processing tasks.

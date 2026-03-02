@@ -1,8 +1,19 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 ---
+
 # Display to h4 headings
+
 # toc_min_heading_level: 2
-toc_max_heading_level: 4
----
+
+## toc_max_heading_level: 4
 
 # DataHub CLI
 

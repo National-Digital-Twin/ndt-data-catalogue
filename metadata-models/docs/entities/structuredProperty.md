@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Structured Property
 
 Structured Properties are custom, typed metadata fields that can be attached to any entity type in DataHub. They enable organizations to extend the core metadata model with domain-specific attributes that support governance, compliance, and data discovery initiatives.

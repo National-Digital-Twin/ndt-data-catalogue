@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 Metabase databases will be mapped to a DataHub platform based on the engine listed in the
 [api/database](https://www.metabase.com/docs/latest/api-documentation.html#database) response. This mapping can be
 customized by using the `engine_platform_map` config option. For example, to map databases using the `athena` engine to

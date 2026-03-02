@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # CorpUser
 
 CorpUser represents an individual user (or account) in the enterprise. These entities serve as the identity layer within DataHub, representing people who interact with data assets, own resources, belong to groups, and have roles and permissions within the organization. CorpUsers can represent LDAP users, Active Directory accounts, SSO identities, or native DataHub users.

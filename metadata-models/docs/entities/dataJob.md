@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # DataJob
 
 Data jobs represent individual units of data processing work within a data pipeline or workflow. They are the tasks, steps, or operations that transform, move, or process data as part of a larger data flow. Examples include Airflow tasks, dbt models, Spark jobs, Databricks notebooks, and similar processing units in orchestration systems.

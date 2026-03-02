@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Query
 
 The query entity represents SQL queries (or queries in other languages) that have been executed against one or more data assets such as datasets, tables, or views. Query entities capture both manually created queries and queries discovered through automated crawling of query logs from data platforms like BigQuery, Snowflake, Redshift, and others.

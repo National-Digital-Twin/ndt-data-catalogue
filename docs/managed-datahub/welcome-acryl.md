@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Getting Started with DataHub Cloud
 
 Welcome to the DataHub Cloud! We at DataHub are on a mission to make data reliable by bringing clarity to the who, what, when, & how of your data ecosystem. We're thrilled to be on this journey with you; and cannot wait to see what we build together!

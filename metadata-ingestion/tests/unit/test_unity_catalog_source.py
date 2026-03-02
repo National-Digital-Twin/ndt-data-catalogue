@@ -1,6 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
+
 from unittest.mock import ANY, patch
 
 import pytest
+
+pytest.importorskip("pyspark")
 
 from datahub.ingestion.api.common import PipelineContext
 from datahub.ingestion.api.report import EntityFilterReport

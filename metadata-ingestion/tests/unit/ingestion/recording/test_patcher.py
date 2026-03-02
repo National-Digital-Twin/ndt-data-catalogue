@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
+
 """Unit tests for database and HTTP patching in recording/patcher.py."""
 
 from datetime import datetime
@@ -191,6 +198,8 @@ class TestHTTPPatching:
 
     def test_http_recorder_context_manager(self, tmp_path):
         """Test that HTTPRecorder works as context manager."""
+        pytest.importorskip("vcr")
+
         from datahub.ingestion.recording.http_recorder import HTTPRecorder
 
         cassette_path = tmp_path / "cassette.yaml"

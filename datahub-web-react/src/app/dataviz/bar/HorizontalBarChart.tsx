@@ -1,3 +1,11 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
+ */
 /* eslint-disable @typescript-eslint/dot-notation, no-param-reassign */
 import { AxisLeft } from '@visx/axis';
 import { ParentSize } from '@visx/responsive';
@@ -9,6 +17,8 @@ import React from 'react';
 import { Legend } from '@app/dataviz/Legend';
 import { ChartWrapper } from '@app/dataviz/components';
 import { COMPLETED_COLOR, IN_PROGRESS_COLOR, NOT_STARTED_COLOR } from '@app/dataviz/constants';
+
+const XYChartAny = XYChart as any;
 
 export const HorizontalBarChart = <Data extends object, DataKeys>({
     data,
@@ -59,7 +69,7 @@ export const HorizontalBarChart = <Data extends object, DataKeys>({
 
                     return (
                         <>
-                            <XYChart
+                            <XYChartAny
                                 width={parentWidth}
                                 height={baseHeight}
                                 margin={margin}
@@ -125,7 +135,7 @@ export const HorizontalBarChart = <Data extends object, DataKeys>({
                                                     </g>
                                                 );
                                             }),
-                                        )
+                                        ) as any
                                     }
                                 </BarStackHorizontal>
                                 <AxisLeft
@@ -143,7 +153,7 @@ export const HorizontalBarChart = <Data extends object, DataKeys>({
                                         x2: margin.left + 10,
                                     }}
                                 />
-                            </XYChart>
+                            </XYChartAny>
                             <Legend scale={colorAccessor} />
                         </>
                     );

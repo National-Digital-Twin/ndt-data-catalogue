@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
+
 """Document saving tool for DataHub MCP server.
 
 This tool enables AI agents to save documents to DataHub's knowledge base.

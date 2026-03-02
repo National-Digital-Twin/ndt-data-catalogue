@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Adding a custom Dataset Data Platform
 
 A Data Platform represents a 3rd party system from which [Metadata Entities](https://docs.datahub.com/docs/metadata-modeling/metadata-model/) are ingested from. Each Dataset that is ingested is associated with a single platform, for example MySQL, Snowflake, Redshift, or BigQuery.

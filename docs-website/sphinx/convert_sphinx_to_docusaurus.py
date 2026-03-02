@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
+
 import pathlib
 import re
 
@@ -23,6 +30,7 @@ HTML_TAGS = {
 REPLACEMENTS = [
     ("<function ", "&lt;function "),
     ("<disabled ", "&lt;disabled "),
+    ("<not given>", "&lt;not given&gt;"),
     ("MDXContent.isMDXComponent = true", ""),
     (".md#", ".mdx#"),
 ]
@@ -132,6 +140,10 @@ def wrap_section_blocks(content: str, class_name: str) -> str:
 def fix_parameter_dash(content: str) -> str:
     return re.sub(r'(\*\s+\*\*[\w]+?\*\*\s+\([^\)]*\))\s+–\s*(?=\n|\r|\Z)', r'\1', content)
 
+
+def strip_html_comments(content: str) -> str:
+    return re.sub(r"<!--(?:.|\n|\r)*?-->", "", content)
+
 # ---- FILE CONVERTER ----
 def convert_file(doc: pathlib.Path, outfile: pathlib.Path):
     content = doc.read_text()
@@ -143,6 +155,7 @@ def convert_file(doc: pathlib.Path, outfile: pathlib.Path):
     content = repair_broken_emphasis(content)
     content = wrap_section_blocks(content, "h3-block")
     content = fix_parameter_dash(content)
+    content = strip_html_comments(content)
 
     title_match = re.search(r"^# (.+)$", content, re.MULTILINE)
     title = title_match.group(1).strip() if title_match else doc.stem

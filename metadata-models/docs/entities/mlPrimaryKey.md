@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # MLPrimaryKey
 
 MLPrimaryKey represents a primary key entity within a machine learning feature store. Primary keys uniquely identify records in feature tables and are essential for joining features with entities in online and offline feature serving. In feature stores like Feast, Tecton, or AWS SageMaker Feature Store, primary keys define the identifier columns that link features to the entities they describe (e.g., `user_id`, `product_id`, `transaction_id`).

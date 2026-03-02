@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Role
 
 The role entity represents external access management roles from source systems (e.g., Snowflake, BigQuery) that control access to data assets. This entity enables DataHub to model and display which roles provide access to datasets, helping data consumers understand what permissions they need to access specific data resources.

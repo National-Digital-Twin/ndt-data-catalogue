@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Data Product
 
 Data Products are curated collections of data assets designed for easy discovery and consumption. They represent an innovative way to organize and package related data assets such as Tables, Dashboards, Charts, Pipelines, and other entities within DataHub. Data Products are a key concept in data mesh architecture, where they serve as independent units of data managed by specific domain teams.

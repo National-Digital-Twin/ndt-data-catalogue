@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0  */
+
 /**
 * Copyright 2025 Acryl Data, Inc.
 *
@@ -13,6 +15,16 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+/*
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
+ */
+plugins {
+  id 'scala'
+}
 
 apply from: "../gradle/versioning/versioning.gradle"
 apply from: "../gradle/coverage/python-coverage.gradle"

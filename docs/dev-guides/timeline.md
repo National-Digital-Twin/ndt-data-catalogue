@@ -1,6 +1,15 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 ---
-title: "Timeline API"
----
+
+## title: "Timeline API"
 
 The Timeline API supports viewing version history of schemas, documentation, tags, glossary terms, and other updates
 to entities. At present, the API only supports Datasets and Glossary Terms.

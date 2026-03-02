@@ -1,3 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
+
 #!/usr/bin/env bash
 # Check if the quickstart docker-compose config is up-to-date
 # This script runs generateQuickstartComposeConfig and fails if it modifies the output file

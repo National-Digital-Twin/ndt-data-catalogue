@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Data Contract
 
 A Data Contract is an agreement between a data asset's producer and consumer that defines expectations and guarantees about the quality, structure, and operational characteristics of data. Data Contracts serve as formal commitments that help establish trust and reliability in data pipelines by making explicit what data consumers can expect from data producers.

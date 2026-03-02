@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Migration Guide: V1 to V2
 
 This guide helps you migrate from Java SDK V1 (RestEmitter) to V2 (DataHubClientV2). We'll show side-by-side examples and highlight key differences.

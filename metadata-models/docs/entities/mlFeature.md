@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # ML Feature
 
 The ML Feature entity represents an individual input variable used by machine learning models. Features are the building blocks of feature engineering - they transform raw data into meaningful signals that ML algorithms can learn from. In modern ML systems, features are first-class citizens that can be discovered, documented, versioned, and reused across multiple models and teams.

@@ -1,3 +1,14 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
+ *
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
+ */
 import { Icon, colors } from '@components';
 import { Typography } from 'antd';
 import styled from 'styled-components';
@@ -15,6 +26,7 @@ export const PageWrapper = styled.div`
     flex-direction: column;
     box-shadow: 0px 4px 8px 0px rgba(33, 23, 95, 0.08);
     align-items: center;
+    background-color: ${({ theme }) => theme.styles['content-background']};
 `;
 
 export const HomePageContainer = styled.div`
@@ -22,8 +34,10 @@ export const HomePageContainer = styled.div`
     flex: 1;
     overflow: hidden;
     margin: 5px;
+    margin-right: 0px;
+    margin-bottom: 0px;
     border: 1px solid ${colors.gray[100]};
-    border-radius: 12px;
+    border-top-left-radius: 12px;
     position: relative;
 `;
 
@@ -35,7 +49,7 @@ export const StyledVectorBackground = styled(VectorBackground)`
     transform: rotate(0deg);
     pointer-events: none;
     border-radius: 12px;
-    background-color: ${colors.white};
+    background-color: ${colors.red};
 `;
 
 export const contentWidth = (additionalWidth = 0) => `
@@ -51,7 +65,6 @@ export const contentWidth = (additionalWidth = 0) => `
 
 export const ContentContainer = styled.div`
     z-index: 1;
-    padding: 24px 0 16px 0;
     height: 100%;
     display: flex;
     flex-direction: column;

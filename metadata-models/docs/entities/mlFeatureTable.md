@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # ML Feature Table
 
 The ML Feature Table entity represents a collection of related machine learning features organized together in a feature store. Feature tables are fundamental building blocks in the ML feature management ecosystem, grouping features that share common characteristics such as the same primary keys, update cadence, or data source. They bridge the gap between raw data in data warehouses and the features consumed by ML models during training and inference.

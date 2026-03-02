@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # ML Model
 
 The ML Model entity represents trained machine learning models across various ML platforms and frameworks. ML Models can be trained using different algorithms and frameworks (TensorFlow, PyTorch, Scikit-learn, etc.) and deployed to various platforms (MLflow, SageMaker, Vertex AI, etc.).

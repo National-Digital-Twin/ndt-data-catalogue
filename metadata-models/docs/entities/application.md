@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Application
 
 The application entity represents software applications, services, or systems that produce or consume data assets in your data ecosystem. Applications serve as a way to organize and group related data assets by the software that creates, transforms, or uses them, enabling better understanding of data provenance and usage patterns.

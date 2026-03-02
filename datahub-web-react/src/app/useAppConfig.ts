@@ -1,3 +1,11 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
+ */
 import { useContext } from 'react';
 
 import { HIDE_LINEAGE_IN_SEARCH_CARDS_KEY, SHOW_SEPARATE_SIBLINGS_KEY } from '@app/appConfig/UpdateGlobalFlags';

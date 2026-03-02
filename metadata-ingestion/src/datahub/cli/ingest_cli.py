@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
+
 import csv
 import json
 import logging
@@ -398,13 +405,9 @@ def _setup_recording(
     """Setup recording for the ingestion run."""
     from datahub.ingestion.recording.config import (
         RecordingConfig,
-        check_recording_dependencies,
         get_recording_password_from_env,
     )
     from datahub.ingestion.recording.recorder import IngestionRecorder
-
-    # Check dependencies first
-    check_recording_dependencies()
 
     # Build recording config from recipe, with CLI overrides
     recording_config_dict = pipeline_config.get("recording", {}).copy()

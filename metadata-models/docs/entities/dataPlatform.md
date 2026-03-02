@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Data Platform
 
 A Data Platform is a metadata entity that represents a source system, technology, or tool that contains and manages data assets. Data Platforms are the foundational building blocks in DataHub's metadata model, serving as the namespace and classification system for all datasets, dashboards, charts, jobs, and other data assets.

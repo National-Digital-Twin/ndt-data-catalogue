@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # DataHub Open Data Quality Assertions Specification
 
 DataHub is developing an open-source Data Quality Assertions Specification & Compiler that will allow you to declare data quality checks / expectations / assertions using a simple, universal

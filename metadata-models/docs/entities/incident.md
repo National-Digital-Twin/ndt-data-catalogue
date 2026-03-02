@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Incident
 
 Incidents represent data quality issues, operational problems, or any other type of issue that affects data assets in DataHub. They provide a structured way to track, manage, and resolve problems across datasets, dashboards, charts, data flows, data jobs, and schema fields. Incidents help teams maintain data reliability by documenting problems, assigning responsibility, tracking resolution progress, and maintaining an audit trail of data quality events.

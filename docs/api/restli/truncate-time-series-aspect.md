@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Truncate Timeseries Index Endpoint
 
 You can do a HTTP POST request to `/gms/operations?action=truncateTimeseriesAspect` endpoint to manage the size of a time series index by removing entries older than a certain timestamp, thereby truncating the table to only the entries needed, to save space. The `getIndexSizes` endpoint can be used to identify the largest indices. The output includes the index parameters needed for this function.

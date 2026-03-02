@@ -1,6 +1,17 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 ---
+
 title: Configuring Remote Executor
 description: Learn how to set up, deploy, and configure Remote Executors in your environment
+
 ---
 
 import FeatureAvailability from '@site/src/components/FeatureAvailability';

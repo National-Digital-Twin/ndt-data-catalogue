@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # GlossaryNode
 
 A GlossaryNode represents a hierarchical grouping or category within DataHub's Business Glossary. GlossaryNodes act as folders or containers that organize GlossaryTerms into a logical structure, making it easier to navigate and manage large business glossaries.

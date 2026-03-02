@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # High Cardinality Relationships
 
 As explained in [What is a Relationship](../what/relationship.md), the raw metadata for forming relationships is captured directly inside of a [Metadata Aspect](../what/aspect.md). The most natural way to model this is using an array, e.g. a group membership aspect contains an array of user [URNs](../what/urn.md). However, this poses some challenges when the cardinality of the relationship is expected to be large (say, greater than 10,000). The aspect becomes large in size, which leads to slow update and retrieval. It may even exceed the underlying limit of the document store, which is often in the range of a few MBs. Furthermore, sending large messages (> 1MB) over Kafka requires special tuning and is generally discouraged.

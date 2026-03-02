@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Switching Embedding Providers
 
 This guide explains how to migrate from one embedding provider to another. Switching providers requires deleting the semantic index and re-ingesting all documents because different models produce vectors with incompatible dimensions.

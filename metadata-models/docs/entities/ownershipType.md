@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # OwnershipType
 
 The ownershipType entity represents a custom ownership category in DataHub. Ownership Types define the roles and responsibilities that users or groups can have for data assets. While DataHub provides built-in ownership types (Technical Owner, Business Owner, Data Steward), organizations can create custom ownership types to match their specific governance models and organizational structures.

@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # ML Model Group
 
 ML Model Groups represent collections of related machine learning models within an organization's ML infrastructure. They serve as logical containers for organizing model versions, experimental variants, or families of models that share common characteristics. Model groups are essential for managing the lifecycle of ML models, tracking model evolution over time, and organizing models by purpose, architecture, or business function.

@@ -1,3 +1,11 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
+ */
 import { ParentSize } from '@visx/responsive';
 import { Axis, BarSeries, BarStack, Grid, XYChart } from '@visx/xychart';
 import dayjs from 'dayjs';
@@ -6,6 +14,8 @@ import React from 'react';
 import { Legend } from '@app/dataviz/Legend';
 import { ChartWrapper } from '@app/dataviz/components';
 import { abbreviateNumber } from '@app/dataviz/utils';
+
+const XYChartAny = XYChart as any;
 
 export const BarChart = <Data extends object, DataKeys>({
     data,
@@ -38,7 +48,7 @@ export const BarChart = <Data extends object, DataKeys>({
 
                     return (
                         <>
-                            <XYChart
+                            <XYChartAny
                                 width={width}
                                 height={255}
                                 xScale={{ type: 'band', nice: true, invert: true, paddingInner: 0.3 }}
@@ -49,19 +59,21 @@ export const BarChart = <Data extends object, DataKeys>({
                                 <Grid columns={false} numTicks={tickCount} lineStyle={{ stroke: '#EAEAEA' }} />
                                 {multipleData ? (
                                     <BarStack>
-                                        {dataKeys
-                                            .slice()
-                                            .reverse()
-                                            .map((dK) => (
-                                                <BarSeries
-                                                    key={dK}
-                                                    dataKey={dK}
-                                                    data={data}
-                                                    xAccessor={xAccessor}
-                                                    yAccessor={(d) => yAccessor(d, dK)}
-                                                    colorAccessor={() => colorAccessor(dK)}
-                                                />
-                                            ))}
+                                        {
+                                            dataKeys
+                                                .slice()
+                                                .reverse()
+                                                .map((dK) => (
+                                                    <BarSeries
+                                                        key={dK}
+                                                        dataKey={dK}
+                                                        data={data}
+                                                        xAccessor={xAccessor}
+                                                        yAccessor={(d) => yAccessor(d, dK)}
+                                                        colorAccessor={() => colorAccessor(dK)}
+                                                    />
+                                                )) as any
+                                        }
                                     </BarStack>
                                 ) : (
                                     <BarSeries
@@ -94,7 +106,7 @@ export const BarChart = <Data extends object, DataKeys>({
                                     )}
                                     hideAxisLine
                                 />
-                            </XYChart>
+                            </XYChartAny>
                             <Legend scale={colorAccessor} />
                         </>
                     );

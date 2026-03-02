@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # What is a metadata delta?
 
 Rest.li supports [partial update](https://linkedin.github.io/rest.li/user_guide/restli_server#partial_update) natively without needing explicitly defined models.

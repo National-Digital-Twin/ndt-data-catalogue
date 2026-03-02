@@ -1,3 +1,11 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
+ */
 import { BarChart as AlchemyBarChart, LineChart as AlchemyLineChart, GraphCard, Text } from '@components';
 import { ParentSize } from '@visx/responsive';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
@@ -13,6 +21,8 @@ import { useAnalyticsChartColors } from '@app/analyticsDashboardV2/hooks/useAnal
 import { colors } from '@src/alchemy-components/theme';
 
 import { AnalyticsChart as AnalyticsChartType, BarChart as BarChartType, TimeSeriesChart } from '@types';
+
+const XYChartAny = XYChart as any;
 
 type Props = {
     chartData: AnalyticsChartType;
@@ -281,7 +291,7 @@ const StackedBarChartWithTooltip = ({ stackedBarChartData, allSegmentLabels, seg
                     {({ width, height }) =>
                         width > 0 && height > 0 ? (
                             <>
-                                <XYChart
+                                <XYChartAny
                                     width={width}
                                     height={height}
                                     xScale={{ type: 'band', paddingInner: 0.3 }}
@@ -318,19 +328,21 @@ const StackedBarChartWithTooltip = ({ stackedBarChartData, allSegmentLabels, seg
                                     />
                                     <Axis orientation="left" numTicks={5} />
                                     <BarStack>
-                                        {visibleSegmentLabels.map((segmentLabel) => {
-                                            const idx = allSegmentLabels.indexOf(segmentLabel);
-                                            return (
-                                                <BarSeries
-                                                    key={segmentLabel}
-                                                    dataKey={segmentLabel}
-                                                    data={filteredBarChartData}
-                                                    xAccessor={(d) => d.x}
-                                                    yAccessor={(d) => d[segmentLabel] || 0}
-                                                    colorAccessor={() => segmentColors[idx % segmentColors.length]}
-                                                />
-                                            );
-                                        })}
+                                        {
+                                            visibleSegmentLabels.map((segmentLabel) => {
+                                                const idx = allSegmentLabels.indexOf(segmentLabel);
+                                                return (
+                                                    <BarSeries
+                                                        key={segmentLabel}
+                                                        dataKey={segmentLabel}
+                                                        data={filteredBarChartData}
+                                                        xAccessor={(d) => d.x}
+                                                        yAccessor={(d) => d[segmentLabel] || 0}
+                                                        colorAccessor={() => segmentColors[idx % segmentColors.length]}
+                                                    />
+                                                );
+                                            }) as any
+                                        }
                                     </BarStack>
                                     <Tooltip
                                         key={Math.random()}
@@ -359,10 +371,10 @@ const StackedBarChartWithTooltip = ({ stackedBarChartData, allSegmentLabels, seg
                                                         </>
                                                     }
                                                 />
-                                            );
+                                            ) as any;
                                         }}
                                     />
-                                </XYChart>
+                                </XYChartAny>
                                 {tooltipData && (
                                     <TooltipInPortal key={Math.random()} top={tooltipTop} left={tooltipLeft}>
                                         <TooltipContainer>

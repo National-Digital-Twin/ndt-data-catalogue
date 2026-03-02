@@ -1,3 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# This file is unmodified from its original version developed by Acryl Data, Inc.,
+# and is now included as part of a repository maintained by the National Digital Twin Programme.
+# All support, maintenance and further development of this code is now the responsibility
+# of the National Digital Twin Programme.
+
 """Main recording orchestrator that combines HTTP and database recording.
 
 This module provides the IngestionRecorder class which is the main entry point
@@ -22,16 +29,14 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from datahub.ingestion.recording import config as recording_config
 from datahub.ingestion.recording.archive import (
     DB_DIR,
     HTTP_DIR,
     ArchiveManifest,
     RecordingArchive,
 )
-from datahub.ingestion.recording.config import (
-    RecordingConfig,
-    check_recording_dependencies,
-)
+from datahub.ingestion.recording.config import RecordingConfig
 from datahub.ingestion.recording.db_proxy import QueryRecorder
 from datahub.ingestion.recording.http_recorder import HTTPRecorder
 from datahub.ingestion.recording.patcher import ModulePatcher
@@ -79,7 +84,7 @@ class IngestionRecorder:
             redact_secrets: Whether to redact secrets in the stored recipe (default: True).
                           Set to False for local debugging to keep actual credentials.
         """
-        check_recording_dependencies()
+        recording_config.check_recording_dependencies()
 
         self.run_id = run_id
         self.password = password

@@ -1,3 +1,11 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
+ */
 import { DataContext, Margin } from '@visx/xychart';
 import { RefObject, useContext, useEffect, useMemo } from 'react';
 
@@ -17,7 +25,7 @@ export default function DynamicMarginSetter({
     minimalMargin,
     currentMargin,
 }: DynamicMarginSetterProps) {
-    const { margin } = useContext(DataContext);
+    const { margin } = (useContext(DataContext as any) ?? {}) as { margin?: Margin };
 
     const safeMargin = useMemo(
         () => ({

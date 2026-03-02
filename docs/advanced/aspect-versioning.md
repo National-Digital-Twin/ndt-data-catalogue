@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Aspect Versioning
 
 As each version of [metadata aspect](../what/aspect.md) is immutable, any update to an existing aspect results in the creation of a new version. Typically one would expect the version number increases sequentially with the largest version number being the latest version, i.e. `v1` (oldest), `v2` (second oldest), ..., `vN` (latest). However, this approach results in major challenges in both rest.li modeling & transaction isolation and therefore requires a rethinking.

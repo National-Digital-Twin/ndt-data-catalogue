@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Base Path Support in DataHub Frontend
 
 DataHub's React frontend supports runtime base path detection, allowing the same build to be deployed at different URL paths (e.g., `/` or `/datahub/`) without requiring rebuild or reconfiguration.

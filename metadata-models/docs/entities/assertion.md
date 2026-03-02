@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Assertion
 
 The assertion entity represents a data quality rule that can be applied to one or more datasets. Assertions are the foundation of DataHub's data quality framework, enabling organizations to define, monitor, and enforce expectations about their data. They encompass various types of checks including field-level validation, volume monitoring, freshness tracking, schema validation, and custom SQL-based rules.

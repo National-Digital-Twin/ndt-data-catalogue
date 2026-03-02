@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Form
 
 The form entity is a core entity in DataHub's metadata model that enables structured metadata collection and compliance initiatives. Forms provide a centralized, template-based approach for capturing essential metadata across data assets through a collaborative, crowdsourced workflow.

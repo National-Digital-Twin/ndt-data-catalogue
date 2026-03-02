@@ -1,3 +1,11 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
+ */
 import { curveMonotoneX } from '@visx/curve';
 import { Group } from '@visx/group';
 import { ParentSize } from '@visx/responsive';
@@ -21,6 +29,8 @@ import { lineChartDefault } from '@components/components/LineChart/defaults';
 import usePreparedLineChartScales from '@components/components/LineChart/hooks/usePreparedScales';
 import { Datum, LineChartProps } from '@components/components/LineChart/types';
 import { Popover } from '@components/components/Popover';
+
+const XYChartAny = XYChart as any;
 
 export function LineChart({
     data,
@@ -124,7 +134,7 @@ export function LineChart({
             <ParentSize>
                 {({ width, height }) => {
                     return (
-                        <XYChart
+                        <XYChartAny
                             width={width}
                             height={height}
                             margin={dynamicMargin}
@@ -197,7 +207,7 @@ export function LineChart({
                                     <GlyphSeries<AxisScale, AxisScale, Datum>
                                         dataKey="line-chart-seria-01"
                                         data={data}
-                                        renderGlyph={renderGlyphOnSingleDataPoint}
+                                        renderGlyph={renderGlyphOnSingleDataPoint as any}
                                         {...accessors}
                                     />
                                 )}
@@ -209,24 +219,22 @@ export function LineChart({
                                 showVerticalCrosshair
                                 applyPositionStyle
                                 showSeriesGlyphs
-                                verticalCrosshairStyle={toolbarVerticalCrosshairStyle}
-                                renderGlyph={renderTooltipGlyph}
+                                verticalCrosshairStyle={toolbarVerticalCrosshairStyle as any}
+                                renderGlyph={renderTooltipGlyph as any}
                                 unstyled
-                                renderTooltip={({ tooltipData }) => {
-                                    return (
-                                        tooltipData?.nearestDatum && (
-                                            <Popover
-                                                open
-                                                defaultOpen
-                                                placement="topLeft"
-                                                key={`${xAccessor(tooltipData.nearestDatum.datum)}`}
-                                                content={popoverRenderer?.(tooltipData.nearestDatum.datum)}
-                                            />
-                                        )
-                                    );
-                                }}
+                                renderTooltip={({ tooltipData }) =>
+                                    (tooltipData?.nearestDatum ? (
+                                        <Popover
+                                            open
+                                            defaultOpen
+                                            placement="topLeft"
+                                            key={`${xAccessor(tooltipData.nearestDatum.datum)}`}
+                                            content={popoverRenderer?.(tooltipData.nearestDatum.datum)}
+                                        />
+                                    ) : null) as any
+                                }
                             />
-                        </XYChart>
+                        </XYChartAny>
                     );
                 }}
             </ParentSize>

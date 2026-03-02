@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # ML Model Deployment
 
 ML Model Deployments represent deployed instances of machine learning models running in production or other environments. They track the operational aspects of ML models, including their deployment status, platform, configuration, and lifecycle. Model deployments are distinct from ML models themselves - while an ML model represents the trained artifact, a deployment represents a specific instance of that model serving predictions in a particular environment.

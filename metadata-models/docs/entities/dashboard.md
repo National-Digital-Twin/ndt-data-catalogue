@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Dashboard
 
 Dashboards are collections of visualizations and charts that provide insights into data. In DataHub, dashboards represent collections of charts (visualizations) typically found in Business Intelligence (BI) platforms and data visualization tools. Dashboards are typically ingested from platforms like Looker, Tableau, PowerBI, Superset, Mode, Grafana, and other BI tools.

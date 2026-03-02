@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Domain
 
 Domains are curated, top-level categories for organizing data assets within an organization. They represent logical groupings that typically align with business units, departments, or functional areas. Unlike tags which are informal labels, Domains provide a structured way to organize assets with centralized or distributed management. A data asset can belong to only one Domain at a time.

@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # SchemaField
 
 The schemaField entity represents an individual column or field within a dataset's schema. While schema information is typically ingested as part of a dataset's `schemaMetadata` aspect, schemaField entities exist as first-class entities to enable direct attachment of metadata like tags, glossary terms, documentation, and structured properties at the field level.

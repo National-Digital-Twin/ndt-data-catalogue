@@ -1,3 +1,12 @@
+<!--
+SPDX-License-Identifier: OGL-UK-3.0
+
+This file is unmodified from its original version developed by Acryl Data, Inc.,
+and is now included as part of a repository maintained by the National Digital Twin Programme.
+All support, maintenance and further development of this code is now the responsibility
+of the National Digital Twin Programme.
+-->
+
 # Container
 
 The container entity is a core entity in the metadata model that represents a grouping of related data assets. Containers provide hierarchical organization for datasets, charts, dashboards, and other containers, enabling navigation and structure discovery within data platforms.

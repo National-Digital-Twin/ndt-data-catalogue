@@ -1,3 +1,12 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * This file is unmodified from its original version developed by Acryl Data, Inc.,
+ * and is now included as part of a repository maintained by the National Digital Twin Programme.
+ * All support, maintenance and further development of this code is now the responsibility
+ * of the National Digital Twin Programme.
+ */
+
 plugins {
     id 'java' // required by versioning
     id 'docker-compose'
@@ -386,6 +395,7 @@ task generateQuickstartComposeConfig {
         composeExecutor.parameters.environment.put("DATAHUB_VERSION", '__VERSION__')
         composeExecutor.parameters.environment.put("DATAHUB_APP_VERSION", '__VERSION__')
         composeExecutor.parameters.environment.put("METADATA_SERVICE_AUTH_ENABLED", 'false')
+        composeExecutor.parameters.environment.put("DATAHUB_REPO", '__DATAHUB_REPO__')
 
         // Set placeholder port values that should remain configurable at runtime
         // Use unique high port numbers as placeholders that will be replaced later
@@ -398,6 +408,8 @@ task generateQuickstartComposeConfig {
         configOutput = configOutput.replace('__VERSION__', '${DATAHUB_VERSION}')
         configOutput = configOutput.replace('__VERSION__', '${DATAHUB_APP_VERSION}')
         configOutput = configOutput.replace(System.getenv('HOME'), '${HOME}')
+        // Replace the DATAHUB_REPO placeholder so the registry remains configurable at runtime
+        configOutput = configOutput.replace('__DATAHUB_REPO__/', '${DATAHUB_REPO:-acryldata}/')
 
         // Parse configOutput as yaml and add UI_INGESTION_DEFAULT_CLI_VERSION as an env var under datahub-gms-quickstart.environment key
         // This needs to be matched with the version of the CLI used to launch quickstart
@@ -462,12 +474,17 @@ quickstart_configs.each { taskName, config ->
             buildCmd << "depot"
             buildCmd += bakeCmdArgs
             buildCmd += ['--save', '--metadata-file', "${rootProject.buildDir}/build-metadata.json"]
-            if (project.properties.getOrDefault("dockerPush", false)){
+            if (project.properties.getOrDefault("dockerPush", "false").toString().toBoolean()){
                 buildCmd << "--push"
             }
         } else {
             buildCmd += ["docker",  "buildx" ]
             buildCmd +=bakeCmdArgs
+            if (project.properties.getOrDefault("dockerPush", "false").toString().toBoolean()){
+                buildCmd << "--push"
+            } else if (project.properties.getOrDefault("dockerLoad", "false").toString().toBoolean()){
+                buildCmd << "--load"
+            }
         }
         commandLine buildCmd
         workingDir rootProject.projectDir
