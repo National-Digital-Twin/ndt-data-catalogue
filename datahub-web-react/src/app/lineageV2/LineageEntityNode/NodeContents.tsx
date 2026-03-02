@@ -1,15 +1,18 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
 import { LoadingOutlined } from '@ant-design/icons';
 import { Tooltip } from '@components';
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
-import { Skeleton, Spin } from 'antd';
+import { Spin } from 'antd';
 import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import { Handle, Position } from 'reactflow';
 import styled from 'styled-components';
@@ -36,7 +39,6 @@ import { FetchStatus, LineageEntity, getNodeColor, isGhostEntity, onClickPrevent
 import { NUM_COLUMNS_PER_PAGE } from '@app/lineageV2/constants';
 import { FetchedEntityV2 } from '@app/lineageV2/types';
 import HealthIcon from '@app/previewV2/HealthIcon';
-import getTypeIcon from '@app/sharedV2/icons/getTypeIcon';
 import MatchTextSizeWrapper from '@app/sharedV2/text/MatchTextSizeWrapper';
 import OverflowTitle from '@app/sharedV2/text/OverflowTitle';
 import { useEntityRegistry } from '@app/useEntityRegistry';
@@ -60,13 +62,11 @@ const NodeWrapper = styled.div<{
         ${({ color, selected, isGhost }) => {
             if (selected) return color;
             if (isGhost) return `${LINEAGE_COLORS.NODE_BORDER}50`;
-            return LINEAGE_COLORS.NODE_BORDER;
+            return (props) => props.theme.styles['lineage-node-border-color'];
         }};
-    box-shadow: ${({ isSearchedEntity, theme }) =>
-        isSearchedEntity ? `0 0 4px 4px ${theme.styles['primary-color']}95` : 'none'};
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.16);
     outline: ${({ color, selected }) => (selected ? `1px solid ${color}` : 'none')};
-    border-left: none;
-    border-radius: 6px;
+    border-radius: 4px;
     display: flex;
     flex-direction: column;
     max-height: ${({ expandHeight }) => expandHeight}px;
@@ -90,29 +90,25 @@ const FakeCard = styled.div`
     width: 100%;
 `;
 
-const CardWrapper = styled.div<{ isGhost: boolean }>`
-    align-items: center;
+const CardWrapper = styled.div`
+    align-items: end;
+    display: flex;
+    height: ${CARD_HEIGHT}px;
+    position: absolute;
+    padding: 0 8px 6px 8px;
+    width: 100%;
+`;
+
+const CardContentContainer = styled.div<{ isGhost: boolean }>`
+    align-items: top;
     display: flex;
     flex-direction: row;
     height: ${CARD_HEIGHT}px;
     position: absolute;
+    left: 0;
     padding: 8px 11px;
     width: 100%;
     ${({ isGhost }) => isGhost && 'opacity: 0.5;'}
-`;
-
-const EntityTypeShadow = styled.div<{ color: string; isGhost: boolean }>`
-    background: ${({ color }) => color};
-    opacity: ${({ isGhost }) => (isGhost ? 0.5 : 1)};
-    border-radius: 6px;
-    position: absolute;
-
-    height: 100%;
-    width: 22px;
-
-    left: -3px;
-    top: 0;
-    z-index: -1;
 `;
 
 export const LoadingWrapper = styled.div`
@@ -123,6 +119,17 @@ export const LoadingWrapper = styled.div`
     position: absolute;
     top: 10px;
     transform: translateY(-50%);
+`;
+
+const CardDivider = styled.hr`
+    position: absolute;
+    border: 0;
+    border-top: 1px solid ${(props) => props.theme.styles['lineage-node-border-color']};
+    bottom: 38px;
+    left: 2.5%;
+    margin: 4px 0;
+    width: 95%;
+    height: 0;
 `;
 
 const CustomHandle = styled(Handle)<{ position: Position }>`
@@ -139,6 +146,8 @@ const IconsWrapper = styled.div`
     flex-direction: column;
     font-size: 24px;
     gap: 4px;
+    margin-right: 8px;
+    padding-top: 10px;
 `;
 
 const PlatformIcon = styled.img`
@@ -164,19 +173,10 @@ const SiblingPlatformIcon = styled.img`
 `;
 
 const HorizontalDivider = styled.hr<{ margin: number }>`
-    border: 0.5px solid;
+    border: 0;
+    border-top: 1px solid ${(props) => props.theme.styles['lineage-node-border-color']};
     margin: ${({ margin }) => margin}px 0;
-    opacity: 0.1;
-    width: 100%;
-`;
-
-const VerticalDivider = styled.hr<{ margin: number }>`
-    align-self: stretch;
-    height: auto;
-    margin: 0 ${({ margin }) => margin}px;
-    border: 0.5px solid;
-    opacity: 0.1;
-    vertical-align: text-top;
+    width: 95%;
 `;
 
 const MainTextWrapper = styled.div`
@@ -187,6 +187,7 @@ const MainTextWrapper = styled.div`
     gap: 4px;
     height: 100%;
     min-width: 0;
+    padding-top: 4px;
 `;
 
 // Expands to fit vertical space
@@ -199,36 +200,33 @@ const TitleWrapper = styled.div`
 // Positions and aligns title text with health icon
 // Can't be combined with TitleWrapper, or else centered health icon will not align with text when wrapper expands
 const TitleLine = styled.span`
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
 
     display: flex;
     align-items: center;
     height: min-content;
     gap: 4px;
+    color: ${(props) => props.theme.styles['lineage-node-title-color']};
 `;
 
 const ExpandColumnsWrapper = styled(MatchTextSizeWrapper)`
     align-items: center;
-    border: 0.5px solid ${LINEAGE_COLORS.BLUE_1}50;
-    border-radius: 10px;
-    color: ${LINEAGE_COLORS.BLUE_1};
+    color: ${(props) => props.theme.styles['columns-button-text-color']};
     display: flex;
     justify-content: center;
     width: 100%;
+    z-index: 1;
 
     flex: 1 1 16px;
-    min-height: 12px;
-    max-height: 16px;
+    height: 28px;
+
+    font-size: 14px;
 
     :hover {
-        background-color: ${LINEAGE_COLORS.BLUE_1}20;
+        background-color: ${(props) => props.theme.styles['columns-button-hover-color']};
         cursor: pointer;
     }
-`;
-
-const SkeletonImage = styled(Skeleton.Avatar)`
-    line-height: 0;
 `;
 
 const PropertyBadgeWrapper = styled.div`
@@ -308,8 +306,8 @@ function NodeContents(props: Props & LineageEntity & DisplayedColumns) {
     const expandHeight =
         LINEAGE_NODE_HEIGHT +
         (numDisplayedColumns || onlyWithLineage ? 17 : 0) + // Expansion base
-        (showColumns && numColumnsTotal ? 30 : 0) + // Search bar
-        20.5 * numDisplayedColumns + // Columns
+        (showColumns && numColumnsTotal ? 40 : 0) + // Search bar
+        28 * numDisplayedColumns + // Columns
         (showColumns && paginatedColumns.length && extraHighlightedColumns.length ? 9 : 0) + // Column divider
         (showColumns && numFilteredColumns > NUM_COLUMNS_PER_PAGE ? 38 : 0); // Pagination
 
@@ -377,7 +375,7 @@ function NodeContents(props: Props & LineageEntity & DisplayedColumns) {
             isGhost={isGhost}
             isSearchedEntity={isSearchedEntity}
         >
-            <EntityTypeShadow color={nodeColor} isGhost={isGhost} />
+            {/* <EntityTypeShadow color={nodeColor} isGhost={isGhost} /> */}
             <FakeCard />
             <FakeCard style={{ position: 'absolute' }}>
                 {hasUpstreamChildren &&
@@ -428,91 +426,87 @@ function NodeContents(props: Props & LineageEntity & DisplayedColumns) {
                     </LoadingWrapper>
                 )}
             </FakeCard>
-            <CardWrapper
-                isGhost={isGhost}
-                onMouseEnter={() => setHoveredNode(urn)}
-                onMouseLeave={() => setHoveredNode(null)}
-            >
-                <CustomHandle type="target" position={Position.Left} isConnectable={false} />
-                <CustomHandle type="source" position={Position.Right} isConnectable={false} />
-                <IconsWrapper>
-                    {entity?.icon && entity.lineageSiblingIcon && (
-                        <>
-                            <PlatformIconWithSibling src={entity.lineageSiblingIcon} />
-                            <SiblingPlatformIcon src={entity.icon} />
-                        </>
-                    )}
-                    {entity?.icon && !entity.lineageSiblingIcon && (
-                        <PlatformIcon src={entity.icon} alt={platformName || 'platform'} title={platformName} />
-                    )}
-                    {!entity && <SkeletonImage size="small" shape="square" style={{ borderRadius: '20%' }} />}
-                    {entity ? (
-                        getTypeIcon(entityRegistry, entity.type, entity.subtype, true)
-                    ) : (
-                        <SkeletonImage size="small" shape="square" style={{ borderRadius: '20%' }} />
-                    )}
-                </IconsWrapper>
-                <VerticalDivider margin={8} />
-                {entity && (
-                    <MainTextWrapper>
-                        <ContainerPath parents={entity?.containers} />
-                        <TitleWrapper>
-                            <TitleLine>
-                                <OverflowTitle
-                                    title={entity?.name ?? entity?.urn}
-                                    highlightText={searchQuery}
-                                    highlightColor={highlightColor}
-                                    extra={
-                                        entity?.versionProperties && (
-                                            <StyledVersioningBadge
-                                                showPopover={false}
-                                                versionProperties={entity.versionProperties}
-                                                size="inherit"
-                                            />
-                                        )
-                                    }
-                                />
-                                {entity?.deprecation?.deprecated && (
-                                    <DeprecationIcon
-                                        urn={urn}
-                                        deprecation={entity?.deprecation}
-                                        showText={false}
-                                        showUndeprecate={false}
+            <CardWrapper>
+                <CardContentContainer
+                    isGhost={isGhost}
+                    onMouseEnter={() => setHoveredNode(urn)}
+                    onMouseLeave={() => setHoveredNode(null)}
+                >
+                    <CustomHandle type="target" position={Position.Left} isConnectable={false} />
+                    <CustomHandle type="source" position={Position.Right} isConnectable={false} />
+                    <IconsWrapper>
+                        {entity?.icon && entity.lineageSiblingIcon && (
+                            <>
+                                <PlatformIconWithSibling src={entity.lineageSiblingIcon} />
+                                <SiblingPlatformIcon src={entity.icon} />
+                            </>
+                        )}
+                        {entity?.icon && !entity.lineageSiblingIcon && (
+                            <PlatformIcon src={entity.icon} alt={platformName || 'platform'} title={platformName} />
+                        )}
+                    </IconsWrapper>
+                    {entity && (
+                        <MainTextWrapper>
+                            <ContainerPath parents={entity?.containers} />
+                            <TitleWrapper>
+                                <TitleLine>
+                                    <OverflowTitle
+                                        title={entity?.name ?? entity?.urn}
+                                        highlightText={searchQuery}
+                                        highlightColor={highlightColor}
+                                        extra={
+                                            entity?.versionProperties && (
+                                                <StyledVersioningBadge
+                                                    showPopover={false}
+                                                    versionProperties={entity.versionProperties}
+                                                    size="inherit"
+                                                />
+                                            )
+                                        }
                                     />
-                                )}
-                                {entity?.health && (
-                                    <HealthIcon
-                                        urn={urn}
-                                        health={entity.health}
-                                        baseUrl={entityRegistry.getEntityUrl(type, urn)}
-                                    />
-                                )}
-                            </TitleLine>
-                        </TitleWrapper>
-                        {!!numColumnsTotal && !isGhost && (
-                            <ExpandColumnsWrapper
-                                onClick={showHideColumns}
-                                defaultHeight={10}
-                                data-testid="expand-contract-columns"
-                            >
-                                {numColumnsTotal} columns
-                                {showColumns && <KeyboardArrowUp fontSize="inherit" style={{ marginLeft: 3 }} />}
-                                {!showColumns && <KeyboardArrowDown fontSize="inherit" style={{ marginLeft: 3 }} />}
-                            </ExpandColumnsWrapper>
-                        )}
-                        {isGhost ? (
-                            <GhostEntityMenu urn={urn} />
-                        ) : (
-                            <ManageLineageMenu node={props} refetch={refetch} isRootUrn={urn === rootUrn} />
-                        )}
-                        {entity && (
-                            <PropertyBadgeWrapper>
-                                <StructuredPropertyBadge structuredProperties={entity.structuredProperties} />
-                            </PropertyBadgeWrapper>
-                        )}
-                    </MainTextWrapper>
+                                    {entity?.deprecation?.deprecated && (
+                                        <DeprecationIcon
+                                            urn={urn}
+                                            deprecation={entity?.deprecation}
+                                            showText={false}
+                                            showUndeprecate={false}
+                                        />
+                                    )}
+                                    {entity?.health && (
+                                        <HealthIcon
+                                            urn={urn}
+                                            health={entity.health}
+                                            baseUrl={entityRegistry.getEntityUrl(type, urn)}
+                                        />
+                                    )}
+                                </TitleLine>
+                            </TitleWrapper>
+                            {isGhost ? (
+                                <GhostEntityMenu urn={urn} />
+                            ) : (
+                                <ManageLineageMenu node={props} refetch={refetch} isRootUrn={urn === rootUrn} />
+                            )}
+                            {entity && (
+                                <PropertyBadgeWrapper>
+                                    <StructuredPropertyBadge structuredProperties={entity.structuredProperties} />
+                                </PropertyBadgeWrapper>
+                            )}
+                        </MainTextWrapper>
+                    )}
+                    {!entity && <NodeSkeleton />}
+                </CardContentContainer>
+                <CardDivider />
+                {!!numColumnsTotal && !isGhost && (
+                    <ExpandColumnsWrapper
+                        onClick={showHideColumns}
+                        defaultHeight={10}
+                        data-testid="expand-contract-columns"
+                    >
+                        {numColumnsTotal} columns
+                        {showColumns && <KeyboardArrowUp fontSize="inherit" style={{ marginLeft: 3 }} />}
+                        {!showColumns && <KeyboardArrowDown fontSize="inherit" style={{ marginLeft: 3 }} />}
+                    </ExpandColumnsWrapper>
                 )}
-                {!entity && <NodeSkeleton />}
             </CardWrapper>
             {!!entity && !!numColumnsTotal && (
                 <>
@@ -538,7 +532,7 @@ function NodeContents(props: Props & LineageEntity & DisplayedColumns) {
     );
 
     if (isGhost) {
-        const message = entity?.status?.removed ? 'has been deleted' : 'does not exist in DataHub';
+        const message = entity?.status?.removed ? 'has been deleted' : 'does not exist in the Data Catalogue';
         return (
             <Tooltip title={`This entity ${message}`} mouseEnterDelay={0.3}>
                 {contents}

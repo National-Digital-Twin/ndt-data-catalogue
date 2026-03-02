@@ -1,10 +1,13 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
 import { useContext, useMemo, useRef } from 'react';
 
@@ -15,7 +18,7 @@ import { ColumnAsset, FetchedEntityV2, LineageAssetType } from '@app/lineageV2/t
 import { SchemaFieldDataType } from '@types';
 
 export const LINEAGE_NODE_WIDTH = 240;
-export const LINEAGE_NODE_HEIGHT = 80;
+export const LINEAGE_NODE_HEIGHT = 100;
 
 type FieldPath = string;
 

@@ -1,12 +1,14 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
-import { colors } from '@components';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
@@ -19,11 +21,10 @@ import LineageExplorer from '@app/lineage/LineageExplorer';
 import LineageGraph from '@app/lineageV2/LineageGraph';
 import { useLineageV2 } from '@app/lineageV2/useLineageV2';
 import TabFullsizedContext from '@app/shared/TabFullsizedContext';
-import { getColor } from '@src/alchemy-components/theme/utils';
 
 import { LineageDirection } from '@types';
 
-const LINEAGE_SWITCH_WIDTH = 90;
+const LINEAGE_SWITCH_WIDTH = 140;
 
 const LineageTabWrapper = styled.div`
     display: flex;
@@ -32,23 +33,27 @@ const LineageTabWrapper = styled.div`
 `;
 
 const LineageSwitchWrapper = styled.div`
-    border: 1px solid ${colors.violet[600]};
-    border-radius: 4.5px;
+    border: 1px solid ${(props) => props.theme.styles['segmented-button-border-color']};
+    border-radius: 8px;
     display: flex;
     margin: 13px 11px;
     width: ${LINEAGE_SWITCH_WIDTH * 2}px;
 `;
 
-const LineageViewSwitch = styled.div<{ selected: boolean }>`
-    background: ${({ selected, theme }) => (selected ? `${getColor('primary', 600, theme)}` : '#fff')};
-    border-radius: 3px;
-    color: ${({ selected, theme }) => (selected ? '#fff' : `${getColor('primary', 600, theme)}`)};
+const LineageViewSwitch = styled.div<{ selected: boolean; left: boolean }>`
+    background: ${({ selected, theme }) =>
+        selected ? `${theme.styles['segmented-button-selected-bg-color']}` : '#fff'};
+    color: ${({ selected, theme }) =>
+        selected
+            ? `${theme.styles['segmented-button-selected-text-color']}`
+            : `${theme.styles['segmented-button-text-color']}`};
     cursor: pointer;
+    border-radius: ${({ left }) => (left ? '8px 0 0 8px' : '0 8px 8px 0')};
     display: flex;
-    font-size: 10px;
+    font-size: 14.2px;
     justify-content: center;
-    line-height: 24px;
-    height: 24px;
+    line-height: 38px;
+    height: 38px;
     width: ${LINEAGE_SWITCH_WIDTH}px;
 `;
 
@@ -60,6 +65,7 @@ const VisualizationWrapper = styled.div`
 const LineageTabHeader = styled.div`
     display: flex;
     justify-content: space-between;
+    border-bottom: 1px solid ${(props) => props.theme.styles['segmented-button-border-color']};
 `;
 
 interface Props {
@@ -87,10 +93,14 @@ function WideLineageTab({ defaultDirection }: { defaultDirection: LineageDirecti
             {!isTabFullsize && (
                 <LineageTabHeader>
                     <LineageSwitchWrapper>
-                        <LineageViewSwitch selected={isVisualizeView} onClick={() => setVisualizeView(true)}>
-                            Explorer
+                        <LineageViewSwitch selected={isVisualizeView} onClick={() => setVisualizeView(true)} left>
+                            Explorer View
                         </LineageViewSwitch>
-                        <LineageViewSwitch selected={!isVisualizeView} onClick={() => setVisualizeView(false)}>
+                        <LineageViewSwitch
+                            selected={!isVisualizeView}
+                            onClick={() => setVisualizeView(false)}
+                            left={false}
+                        >
                             Impact Analysis
                         </LineageViewSwitch>
                     </LineageSwitchWrapper>

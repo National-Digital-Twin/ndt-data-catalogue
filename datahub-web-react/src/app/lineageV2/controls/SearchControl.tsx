@@ -1,10 +1,13 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
 import { SearchOutlined } from '@ant-design/icons';
 import { Button } from '@components';
@@ -18,13 +21,15 @@ import { ANTD_GRAY, REDESIGN_COLORS } from '@app/entityV2/shared/constants';
 import LineageVisualizationContext from '@app/lineageV2/LineageVisualizationContext';
 import { LineageDisplayContext, LineageNodesContext } from '@app/lineageV2/common';
 
+import SearchIcon from '@images/dt-search.svg?react';
+
 const StyledPanel = styled(Panel)`
     margin-top: 20px;
 `;
 
 const StyledInput = styled(Input)<{ width: number }>`
-    min-width: 50px;
-    min-height: 50px;
+    min-width: 48px;
+    min-height: 48px;
     width: ${({ width }) => width}px;
 
     display: flex;
@@ -33,11 +38,17 @@ const StyledInput = styled(Input)<{ width: number }>`
 
     font-size: 14px;
 
-    border-color: ${ANTD_GRAY[5]} !important;
-    box-shadow: none !important;
+    border-color: ${(props) => props.theme.styles['action-button-border-color']} !important;
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.16);
+
+    &:hover {
+        background-color: ${({ width }) =>
+            width > 48 ? 'white' : (props) => props.theme.styles['action-button-hover-color']};
+        cursor: pointer;
+    }
 `;
 
-const ClosedSearchIcon = styled(SearchOutlined)`
+const ClosedSearchIcon = styled(SearchIcon)`
     margin-left: 5px;
     font-size: 16px;
 `;

@@ -1,10 +1,13 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
 import { Tabs as AntTabs } from 'antd';
 import React, { useEffect, useRef } from 'react';
@@ -46,7 +49,12 @@ const StyledTabsPrimary = styled(AntTabs)<{
     .ant-tabs-tab {
         padding: 8px 0;
         font-size: 14px;
-        color: ${colors.gray[600]};
+        color: ${(props) => props.theme.styles['tab-text-color'] || colors.gray[600]};
+        font-weight: 300;
+
+        & :focus {
+            color: ${(props) => props.theme.styles['tab-selected-text-color']};
+        }
     }
 
     ${({ $addPaddingLeft }) =>
@@ -79,12 +87,11 @@ const StyledTabsPrimary = styled(AntTabs)<{
             }
         `}
     .ant-tabs-tab-active .ant-tabs-tab-btn {
-        color: ${(props) => props.theme.styles['primary-color']};
-        font-weight: 600;
+        color: ${(props) => props.theme.styles['tab-selected-text-color']};
     }
 
     .ant-tabs-ink-bar {
-        background-color: ${(props) => props.theme.styles['primary-color']};
+        background-color: ${(props) => props.theme.styles['tab-selected-text-color']};
     }
 
     .ant-tabs-content-holder {

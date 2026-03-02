@@ -1,10 +1,13 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
 import { ArrowLeftOutlined, ArrowRightOutlined, MoreOutlined } from '@ant-design/icons';
 import { Popover } from '@components';
@@ -29,8 +32,8 @@ const UPSTREAM_DISABLED_TEXT = 'Make this entity your home to make upstream edit
 const Wrapper = styled.div`
     border-radius: 4px;
     position: absolute;
-    right: 3px;
-    top: 8px;
+    right: 6px;
+    top: 20px;
 
     :hover {
         color: ${(p) => p.theme.styles['primary-color']};
@@ -51,8 +54,9 @@ const MenuItemContent = styled.div`
 
 const StyledButton = styled(Button)`
     height: min-content;
-    padding: 0;
-    border: none;
+    padding: 6px 7px;
+    border-radius: 6px;
+    border: 1px solid ${(props) => props.theme.styles['action-button-border-color']};
     box-shadow: none;
     transition: none;
 
@@ -64,6 +68,10 @@ const StyledButton = styled(Button)`
         top: 20px !important;
         left: auto !important;
         right: 0 !important;
+    }
+
+    &:hover {
+        background-color: ${(props) => props.theme.styles['action-button-hover-color']};
     }
 `;
 

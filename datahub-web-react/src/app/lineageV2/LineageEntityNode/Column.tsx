@@ -1,10 +1,13 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
 import { LoadingOutlined } from '@ant-design/icons';
 import { Tooltip } from '@components';
@@ -21,10 +24,8 @@ import { generateSchemaFieldUrn } from '@app/entityV2/shared/tabs/Lineage/utils'
 import { useGetLineageTimeParams } from '@app/lineage/utils/useGetLineageTimeParams';
 import { LineageDisplayColumn } from '@app/lineageV2/LineageEntityNode/useDisplayedColumns';
 import {
-    HOVER_COLOR,
     LineageDisplayContext,
     LineageNodesContext,
-    SELECT_COLOR,
     createColumnRef,
     onClickPreventSelect,
     useIgnoreSchemaFieldStatus,
@@ -51,24 +52,25 @@ const ColumnWrapper = styled.div<{
 }>`
     border: 1px solid transparent;
 
-    ${({ selected, highlighted, fromSelect }) => {
+    ${({ selected, highlighted, fromSelect, theme }) => {
         if (selected) {
-            return `border: ${SELECT_COLOR} 1px solid; background-color: ${SELECT_COLOR}20;`;
+            return `border: ${theme.styles['action-button-focus-border-color']} 1px solid; background-color: ${theme.styles['dropdown-menu-item-hover-color']};`;
         }
         if (highlighted) {
             if (fromSelect) {
-                return `background-color: ${SELECT_COLOR}20;`;
+                return `background-color: ${theme.styles['dropdown-menu-item-hover-color']};`;
             }
-            return `background-color: ${HOVER_COLOR}20;`;
+            return `background-color: ${theme.styles['dropdown-menu-item-hover-color']};`;
         }
         return 'background-color: white;';
     }}
+
     border-radius: 4px;
     color: ${({ disabled }) => (disabled ? ANTD_GRAY[11] : ANTD_GRAY[7])};
     display: flex;
-    font-size: 10px;
+    font-size: 14px;
     gap: 4px;
-    max-height: 20.5px;
+    height: 28px;
     padding: 3px;
     position: relative;
     overflow: hidden;
@@ -97,6 +99,7 @@ const CustomHandle = styled(Handle)<{ position: Position }>`
 const TypeWrapper = styled.div`
     color: ${ANTD_GRAY[7]};
     width: 11px;
+    margin-right: 4px;
 `;
 
 const ColumnLinkWrapper = styled(Link)`

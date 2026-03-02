@@ -1,18 +1,22 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
+
+ * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by
+ * the National Digital Twin Programme.
  *
- * This file is unmodified from its original version developed by Acryl Data, Inc.,
- * and is now included as part of a repository maintained by the National Digital Twin Programme.
- * All support, maintenance and further development of this code is now the responsibility
- * of the National Digital Twin Programme.
+ * Modifications made by the National Digital Twin Programme (NDTP)
+ * © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+ * and is legally attributed to the Department for Business and Trade (UK) as the governing
+ * entity.
  */
-import { CameraOutlined } from '@ant-design/icons';
 import { toPng } from 'html-to-image';
 import React, { useContext } from 'react';
 import { getRectOfNodes, getTransformForBounds, useReactFlow } from 'reactflow';
 
 import { LineageNodesContext } from '@app/lineageV2/common';
 import { StyledPanelButton } from '@app/lineageV2/controls/StyledPanelButton';
+
+import CameraIcon from '@images/dt-camera.svg?react';
 
 type Props = {
     showExpandedText: boolean;
@@ -74,7 +78,7 @@ export default function DownloadLineageScreenshotButton({ showExpandedText }: Pr
                 getPreviewImage();
             }}
         >
-            <CameraOutlined />
+            <CameraIcon />
             {showExpandedText ? 'Screenshot' : null}
         </StyledPanelButton>
     );
