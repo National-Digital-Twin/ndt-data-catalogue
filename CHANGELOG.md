@@ -18,18 +18,25 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ---
 
-## [0.90.4]
+## [Unreleased]
 
+### Sync Playbook
+
+#### Updated
+
+- Updated Sync Playbook to include important steps for merging..
+
+## [0.90.4]
 
 ### Initial Reskin of the UI
 
-### Added
+#### Added
 
 - Added new Digital Twin theme
 - Added new Digital Twin colour palette
 - Added Data Catalogue logo to top navigation
 
-### Changed
+#### Changed
 
 - Removed the DataHub Logo
 - Applied the new Digital Twin theme to the UI
@@ -39,20 +46,22 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ### Upstream Sync and Examples
 
-### Added
+#### Added
 
+- Added initial Sync Playbook to support the process of syncing from upstream.
 - HydroLineage example pipeline folder at [example-data-pipelines/hydroLineage](example-data-pipelines/hydroLineage).
 - Synced upstream releases:
-   - v1.4.0.3 see [DataHub](https://github.com/datahub-project/datahub/releases/tag/v1.4.0.3)
-   - v1.4.0.2 see [DataHub](https://github.com/datahub-project/datahub/releases/tag/v1.4.0.2)
-   - v1.4.0 see [DataHub](https://github.com/datahub-project/datahub/releases/tag/v1.4.0)
+  - v1.4.0.3 see [DataHub](https://github.com/datahub-project/datahub/releases/tag/v1.4.0.3)
+  - v1.4.0.2 see [DataHub](https://github.com/datahub-project/datahub/releases/tag/v1.4.0.2)
+  - v1.4.0 see [DataHub](https://github.com/datahub-project/datahub/releases/tag/v1.4.0)
+
 ---
 
 ## [0.90.3]
 
 ### Enhancing Sync Workflows
 
-### Added
+#### Added
 
 - Add GitHub Actions for intermediate merge, sync, and upstream PR creation
 
@@ -62,7 +71,7 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ### Fixing Sync Workflow Permissions
 
-### Fixed
+#### Fixed
 
 - Update sync workflows to use GitHub apps with appropriate permissions
 
@@ -72,7 +81,7 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ### Adding sync workflows
 
-### Added
+#### Added
 
 - Added GitHub workflows for helpers in syncing from upstream.
 - Added GitHub workflows for building docker images.
@@ -83,13 +92,13 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ### Initial Public Release
 
-### Added
+#### Added
 
 - Added new documentation to bring the repo in line with OSPO standards. Files added include ACKNOWLEDGEMENTS.md, CHANGELOG.md, CODE_OF_CONDUCT.md, CONTRIBUTING.md, LICENSE.MD, MAINTAINERS.md, NOTICE.md and OGL_LICENSE.md.
 - Added GitHub workflows from the archetypes template repo.
 - Added configuration files for skywalking-eyes
 
-### Changed
+#### Changed
 
 - Modified existing markdown files such as README and SECURITY to bring them in line with OSPO standards and remove links to, and reference to anything specific to the DataHub project.
 - Modified CODEOWNERS to reflect new ownership.
