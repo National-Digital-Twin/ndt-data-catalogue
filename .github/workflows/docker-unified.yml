@@ -19,7 +19,7 @@ on:
       - master
       - releases/**
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
+    types: [opened, synchronize, reopened]
     branches:
       - "**"
   release:
@@ -29,7 +29,7 @@ concurrency:
   # Using `github.run_id` (unique val) instead of `github.ref` here
   # because we don't want to cancel this workflow on master only for PRs
   #   as that makes reproducing issues easier
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}-${{ github.event.action == 'labeled' }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 env:
@@ -95,6 +95,36 @@ jobs:
           echo "publish=${{ env.ENABLE_PUBLISH }}" >> "$GITHUB_OUTPUT"
       - uses: ./.github/actions/ci-optimization
         id: ci-optimize
+
+      - name: Determine runner type
+        # This is set to false since ndtp are using standard github runners unlike upstream for all builds and tests
+        # but keeping this step in case to reduce conflict when merging upstream changes
+        if: false
+        id: set-runner
+        # This needs to handle two scenarios:
+        # 1. Running on a PR from a fork. We use github runners, unless the "depot" label exists -- in which case, we run
+        #    it on depotNote, concurrency is lower when using github runners, queue times can be longer, test time is longer
+        #    due to fewer parallel jobs.
+        # 3. Running on a PR from a branch in the datahub-project org and push/schedule events on master.
+        #    Depot is used here for remote container builds in base_build and also for all runners. Depot runners support unlimited concurrency
+        #    and hence short queue times and higher parallelism of smoke tests
+        run: |
+          if [[ "${{ env.DOCKER_CACHE }}" == "DEPOT" && "${{ env.IS_FORK }}" == "false" ]]; then
+            echo "build_runner_type=depot-ubuntu-24.04-4" >> "$GITHUB_OUTPUT"
+            echo "test_runner_type=depot-ubuntu-24.04-4" >> "$GITHUB_OUTPUT"
+            echo "test_runner_type_small=depot-ubuntu-24.04-small" >> "$GITHUB_OUTPUT"
+            echo "use_depot_cache=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "build_runner_type=ubuntu-latest" >> "$GITHUB_OUTPUT"
+            if [[ "${{ env.HAS_DEPOT_LABEL }}" == "true" ]]; then
+              echo "test_runner_type=depot-ubuntu-24.04-4" >> "$GITHUB_OUTPUT"
+            else
+              echo "test_runner_type=ubuntu-latest" >> "$GITHUB_OUTPUT"
+            fi
+            echo "test_runner_type_small=ubuntu-latest" >> "$GITHUB_OUTPUT"
+            echo "use_depot_cache=false" >> "$GITHUB_OUTPUT"
+            # publishing is currently only supported via depot
+          fi
 
       - name: Compute UV Cache Key
         id: uv-cache-key
@@ -752,23 +782,25 @@ jobs:
         with:
           name: cypress-snapshots-${{ matrix.test_strategy }}-${{ matrix.batch }}
           path: smoke-test/tests/cypress/cypress/screenshots/
-      - uses: actions/upload-artifact@v4
-        if: always()
+      - name: Report test results
+        if: (!cancelled())
+        uses: ./.github/actions/report-test-results
         with:
-          name: Test Results (smoke tests) ${{ matrix.test_strategy }} ${{ matrix.batch }}
-          path: |
-            **/build/reports/tests/test/**
-            **/build/test-results/test/**
+          artifact-name: Test Results (smoke tests) ${{ matrix.test_strategy }} ${{ matrix.batch }}
+          test-results-paths: |
             **/smoke-test-results/cypress-test-*.xml
             **/junit.*.xml
             !**/binary/**
+          junit-file-globs: |
+            **/smoke-test-results/cypress-test-*.xml
+            **/junit.*.xml
       - name: Send failed test metrics to PostHog
         if: failure()
         continue-on-error: true
         env:
           POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
           POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
-          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+          GH_HEAD_REF: ${{ github.head_ref || github.ref_name }}
         run: |
           if [ -z "$POSTHOG_API_KEY" ]; then
             echo "⚠️ POSTHOG_API_KEY not configured, skipping test failure metrics"
@@ -787,7 +819,7 @@ jobs:
             --posthog-host "${POSTHOG_HOST:-https://app.posthog.com}" \
             --repository "${{ github.repository }}" \
             --workflow-name "${{ github.workflow }}" \
-            --branch "$BRANCH_NAME" \
+            --branch "${GH_HEAD_REF}" \
             --run-id "${{ github.run_id }}" \
             --run-attempt "${{ github.run_attempt }}" \
             --batch "${{ matrix.batch }}" \

@@ -184,6 +184,7 @@ export const NavSidebar = () => {
                 link: PageRoutes.ROOT,
                 onlyExactPathMapping: true,
                 onClick: () => handleHomeclick(),
+                dataTestId: 'nav-bar-item-home',
             },
         ],
     };

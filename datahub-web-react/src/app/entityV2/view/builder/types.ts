@@ -6,6 +6,7 @@
  * All support, maintenance and further development of this code is now the responsibility
  * of the National Digital Twin Programme.
  */
+import { FacetFilter } from '@types';
 
 export enum ViewBuilderMode {
     /**
@@ -17,3 +18,15 @@ export enum ViewBuilderMode {
      */
     EDITOR,
 }
+
+/**
+ * Represents a single filter criterion within a View definition.
+ * Used as the intermediate representation between the UI filter tabs
+ * and the backend-compatible FacetFilter format.
+ */
+export type ViewFilter = {
+    field: string;
+    values: string[];
+    condition?: FacetFilter['condition'];
+    negated?: boolean;
+};

@@ -66,9 +66,10 @@ class UnityCatalogProfilerConfig(ConfigModel):
     method: str = Field(
         description=(
             "Profiling method to use."
-            " Options supported are `ge` and `analyze`."
+            " Options supported are `ge`, `analyze`, and `sqlalchemy`."
             " `ge` uses Great Expectations and runs SELECT SQL queries on profiled tables."
             " `analyze` calls ANALYZE TABLE on profiled tables. Only works for delta tables."
+            " `sqlalchemy` uses the custom SQLAlchemy-based profiler (no GE dependency)."
         ),
     )
 
@@ -134,8 +135,20 @@ class UnityCatalogAnalyzeProfilerConfig(UnityCatalogProfilerConfig):
         return not self.profile_table_level_only
 
 
+# TODO: should this max_wait_secs had been implemented as a global profiler feature instead of keeping it specific to Unity Catalog?
 class UnityCatalogGEProfilerConfig(UnityCatalogProfilerConfig, GEProfilingConfig):
     method: Literal["ge"] = "ge"
+
+    max_wait_secs: Optional[int] = Field(
+        default=None,
+        description="Maximum time to wait for a table to be profiled.",
+    )
+
+
+class UnityCatalogSQLAlchemyProfilerConfig(
+    UnityCatalogProfilerConfig, GEProfilingConfig
+):
+    method: Literal["sqlalchemy"] = "sqlalchemy"
 
     max_wait_secs: Optional[int] = Field(
         default=None,
@@ -311,7 +324,9 @@ class UnityCatalogSourceConfig(
 
     # TODO: Remove `type:ignore` by refactoring config
     profiling: Union[
-        UnityCatalogGEProfilerConfig, UnityCatalogAnalyzeProfilerConfig
+        UnityCatalogGEProfilerConfig,
+        UnityCatalogAnalyzeProfilerConfig,
+        UnityCatalogSQLAlchemyProfilerConfig,
     ] = Field(  # type: ignore
         default=UnityCatalogGEProfilerConfig(),
         description="Data profiling configuration",

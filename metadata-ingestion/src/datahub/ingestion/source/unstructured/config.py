@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import Field, field_validator
 
-from datahub.configuration.common import ConfigModel
+from datahub.configuration.common import ConfigModel, TransparentSecretStr
 
 # ===== Unstructured Processing Configs =====
 
@@ -25,7 +25,9 @@ class PartitionConfig(ConfigModel):
     partition_by_api: bool = Field(
         default=False, description="Use Unstructured API for partitioning"
     )
-    api_key: Optional[str] = Field(default=None, description="Unstructured API key")
+    api_key: Optional[TransparentSecretStr] = Field(
+        default=None, description="Unstructured API key"
+    )
     split_pdf_page: bool = Field(
         default=False, description="Enable page-level splitting for large PDFs"
     )

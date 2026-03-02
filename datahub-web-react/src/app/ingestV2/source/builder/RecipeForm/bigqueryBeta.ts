@@ -39,6 +39,7 @@ export const PROJECT_ALLOW: FilterRecipeField = {
     fieldPath: projectIdAllowFieldPath,
     rules: null,
     section: 'Projects',
+    filteringResource: 'Project',
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, projectIdAllowFieldPath),
 };
@@ -56,6 +57,7 @@ export const PROJECT_DENY: FilterRecipeField = {
     fieldPath: projectIdDenyFieldPath,
     rules: null,
     section: 'Projects',
+    filteringResource: 'Project',
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, projectIdDenyFieldPath),
 };
@@ -73,6 +75,7 @@ export const DATASET_ALLOW: FilterRecipeField = {
     fieldPath: datasetAllowFieldPath,
     rules: null,
     section: 'Datasets',
+    filteringResource: 'Dataset',
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, datasetAllowFieldPath),
 };
@@ -90,6 +93,7 @@ export const DATASET_DENY: FilterRecipeField = {
     fieldPath: datasetDenyFieldPath,
     rules: null,
     section: 'Datasets',
+    filteringResource: 'Dataset',
     setValueOnRecipeOverride: (recipe: any, values: string[]) =>
         setListValuesOnRecipe(recipe, values, datasetDenyFieldPath),
 };

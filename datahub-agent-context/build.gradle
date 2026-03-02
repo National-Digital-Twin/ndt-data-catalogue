@@ -1,8 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0  */
-/*
- * Originally developed by Acryl Data, Inc.; subsequently adapted, enhanced, and maintained by the National Digital Twin Programme.
- */
-/*
+
 /**
 * Copyright 2025 Acryl Data, Inc.
 *
@@ -18,6 +15,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 /*
  * This file is unmodified from its original version developed by Acryl Data, Inc.,
  * and is now included as part of a repository maintained by the National Digital Twin Programme.
@@ -105,20 +103,15 @@ task installDevTest(type: Exec, dependsOn: [installDev]) {
       "touch ${sentinel_file}"
 }
 
-task testQuick(type: Exec, dependsOn: [installDevTest]) {
-  inputs.files(project.fileTree(dir: "src/", include: "**/*.py"))
-  inputs.files(project.fileTree(dir: "tests/", include: "**/*.py"))
-  commandLine 'bash', '-c',
-      "source ${venv_name}/bin/activate && set -x && " +
-      "pytest -vv --continue-on-collection-errors --junit-xml=junit.quick.xml"
-}
-
 task testFull(type: Exec, dependsOn: [installDevTest]) {
   inputs.files(project.fileTree(dir: "src/", include: "**/*.py"))
   inputs.files(project.fileTree(dir: "tests/", include: "**/*.py"))
+  inputs.file file("pyproject.toml")
+  inputs.file file("setup.cfg")
+  inputs.file file("setup.py")
   commandLine 'bash', '-c',
       "source ${venv_name}/bin/activate && set -x && " +
-      "pytest -vv --continue-on-collection-errors --junit-xml=junit.full.xml"
+      "pytest -vv ${get_coverage_args('full')} --continue-on-collection-errors"
 }
 
 task cleanPythonCache(type: Exec) {

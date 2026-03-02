@@ -403,23 +403,37 @@ def is_valid_license_header(content_chunk: str) -> bool:
 
 def find_after_block(style: dict, content: str) -> Tuple[Optional[int], Optional[str]]:
     """Find and return the 'after' block if present in the file.
-    
+
+    The upstream styles.yaml (apache/skywalking-eyes) ships with
+    ``after: '(?m)^*#!.+$'`` for the Hashtag style.  That regex is
+    invalid in Python's ``re`` module (``^*`` raises *nothing to repeat*).
+    When the pattern fails to compile we fall back to a plain check for a
+    shebang on the first line so the header is still placed correctly.
+
     Returns:
         Tuple of (end_index, block_content) or (None, None) if not found
     """
     after_regex = style.get("after")
     if not after_regex:
         return None, None
-        
+
     try:
         after_pat = re.compile(after_regex, re.MULTILINE)
-    except Exception:
+        match = after_pat.search(content[:1024])
+        if match:
+            return match.end(), match.group(0)
         return None, None
-        
-    match = after_pat.search(content[:1024])
-    if match:
-        return match.end(), match.group(0)
-    return None, None
+    except re.error:
+        # The upstream pattern is not valid Python regex — fall back to a
+        # raw shebang check so we still insert the header after '#!'.
+        first_line_end = content.find("\n")
+        if first_line_end != -1:
+            first_line = content[:first_line_end]
+        else:
+            first_line = content[:1024]
+        if first_line.startswith("#!"):
+            return first_line_end + 1, first_line
+        return None, None
 
 
 def add_ndt_header_to_file(content: str, style: dict) -> Optional[str]:
@@ -673,15 +687,15 @@ def resolve_style_for_file(file_path: str, ext_to_style: Dict[str, dict]) -> Opt
         return None
 
     if first_line.startswith("#!"):
-        shebang = first_line.lower()
-        if any(shell in shebang for shell in ("bash", "sh", "zsh", "ksh", "dash", "ash")):
-            return ext_to_style.get(".sh") or {
-                "id": "Hashtag",
-                "start": "#",
-                "middle": "#",
-                "end": "#",
-                "after": "(?m)^#!.*$",
-            }
+        # Any shebang-based script uses hash-line comments; return the Hashtag
+        # style so the header is inserted *after* the shebang line.
+        return ext_to_style.get(".sh") or {
+            "id": "Hashtag",
+            "start": "#",
+            "middle": "#",
+            "end": "#",
+            "after": "(?m)^#!.*$",
+        }
 
     return None
 

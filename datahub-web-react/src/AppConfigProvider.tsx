@@ -11,6 +11,7 @@ import '@src/App.less';
 import React, { useEffect } from 'react';
 
 import { SERVER_VERSION_KEY, THIRD_PARTY_LOGGING_KEY } from '@app/analytics/analytics';
+import UpdateGlobalFlags from '@app/appConfig/UpdateGlobalFlags';
 import { checkAuthStatus } from '@app/auth/checkAuthStatus';
 import { AppConfigContext, DEFAULT_APP_CONFIG } from '@src/appConfigContext';
 
@@ -71,6 +72,7 @@ const AppConfigProvider = ({ children }: { children: React.ReactNode }) => {
                 refreshContext: refreshAppConfig,
             }}
         >
+            <UpdateGlobalFlags />
             {children}
         </AppConfigContext.Provider>
     );

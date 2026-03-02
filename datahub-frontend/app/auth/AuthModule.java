@@ -332,7 +332,7 @@ public class AuthModule extends AbstractModule {
     try {
       if (tsConfig.isValid()) {
         return CustomHttpClientFactory.getApacheHttpClient(
-            tsConfig.path, tsConfig.password, tsConfig.type);
+            tsConfig.path, tsConfig.password, tsConfig.type, tsConfig.sslEnabledProtocols);
       } else {
         return HttpClients.createDefault();
       }
@@ -348,7 +348,7 @@ public class AuthModule extends AbstractModule {
     try {
       if (tsConfig.isValid()) {
         return CustomHttpClientFactory.getJavaHttpClient(
-            tsConfig.path, tsConfig.password, tsConfig.type);
+            tsConfig.path, tsConfig.password, tsConfig.type, tsConfig.sslEnabledProtocols);
       } else {
         return HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
       }

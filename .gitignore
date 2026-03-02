@@ -67,6 +67,11 @@ out/
 **/spark-lineage/**/out*.csv/
 **/spark-lineage/coalesce-test/
 
+#spark-lineage-legacy (test output; avoid "location already exists" in CI)
+**/spark-lineage-legacy/**/derby.log
+**/spark-lineage-legacy/**/hive/
+**/spark-lineage-legacy/**/out*.csv/
+
 #VS Code
 .vscode
 .devcontainer
@@ -104,10 +109,18 @@ coverage*.xml
 # Local dev environment overrides (user-specific GMS/Kafka settings)
 docker/profiles/my-settings.env
 
+# Claude ignores
+.claude/
 **/.claude/settings.local.json
+# Claude agent files (session-specific, not to be committed)
+**/.claude/agents/
 **/.claude/*.md
 
-# A long series of binary directories we should ignore
+# Environment files with credentials
+.env*
+*.env
+
+# A bunch of binaries we never ever want to add
 datahub-frontend/bin/main/
 datahub-frontend/bin/test/
 datahub-graphql-core/bin/
@@ -147,13 +160,14 @@ metadata-service/war/bin/
 metadata-utils/bin/
 test-models/bin/
 
-datahub-executor/
-datahub-integrations-service/
-metadata-ingestion-modules/acryl-cloud
+# Git credentials (should never be committed)
+.git-credentials
 
 # node
 node_modules
 
+# Git Worktree management (wtp)
+.wtp.yml
+
 # remove claude files from the remote repo until a decision is made with NDTP regarding which AI provider to use
-.claude/
 CLAUDE.md

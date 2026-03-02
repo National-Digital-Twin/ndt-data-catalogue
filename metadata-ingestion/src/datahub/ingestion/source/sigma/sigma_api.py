@@ -46,7 +46,7 @@ class SigmaAPI:
         data = {
             "grant_type": "client_credentials",
             "client_id": self.config.client_id,
-            "client_secret": self.config.client_secret,
+            "client_secret": self.config.client_secret.get_secret_value(),
         }
         response = self.session.post(f"{self.config.api_url}/auth/token", data=data)
         response.raise_for_status()
@@ -72,7 +72,7 @@ class SigmaAPI:
                 "grant_type": Constant.REFRESH_TOKEN,
                 "refresh_token": self.refresh_token,
                 "client_id": self.config.client_id,
-                "client_secret": self.config.client_secret,
+                "client_secret": self.config.client_secret.get_secret_value(),
             }
             post_response = self.session.post(
                 f"{self.config.api_url}/auth/token",

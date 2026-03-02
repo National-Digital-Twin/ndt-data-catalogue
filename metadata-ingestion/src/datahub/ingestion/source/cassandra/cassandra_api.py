@@ -125,7 +125,7 @@ class CassandraAPI:
                 profile = ExecutionProfile(request_timeout=cloud_config.request_timeout)
                 auth_provider = PlainTextAuthProvider(
                     "token",
-                    cloud_config.token,
+                    cloud_config.token.get_secret_value(),
                 )
                 cluster = Cluster(
                     cloud=cluster_cloud_config,
@@ -171,7 +171,8 @@ class CassandraAPI:
 
             if self.config.username and self.config.password:
                 auth_provider = PlainTextAuthProvider(
-                    username=self.config.username, password=self.config.password
+                    username=self.config.username,
+                    password=self.config.password.get_secret_value(),
                 )
                 cluster = Cluster(
                     [self.config.contact_point],

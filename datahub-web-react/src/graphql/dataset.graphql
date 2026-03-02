@@ -47,7 +47,7 @@ query getDataProfiles($urn: String!, $limit: Int, $startTime: Long, $endTime: Lo
     }
 }
 
-query getDataset($urn: String!) {
+query getDataset($urn: String!, $skipSiblingsSearch: Boolean = false) {
     dataset(urn: $urn) {
         ...nonSiblingDatasetFields
         siblings {
@@ -58,7 +58,7 @@ query getDataset($urn: String!) {
                 ...nonSiblingDatasetFields
             }
         }
-        siblingsSearch(input: { query: "*", count: 5 }) {
+        siblingsSearch(input: { query: "*", count: 5 }) @skip(if: $skipSiblingsSearch) {
             count
             total
             searchResults {
@@ -359,7 +359,7 @@ fragment assertionsQuery on Dataset {
     }
 }
 
-query getDatasetAssertions($urn: String!) {
+query getDatasetAssertions($urn: String!, $skipSiblingsSearch: Boolean = false) {
     dataset(urn: $urn) {
         ...assertionsQuery
         siblings {
@@ -370,7 +370,7 @@ query getDatasetAssertions($urn: String!) {
                 ...assertionsQuery
             }
         }
-        siblingsSearch(input: { query: "*", count: 5 }) {
+        siblingsSearch(input: { query: "*", count: 5 }) @skip(if: $skipSiblingsSearch) {
             count
             total
             searchResults {
@@ -410,7 +410,7 @@ fragment datasetSchema on Dataset {
     }
 }
 
-query getDatasetSchema($urn: String!) {
+query getDatasetSchema($urn: String!, $skipSiblingsSearch: Boolean = false) {
     dataset(urn: $urn) {
         ...datasetSchema
         siblings {
@@ -423,7 +423,7 @@ query getDatasetSchema($urn: String!) {
                 }
             }
         }
-        siblingsSearch(input: { query: "*", count: 5 }) {
+        siblingsSearch(input: { query: "*", count: 5 }) @skip(if: $skipSiblingsSearch) {
             count
             total
             searchResults {
@@ -557,13 +557,13 @@ query getOperationsStats($urn: String!, $range: TimeRange!) {
     }
 }
 
-query getDatasetAssertionsWithRunEvents($urn: String!) {
+query getDatasetAssertionsWithRunEvents($urn: String!, $skipSiblingsSearch: Boolean = false) {
     dataset(urn: $urn) {
         ...assertionsQueryWithRunEvents
         siblings {
             isPrimary
         }
-        siblingsSearch(input: { query: "*", count: 5 }) {
+        siblingsSearch(input: { query: "*", count: 5 }) @skip(if: $skipSiblingsSearch) {
             count
             total
             searchResults {

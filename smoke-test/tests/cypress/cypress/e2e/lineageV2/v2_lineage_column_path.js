@@ -28,9 +28,9 @@ const verifyColumnPathModal = (from, to) => {
     .should("be.visible");
 };
 
-const clickDownAndUpArrow = (asset, arrow) => {
+const clickDownAndUpArrow = (asset) => {
   cy.contains(".react-flow__node-lineage-entity", asset)
-    .find(`svg[data-testid="${arrow}"]`)
+    .find(`[data-testid="expand-contract-columns"]`)
     .click();
 };
 
@@ -51,11 +51,11 @@ describe("column-Level lineage and impact analysis path test", () => {
 
     // Enable “show columns” toggle
     cy.waitTextVisible("SampleCypressHdfs");
-    clickDownAndUpArrow("SampleCypressHdfsDataset", "KeyboardArrowDownIcon");
+    clickDownAndUpArrow("SampleCypressHdfsDataset");
     cy.waitTextVisible("shipment_info");
 
     // Verify functionality of column lineage
-    clickDownAndUpArrow("SampleCypressKafkaDataset", "KeyboardArrowDownIcon");
+    clickDownAndUpArrow("SampleCypressKafkaDataset");
     cy.get(upstreamColumn).contains("field_bar").click();
     cy.get(upstreamColumn)
       .contains("field_bar")

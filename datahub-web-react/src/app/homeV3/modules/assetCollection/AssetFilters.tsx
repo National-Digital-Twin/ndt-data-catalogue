@@ -29,6 +29,7 @@ const AssetFilters = ({ searchQuery, appliedFilters, updateFieldFilters }: Props
                 query={searchQuery ?? '*'}
                 appliedFilters={appliedFilters}
                 updateFieldAppliedFilters={updateFieldFilters}
+                viewUrn={null}
             />
         </FiltersContainer>
     );
