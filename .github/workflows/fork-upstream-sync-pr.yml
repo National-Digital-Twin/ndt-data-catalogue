@@ -356,7 +356,7 @@ jobs:
             if (prExists === 'true') {
               await core.summary
                 .addRaw('## ℹ️ PR Already Exists - Updated\n\n')
-                .addRaw(`An upstream sync PR was already open.${updateMsg}\n\n`)
+                .addRaw(`An upstream sync PR was already open.\n\n`)
                 .addRaw(`${updateMsg}\n\n`)
                 .addRaw(`**Existing PR:** [#${prNumber}](${prUrl})\n\n`)
                 .addRaw('**Action:** Please review the updated changes.\n')
