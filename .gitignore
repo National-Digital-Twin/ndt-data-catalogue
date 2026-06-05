@@ -169,5 +169,6 @@ node_modules
 # Git Worktree management (wtp)
 .wtp.yml
 
-# remove claude files from the remote repo until a decision is made with NDTP regarding which AI provider to use
+# remove claude files inherited from upstream repository
 CLAUDE.md
+.claude/
