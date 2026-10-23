@@ -247,7 +247,10 @@ jobs:
 
               const targetContent = readFileSync(targetPath, 'utf8');
 
-              if (existsSync(archetypePath)) {
+              if (context.repo.repo === 'archetypes') {
+                record.checks.differsFromTemplate = null;
+                core.info(`Skipping template comparison for ${targetPath}: target repository is the archetypes template itself.`);
+              } else if (existsSync(archetypePath)) {
                 const archetypeContent = readFileSync(archetypePath, 'utf8');
                 const differsFromTemplate = targetContent !== archetypeContent;
                 record.checks.differsFromTemplate = differsFromTemplate;
