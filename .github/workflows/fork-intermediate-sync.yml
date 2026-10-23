@@ -23,8 +23,8 @@ jobs:
         id: sync-token
         uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         with:
-          app-id: ${{ secrets.NDTP_REPOSITORY_WRITER_APP_CLIENT_ID }}
-          private-key: ${{ secrets.NDTP_REPOSITORY_WRITER_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.NODE_NET_REPOSITORY_WRITER_APP_CLIENT_ID }}
+          private-key: ${{ secrets.NODE_NET_REPOSITORY_WRITER_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: |
             ${{ github.event.repository.name }}

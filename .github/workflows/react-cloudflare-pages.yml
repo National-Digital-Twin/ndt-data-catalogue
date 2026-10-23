@@ -34,7 +34,7 @@ jobs:
       cloudflare_token_available: ${{ steps.cloudflare-token-check.outputs.cloudflare_token_available }}
     steps:
       - name: Check out the repo
-        uses: acryldata/sane-checkout-action@v4
+        uses: acryldata/sane-checkout-action@ad9618e2f67a71f3b86218f82bfbb9df12a15aee # v4
       - uses: ./.github/actions/ci-optimization
         id: ci-optimize
       - name: Check if cloudflare api token is available
@@ -55,13 +55,13 @@ jobs:
     if: ${{ github.event.pull_request.head.repo.fork != 'true' }}
     steps:
       - name: Check out the repo
-        uses: acryldata/sane-checkout-action@v4
+        uses: acryldata/sane-checkout-action@ad9618e2f67a71f3b86218f82bfbb9df12a15aee # v4
       - name: Set up JDK 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
           distribution: "zulu"
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4.4.3
       - name: Gradle build for frontend
         if: ${{ needs.setup.outputs.frontend_change == 'true' }}
         run: |

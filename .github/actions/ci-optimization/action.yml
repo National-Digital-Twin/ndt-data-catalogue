@@ -67,7 +67,7 @@ runs:
         else
           echo "trigger=pr" >> $GITHUB_OUTPUT
         fi
-    - uses: dorny/paths-filter@v3
+    - uses: dorny/paths-filter@0e4a8c6effa4802afeda77dc8d303f8176d7dfad # v3.0.4
       id: filter
       with:
         token: "" # Empty token forces it to use raw git commands.

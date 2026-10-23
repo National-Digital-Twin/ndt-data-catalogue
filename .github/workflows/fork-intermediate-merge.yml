@@ -24,8 +24,8 @@ jobs:
         id: sync-token
         uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         with:
-          app-id: ${{ secrets.NDTP_REPOSITORY_WRITER_APP_CLIENT_ID }}
-          private-key: ${{ secrets.NDTP_REPOSITORY_WRITER_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.NODE_NET_REPOSITORY_WRITER_APP_CLIENT_ID }}
+          private-key: ${{ secrets.NODE_NET_REPOSITORY_WRITER_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: |
             ${{ github.event.repository.name }}
@@ -33,7 +33,7 @@ jobs:
           permission-workflows: write
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0 # Full history for merge
           ref: develop
@@ -93,8 +93,8 @@ jobs:
         if: success() || failure()
         uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         with:
-          app-id: ${{ secrets.NDTP_PULL_REQUEST_CONTROLLER_APP_CLIENT_ID }}
-          private-key: ${{ secrets.NDTP_PULL_REQUEST_CONTROLLER_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.NODE_NET_PULL_REQUEST_CONTROLLER_APP_CLIENT_ID }}
+          private-key: ${{ secrets.NODE_NET_PULL_REQUEST_CONTROLLER_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: |
             ${{ github.event.repository.name }}
