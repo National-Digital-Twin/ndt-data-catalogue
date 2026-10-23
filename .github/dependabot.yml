@@ -12,9 +12,8 @@
 
 version: 2
 updates:
+  # target-branch intentionally omitted: action updates target main (auto-merged) and are back-merged to develop.
   - package-ecosystem: "github-actions" # See documentation for possible values
     directory: "/" # Location of package manifests
-    target-branch: "develop"
     schedule:
       interval: "weekly"
-    target-branch: "develop"

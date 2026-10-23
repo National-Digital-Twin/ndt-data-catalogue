@@ -32,7 +32,7 @@ The first thing to do is to find the PR created by the actions above. These will
 
 It's possible that one does not exist; this should only happen if one has already been merged this week. If that's the case, you can locate and run the `Fork - Create Upstream Sync PR` action.
 
-Once you've located that PR, get the branch name (something like `sync/upstream-mirror-pr-22351868093`) and run the following in your local clone of the [repo](https://github.com/National-Digital-Twin/ndt-data-catalogue.git):
+Once you've located that PR, get the branch name (something like `sync/upstream-mirror-pr-22351868093`) and run the following in your local clone of the [repo](https://github.com/National-Node-Net/ndt-data-catalogue.git):
 
 ```sh
 git fetch

@@ -2,7 +2,7 @@
 # License 
 
 ## Copyright Notice  
-© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
+© Crown Copyright 2026. This work has been developed by the National Digital Twin Programme and is legally attributed to the UK's Department for Business, Innovation, Science and Trade (BIST) as the governing entity.
 
 This work is licensed under the Apache License, Version 2.0.  
 
@@ -199,8 +199,8 @@ This work is licensed under the Apache License, Version 2.0.
       identification within third-party archives.
 
    Copyright 2015 LinkedIn Corp. All rights reserved.
-   Copyright 2025 Crown Copyright, National Digital Twin Programme,
-   legally attributed to the Department for Business and Trade (UK)
+   Crown Copyright 2026, National Digital Twin Programme,
+   legally attributed to the UK's Department for Business, Innovation, Science and Trade (BIST)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

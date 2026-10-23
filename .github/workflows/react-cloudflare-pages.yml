@@ -34,7 +34,7 @@ jobs:
       cloudflare_token_available: ${{ steps.cloudflare-token-check.outputs.cloudflare_token_available }}
     steps:
       - name: Check out the repo
-        uses: acryldata/sane-checkout-action@v4
+        uses: acryldata/sane-checkout-action@ad9618e2f67a71f3b86218f82bfbb9df12a15aee # v4
       - uses: ./.github/actions/ci-optimization
         id: ci-optimize
       - name: Check if cloudflare api token is available
@@ -49,30 +49,29 @@ jobs:
     runs-on: ubuntu-22.04
     permissions:
       contents: read
-      deployments: write
     timeout-minutes: 30
     needs: setup
     if: ${{ github.event.pull_request.head.repo.fork != 'true' }}
     steps:
       - name: Check out the repo
-        uses: acryldata/sane-checkout-action@v4
+        uses: acryldata/sane-checkout-action@ad9618e2f67a71f3b86218f82bfbb9df12a15aee # v4
       - name: Set up JDK 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
           distribution: "zulu"
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4.4.3
       - name: Gradle build for frontend
         if: ${{ needs.setup.outputs.frontend_change == 'true' }}
         run: |
           ./gradlew :datahub-web-react:build -x test -x check --parallel
+      # Adapted from upstream: https://github.com/datahub-project/datahub/pull/19866
+      # pages-action was unpublished (404); use official Wrangler with a full SHA for NNN policy.
       - name: Publish
         if: ${{ needs.setup.outputs.frontend_change == 'true' && needs.setup.outputs.cloudflare_token_available == 'true' }}
-        uses: cloudflare/pages-action@1
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: datahub-project-web-react
           workingDirectory: datahub-web-react
-          directory: dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          command: pages deploy dist --project-name=datahub-project-web-react
